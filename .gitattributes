@@ -1,0 +1,16 @@
+# Keep scripts Windows-friendly
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Docs + json can be LF (or keep crlf if you prefer; choose one)
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary
+*.png binary
+*.jpg binary
+*.pdf binary
+

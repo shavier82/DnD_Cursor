@@ -19,6 +19,11 @@ Validates agent outputs, then merges them into the final 3-block user-facing res
 
 ## Action Steps
 
+**CRITICAL:**
+- Run validate_agent_outputs.ps1 first.
+- If validation exit code != 0, STOP and output ONLY the validator output summary.
+- Do NOT run merge_outputs.ps1 after a validation failure.
+
 ### Step 1: Validate Agent Outputs
 **Run this command first:**
 ```powershell
