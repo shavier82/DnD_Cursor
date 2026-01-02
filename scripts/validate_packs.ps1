@@ -3,7 +3,17 @@
 # Returns exit code 0 if all valid, non-zero if any errors found
 
 $ErrorActionPreference = "Stop"
-$packDir = Join-Path $PSScriptRoot "..\packs"
+
+# Load paths config
+$configPath = Join-Path $PSScriptRoot "..\config\paths.json"
+if (-not (Test-Path $configPath)) {
+    Write-Host "ERROR: Config file not found: $configPath" -ForegroundColor Red
+    exit 1
+}
+
+$config = Get-Content $configPath -Raw | ConvertFrom-Json
+$packDir = $config.packs_dir
+
 $exitCode = 0
 $errors = @()
 
@@ -91,6 +101,29 @@ foreach ($file in $packFiles) {
             continue
         }
         
+        # Chapter pack specific validations
+        if ($content.pack_type -eq "chapter_pack") {
+            # Must have cards (PLAY-safe)
+            if ($content.cards.Count -eq 0) {
+                $errorMsg = "$($file.Name): chapter_pack must have at least one card"
+                $errors += $errorMsg
+                Write-Host " FAILED" -ForegroundColor Red
+                Write-Host "  $errorMsg" -ForegroundColor Red
+                $exitCode = 1
+                continue
+            }
+            
+            # Must NOT have raw_text (PLAY-safe)
+            if (Get-Member -InputObject $content -Name "raw_text" -MemberType NoteProperty) {
+                $errorMsg = "$($file.Name): chapter_pack must NOT contain raw_text (PLAY safety violation)"
+                $errors += $errorMsg
+                Write-Host " FAILED" -ForegroundColor Red
+                Write-Host "  $errorMsg" -ForegroundColor Red
+                $exitCode = 1
+                continue
+            }
+        }
+        
         Write-Host " OK" -ForegroundColor Green
         
     } catch {
@@ -105,11 +138,11 @@ foreach ($file in $packFiles) {
 Write-Host ""
 
 if ($exitCode -eq 0) {
-    Write-Host "✓ All pack files are valid!" -ForegroundColor Green
+    Write-Host "All pack files are valid!" -ForegroundColor Green
 } else {
-    Write-Host "✗ Validation failed. Errors found:" -ForegroundColor Red
+    Write-Host "Validation failed. Errors found:" -ForegroundColor Red
     foreach ($error in $errors) {
-        Write-Host "  - $error" -ForegroundColor Red
+        Write-Host ("  - " + $error) -ForegroundColor Red
     }
 }
 
