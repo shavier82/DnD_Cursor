@@ -215,13 +215,17 @@ powershell -ExecutionPolicy Bypass -File .\scripts\validate_agent_outputs.ps1 -S
 
 ### Running Build Scripts
 
-To avoid terminal hangs and profile loading delays, run build scripts with `-NoProfile`:
+Build scripts are written in Python for efficient handling of large text files:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_chapter_pack.ps1 -Chapter 1 -SkipRawText
+python scripts\build_chapter_pack.py --chapter 1
 ```
 
-The `-SkipRawText` flag prevents embedding large raw text into JSON (recommended for large chapters).
+For very large chapters, you can skip embedding raw text:
+
+```powershell
+python scripts\build_chapter_pack.py --chapter 1 --skip-raw-text
+```
 
 ## Configuration
 

@@ -8,7 +8,7 @@ Quick smoke tests to verify the system is working correctly.
 
 ```powershell
 cd C:\DnD\DnD_Cursor
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_chapter_pack.ps1 -Chapter 1 -SkipRawText
+python scripts\build_chapter_pack.py --chapter 1
 ```
 
 **Verify:**
