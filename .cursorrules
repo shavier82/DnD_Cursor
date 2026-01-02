@@ -1,0 +1,60 @@
+# D&D Campaign Management - Cursor Rules
+
+## CRITICAL SAFETY RULES
+
+### NO-LOOKUP PLAY RULES
+- When running D&D sessions, NEVER use web search or external lookups during active play
+- All game mechanics, rules, and content must come from local files only
+- Do NOT interrupt gameplay with external API calls or searches
+- Maintain immersion by using only pre-loaded campaign data
+
+### STRICT OUTPUT BLOCKS
+- All code blocks MUST use proper citation format for existing code
+- Use `startLine:endLine:filepath` format for code references
+- Use standard markdown code blocks for new/proposed code
+- NEVER mix formats or include line numbers in code content
+- NEVER indent triple backticks
+
+### CAMPAIGN DATA PROTECTION
+- Campaign data in `C:\DnD\Campaigns\Phandelver` is NEVER to be Git-tracked
+- NEVER run destructive Git commands that could affect campaign data
+- Campaign data MUST remain outside any Git repository, worktree, or OneDrive
+- Always verify file paths before any Git operations
+
+### SECRETS PROTECTION
+- NEVER commit secrets: OpenAI_Key.txt, google_credentials.json, .env, *.key, *.pem, *.pfx
+- Always check .gitignore before committing
+- If ambiguous, choose the safest option (don't commit secrets)
+
+### PARALLEL AGENT PROTECTION
+- Ignore all parallel agent temp outputs: .coord-*/, .cursor-worktrees/, .agent-id, .session-id
+- These are automatically ignored via .gitignore
+
+### WORKTREE PROTECTION
+- NEVER create worktrees that include campaign data
+- Campaign data MUST remain in `C:\DnD\Campaigns\Phandelver` (outside all repos)
+- If creating worktrees, ensure they only contain code, not campaign data
+
+### FILE OPERATIONS
+- Before deleting files, verify they are not campaign data
+- Before moving files, verify destination is safe
+- When in doubt, ask or choose the safest option
+
+### CHARACTER DATA VERIFICATION
+- When loading character abilities for combat, always read through character sheet files
+- Verify exact abilities, spells, and features from actual character data
+- Do not assume abilities based on class alone - check the actual character data
+- Reference the dungeon master text document, monster manual, and players manual before making decisions
+
+### OUTPUT FORMATTING
+- Use proper code citation format: ```startLine:endLine:filepath
+- Include at least 1 line of actual code in any reference block
+- Never include line numbers in code content
+- Triple backticks must start at column 0 (never indented)
+
+### GENERAL SAFETY
+- If anything is ambiguous, choose the safest option
+- Don't touch campaign data unless explicitly requested
+- Don't run destructive git commands without explicit confirmation
+- Always verify paths and operations before execution
+
