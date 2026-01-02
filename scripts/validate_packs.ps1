@@ -141,8 +141,8 @@ if ($exitCode -eq 0) {
     Write-Host "All pack files are valid!" -ForegroundColor Green
 } else {
     Write-Host "Validation failed. Errors found:" -ForegroundColor Red
-    foreach ($error in $errors) {
-        Write-Host ("  - " + $error) -ForegroundColor Red
+    foreach ($err in $errors) {
+        Write-Host ("  - " + $err) -ForegroundColor Red
     }
 }
 
