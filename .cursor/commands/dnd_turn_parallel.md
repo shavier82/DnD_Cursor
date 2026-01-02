@@ -1,5 +1,14 @@
 # /dnd_turn_parallel — Parallel Agents Dispatch (HARDENED)
 
+## Cursor Tool Output Limits (prevents connection bugs)
+**CRITICAL**: If a terminal/tool command would produce more than ~30 lines of output:
+- Redirect full output to a file under `C:\DnD\.coord-<session-id>\logs\`
+- Print ONLY a 10–20 line summary to chat
+- Never paste large command outputs into chat
+
+**If a debug session is active:**
+- Do not run tool-based commands; ask user to stop debug first
+
 ## Goal
 Fan-out a single player turn to 4 worker agents (REFEREE, NARRATOR, STATE_PATCHER, QA_COMPLIANCE).
 Each agent writes exactly one JSON output file to `C:\DnD\.coord-<session-id>\`.

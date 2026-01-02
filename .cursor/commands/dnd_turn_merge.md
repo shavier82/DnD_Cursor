@@ -1,5 +1,14 @@
 # /dnd_turn_merge - Merge Agent Outputs
 
+## Cursor Tool Output Limits (prevents connection bugs)
+**CRITICAL**: If a terminal/tool command would produce more than ~30 lines of output:
+- Redirect full output to a file under `C:\DnD\.coord-<session-id>\logs\`
+- Print ONLY a 10–20 line summary to chat
+- Never paste large command outputs into chat
+
+**If a debug session is active:**
+- Do not run tool-based commands; ask user to stop debug first
+
 ## Purpose
 Validates agent outputs, then merges them into the final 3-block user-facing response.
 
@@ -26,6 +35,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -File C:\DnD\DnD_Cursor\scripts\va
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File C:\DnD\DnD_Cursor\scripts\merge_outputs.ps1 -SessionId <session-id>
 ```
+
+**CRITICAL GUARDRAIL - Missing Files:**
+- If any of the four agent output files are missing, the merge script will output ONLY:
+  ```
+  BLOCKED: Pack missing required data: Missing agent output file <filename>
+  ```
+- **DO NOT attempt to "make do" or proceed with partial outputs**
+- **DO NOT create placeholder files or guess at missing data**
+- The merge script enforces this - if files are missing, it exits immediately with the BLOCKED message
 
 **Output to chat:**
 - Capture ONLY the final 3-block output (NARRATION, ASK, PATCH)
