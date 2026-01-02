@@ -7,17 +7,31 @@ A parallel agents architecture for running D&D campaigns with strict separation 
 ```
 C:\DnD\
 ├── DnD_Cursor\              # CODE REPO (Git-tracked)
-│   ├── packs\              # Pack JSON templates
+│   ├── config\             # Configuration files
 │   ├── scripts\            # PowerShell scripts
 │   ├── docs\               # Documentation
 │   └── .cursor\            # Cursor configuration
+├── Sourcebooks\            # BUILD-ONLY: Raw sourcebook text (.txt)
 ├── Campaigns\
 │   └── Phandelver\        # CAMPAIGN DATA (NOT Git)
-│       └── chapters\      # Chapter files
+│       ├── chapters\      # BUILD-ONLY: Raw chapter text dumps (.txt)
+│       └── packs\         # PLAY-ONLY: Generated JSON packs (runtime interface)
 ├── .coord-<session-id>\    # Coordination outputs (outside repo)
 └── workspaces\
     └── ksist-dnde.code-workspace
 ```
+
+### BUILD vs PLAY Separation
+
+**BUILD inputs (compile-time only):**
+- Raw `.txt` files in `C:\DnD\Sourcebooks\` (rules reference)
+- Raw `.txt` files in `C:\DnD\Campaigns\Phandelver\chapters\` (module text dumps)
+- These are processed by build scripts to generate JSON packs
+
+**PLAY inputs (runtime only):**
+- JSON packs in `C:\DnD\Campaigns\Phandelver\packs\` (generated from BUILD inputs)
+- Agents during PLAY **must not** read raw `.txt` files - only the compiled packs
+- This prevents agents from scanning 200+ pages mid-turn and causing drift/hangs
 
 ## Safety Rules
 

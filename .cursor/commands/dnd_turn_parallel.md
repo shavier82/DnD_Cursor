@@ -44,18 +44,24 @@ Workers may only use these read inputs:
 ### TURN_TEXT (required)
 - The user's latest action/intent (the current turn)
 
-### Read-only packs (repo)
-- `C:\DnD\DnD_Cursor\packs\session_preload.json`
-- `C:\DnD\DnD_Cursor\packs\chapter_pack_<n>.json` (current chapter)
-- `C:\DnD\DnD_Cursor\packs\encounter_pack.json`
+### Read-only packs (campaign)
+- `C:\DnD\Campaigns\Phandelver\packs\session_preload.json`
+- `C:\DnD\Campaigns\Phandelver\packs\chapter_pack_<n>.json` (current chapter)
+- `C:\DnD\Campaigns\Phandelver\packs\encounter_pack.json`
 
 ### Read-only state (optional)
 - `C:\DnD\Campaigns\Phandelver\saves\CURRENT_STATE.json` (if it exists)
 
+### Explicitly FORBIDDEN (BUILD-only inputs)
+- `C:\DnD\Sourcebooks\**` (raw sourcebook text - BUILD only)
+- `C:\DnD\Campaigns\Phandelver\chapters\**` (raw chapter text dumps - BUILD only)
+- Any `.txt` files in sourcebooks or chapters directories
+- PDF files anywhere
+
 ### DO NOT READ BEYOND THIS LIST
 - No browsing chapters/PDFs during PLAY.
 - No reading other repo files.
-- No reading any campaign files except CURRENT_STATE.json (optional).
+- No reading any campaign files except packs and CURRENT_STATE.json.
 
 ---
 
@@ -91,7 +97,7 @@ Workers may only use these read inputs:
 ### Worker A — REFEREE (mechanics only)
 **Allowed inputs:**
 - TURN_TEXT
-- pack files (3)
+- campaign pack files (3): `C:\DnD\Campaigns\Phandelver\packs\*.json`
 - optional CURRENT_STATE.json
 
 **Explicitly forbidden:**
@@ -129,7 +135,7 @@ Workers may only use these read inputs:
 ### Worker B — NARRATOR (narration only)
 **Allowed inputs:**
 - TURN_TEXT
-- pack files (3)
+- campaign pack files (3): `C:\DnD\Campaigns\Phandelver\packs\*.json`
 - optional CURRENT_STATE.json
 
 **Explicitly forbidden:**
@@ -160,7 +166,7 @@ Workers may only use these read inputs:
 ### Worker C — STATE_PATCHER (state deltas only)
 **Allowed inputs:**
 - TURN_TEXT
-- pack files (3)
+- campaign pack files (3): `C:\DnD\Campaigns\Phandelver\packs\*.json`
 - optional CURRENT_STATE.json
 - **AND the REFEREE output file ONLY:**
   - `C:\DnD\.coord-<session-id>\dnd_out_REFEREE.json` (read-only)
