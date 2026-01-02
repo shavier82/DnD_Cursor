@@ -167,15 +167,42 @@ def parse_character_data(text):
                 break
         
         if name_line:
-            # Race is typically 2-3 lines after character name
-            for offset in [2, 3, 4, 1, 5]:
+            # Race is typically 3 lines after character name (after class/level line and player name line)
+            # Common races: Dwarf, Elf, Halfling, Human, Dragonborn, Gnome, Half-Elf, Half-Orc, Tiefling
+            # Can be compound: "Hill Dwarf", "Wood Elf", etc.
+            common_races = ['Dwarf', 'Elf', 'Halfling', 'Human', 'Dragonborn', 'Gnome', 'Half-Elf', 
+                           'Half-Orc', 'Tiefling', 'Goliath', 'Aasimar', 'Genasi', 'Firbolg',
+                           'Goblin', 'Hobgoblin', 'Bugbear', 'Kobold', 'Orc', 'Yuan-Ti', 'Triton']
+            
+            # Skip player name line (usually has numbers/username pattern)
+            for offset in [3, 2, 4, 1, 5]:
                 if name_line + offset < len(lines):
                     candidate = lines[name_line + offset].strip()
-                    # Race names are usually single capitalized words, not field labels
-                    if (len(candidate) > 2 and len(candidate) < 30 and 
-                        candidate[0].isupper() and candidate.isalpha() and
-                        candidate not in ['Species', 'Race', 'Class', 'Level', 'Gladiator', 'Player',
-                                         'Background', 'Alignment', 'Character', 'Name', 'Player']):
+                    # Skip if looks like player name (has numbers, all lowercase, or username pattern)
+                    if re.match(r'^[a-z]+\d+', candidate) or candidate.islower() or len(candidate) < 3:
+                        continue
+                    
+                    # Race can be single word or compound (Hill Dwarf, Wood Elf)
+                    words = candidate.split()
+                    # Check if it contains a known race word or looks like a race
+                    is_race = False
+                    for word in words:
+                        if word in common_races or (word.endswith('Dwarf') or word.endswith('Elf') or 
+                                                    word.endswith('Orc') or word.endswith('Genasi')):
+                            is_race = True
+                            break
+                    
+                    # Backgrounds to exclude
+                    backgrounds = ['Soldier', 'Acolyte', 'Criminal', 'Folk Hero', 'Hermit',
+                                  'Noble', 'Sage', 'Sailor', 'Urchin', 'Entertainer', 'Guild Artisan',
+                                  'Guild Merchant', 'Outlander', 'Charlatan', 'Gladiator']
+                    
+                    if (is_race or 
+                        (len(candidate) > 2 and len(candidate) < 30 and 
+                         candidate[0].isupper() and 
+                         candidate not in ['Species', 'Race', 'Class', 'Level', 'Gladiator', 'Player',
+                                          'Background', 'Alignment', 'Character', 'Name'] + backgrounds and
+                         not re.match(r'^[a-z]+\d+', candidate))):  # Not a username
                         char_data['race'] = candidate
                         print(f"[parse] Found race at line {name_line + offset}: {candidate}")
                         break
