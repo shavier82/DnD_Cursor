@@ -209,6 +209,19 @@ powershell -ExecutionPolicy Bypass -File .\scripts\validate_agent_outputs.ps1 -S
 - `scripts\merge_outputs.ps1` - Merge agent outputs
 - `scripts\validate_packs.ps1` - Validate pack JSON files
 - `scripts\validate_agent_outputs.ps1` - Validate agent outputs
+- `scripts\build_session_preload.ps1` - Build session preload pack
+- `scripts\build_chapter_pack.ps1` - Build chapter pack from raw .txt
+- `scripts\build_encounter_pack.ps1` - Build encounter pack
+
+### Running Build Scripts
+
+To avoid terminal hangs and profile loading delays, run build scripts with `-NoProfile`:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_chapter_pack.ps1 -Chapter 1 -SkipRawText
+```
+
+The `-SkipRawText` flag prevents embedding large raw text into JSON (recommended for large chapters).
 
 ## Configuration
 
