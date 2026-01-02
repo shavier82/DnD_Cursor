@@ -12,102 +12,140 @@ import argparse
 import re
 from pathlib import Path
 from datetime import datetime
+from typing import List, Dict, Any
 
-def extract_cards_from_text(text, chapter_num):
-    """Extract structured cards from chapter text"""
-    cards = []
-    
-    # Pattern for location headers (H1, H2, etc.)
-    location_pattern = r'^H(\d+):\s+(.+?)$'
-    # Pattern for boxed text (usually indented or in quotes)
-    boxed_pattern = r'(?:^|\n)(?:When the characters|Read|You\'ve|This|The|A|An)\s+[^\.]+\.'
-    
-    lines = text.split('\n')
-    current_location = None
-    current_boxed = []
-    
-    for i, line in enumerate(lines):
-        # Match location headers (H1: Cave Mouth, etc.)
-        loc_match = re.match(location_pattern, line.strip())
-        if loc_match:
-            # Save previous location if exists
-            if current_location:
-                card = {
-                    "id": f"ch{chapter_num}_h{current_location['num']}_{current_location['id']}",
-                    "title": current_location['title'],
-                    "type": "location",
-                    "boxed_text": "\n".join(current_boxed).strip() if current_boxed else "",
-                    "mechanics": current_location.get('mechanics', ""),
-                    "references": f"Chapter {chapter_num}, {current_location['title']}"
-                }
-                cards.append(card)
-            
-            loc_num = loc_match.group(1)
-            loc_title = loc_match.group(2)
-            loc_id = re.sub(r'[^a-z0-9]+', '_', loc_title.lower()).strip('_')
-            
-            current_location = {
-                "num": loc_num,
-                "title": loc_title,
-                "id": loc_id,
-                "mechanics": ""
-            }
-            current_boxed = []
+# Heading patterns for different chapter formats
+HEADING_PATTERNS = [
+    # Classic keyed areas: H1: Cave Mouth
+    re.compile(r"^\s*([A-Z]{1,3}\d+)\s*[:\-]\s*(.+?)\s*$"),
+    # Alternate keyed areas: Area H1 - Cave Mouth
+    re.compile(r"^\s*(?:Area\s+)?([A-Z]{1,3}\d+)\s*[\-:]\s*(.+?)\s*$", re.IGNORECASE),
+    # Common subsection markers
+    re.compile(r"^\s*(Development|Treasure|Roleplaying|What(?:'|')?s Next\??|General Features)\s*\.?\s*$", re.IGNORECASE),
+]
+
+# "Title-ish" line: used as a fallback heading detector
+TITLEISH = re.compile(r"^[A-Z][A-Za-z0-9'(),:\-\s]{2,80}$")
+
+# DC/roll extraction patterns
+DC_CHECK = re.compile(r"\bDC\s+(\d+)\s+([A-Za-z]+)\s*\(([^)]+)\)\s+check\b", re.IGNORECASE)
+DC_SAVE = re.compile(r"\bDC\s+(\d+)\s+([A-Za-z]+)\s+saving throw\b", re.IGNORECASE)
+
+def slugify(s: str) -> str:
+    """Convert string to URL-safe slug"""
+    s = s.lower()
+    s = re.sub(r"[^a-z0-9]+", "_", s).strip("_")
+    return s[:60] if s else "section"
+
+def extract_gates(text: str) -> List[Dict[str, Any]]:
+    """Extract DC checks and saves from text"""
+    gates: List[Dict[str, Any]] = []
+    for m in DC_CHECK.finditer(text):
+        dc, ability, skill = int(m.group(1)), m.group(2), m.group(3)
+        gates.append({
+            "type": "check",
+            "dc": dc,
+            "ability": ability.title(),
+            "skill": skill.strip(),
+            "note": ""
+        })
+    for m in DC_SAVE.finditer(text):
+        dc, ability = int(m.group(1)), m.group(2)
+        gates.append({
+            "type": "save",
+            "dc": dc,
+            "ability": ability.title(),
+            "skill": "",
+            "note": ""
+        })
+    return gates
+
+def split_into_sections(raw: str) -> List[Dict[str, Any]]:
+    """Split chapter text into sections based on heading patterns"""
+    lines = [ln.rstrip() for ln in raw.replace("\r\n", "\n").split("\n")]
+    marks: List[Dict[str, Any]] = []
+
+    def mark(i: int, title: str, code: str = ""):
+        marks.append({"i": i, "title": title.strip(), "code": code.strip()})
+
+    for i, ln in enumerate(lines):
+        if not ln.strip():
             continue
-        
-        # Collect boxed text (read-aloud sections)
-        if current_location and line.strip().startswith(('You', 'The', 'This', 'A', 'An', 'When', 'Read')):
-            if len(line.strip()) > 20 and len(line.strip()) < 500:
-                current_boxed.append(line.strip())
-        
-        # Extract mechanics (DCs, checks, etc.)
-        if current_location:
-            dc_match = re.search(r'DC\s+(\d+)', line)
-            check_match = re.search(r'(?:Wisdom|Dexterity|Strength|Constitution|Intelligence|Charisma)\s*\(([^)]+)\)', line)
-            if dc_match or check_match:
-                if not current_location.get('mechanics'):
-                    current_location['mechanics'] = line.strip()
+
+        matched = False
+        for pat in HEADING_PATTERNS:
+            m = pat.match(ln)
+            if m:
+                if m.lastindex and m.lastindex >= 2:
+                    code = m.group(1)
+                    title = f"{code}: {m.group(2)}"
+                    mark(i, title=title, code=code)
+                else:
+                    mark(i, title=m.group(1), code="")
+                matched = True
+                break
+        if matched:
+            continue
+
+        # Title-ish fallback: must be surrounded by blank lines
+        if TITLEISH.match(ln):
+            prev_blank = (i == 0) or (not lines[i - 1].strip())
+            next_blank = (i == len(lines) - 1) or (not lines[i + 1].strip())
+            if prev_blank and next_blank:
+                mark(i, title=ln, code="")
+
+    # If nothing detected, return single section
+    if not marks:
+        return [{"title": "Chapter Overview", "body": raw.strip(), "code": ""}]
+
+    # Build sections
+    marks = sorted(set((m["i"], m["title"], m["code"]) for m in marks), key=lambda x: x[0])
+    sections: List[Dict[str, Any]] = []
+    for idx, (start_i, title, code) in enumerate(marks):
+        end_i = marks[idx + 1][0] if idx + 1 < len(marks) else len(lines)
+        body = "\n".join(lines[start_i + 1:end_i]).strip()
+        if not body:
+            continue
+        sections.append({"title": title, "body": body, "code": code})
     
-    # Save last location
-    if current_location:
-        card = {
-            "id": f"ch{chapter_num}_h{current_location['num']}_{current_location['id']}",
-            "title": current_location['title'],
-            "type": "location",
-            "boxed_text": "\n".join(current_boxed).strip() if current_boxed else "",
-            "mechanics": current_location.get('mechanics', ""),
-            "references": f"Chapter {chapter_num}, {current_location['title']}"
-        }
-        cards.append(card)
+    return sections or [{"title": "Chapter Overview", "body": raw.strip(), "code": ""}]
+
+def build_cards(chapter_num: int, raw: str) -> List[Dict[str, Any]]:
+    """Build cards from chapter text"""
+    sections = split_into_sections(raw)
+    cards: List[Dict[str, Any]] = []
     
-    # Extract scene/encounter cards
-    scene_patterns = [
-        (r'Goblin Ambush', 'scene', 'ch1_goblin_ambush'),
-        (r'Snare', 'trap', 'ch1_snare'),
-        (r'Pit Trap', 'trap', 'ch1_pit_trap'),
-        (r'Cragmaw Hideout', 'location', 'ch1_cragmaw_hideout'),
-    ]
-    
-    for pattern, card_type, card_id in scene_patterns:
-        if re.search(pattern, text, re.IGNORECASE):
-            # Extract nearby boxed text
-            pattern_pos = text.find(pattern)
-            if pattern_pos > 0:
-                context = text[max(0, pattern_pos-200):pattern_pos+500]
-                boxed = re.search(r'([^\.]+\.\s*){1,3}', context)
-                boxed_text = boxed.group(0).strip() if boxed else ""
-                
-                card = {
-                    "id": card_id,
-                    "title": pattern,
-                    "type": card_type,
-                    "boxed_text": boxed_text[:300],  # Limit length
-                    "mechanics": "",
-                    "references": f"Chapter {chapter_num}"
-                }
-                # Only add if not duplicate
-                if not any(c['id'] == card_id for c in cards):
-                    cards.append(card)
+    for n, sec in enumerate(sections, start=1):
+        title = sec["title"]
+        body = sec["body"]
+        gates = extract_gates(body)
+
+        # Determine card type
+        kind = "location" if re.match(r"^[A-Z]{1,3}\d+:", title) else "section"
+        card_id = f"ch{chapter_num:02d}_{slugify(title)}_{n:03d}"
+
+        # Limit body text to prevent huge cards
+        body_limited = body[:4000] if len(body) > 4000 else body
+
+        cards.append({
+            "id": card_id,
+            "type": kind,
+            "title": title,
+            "boxed_text": body_limited,
+            "mechanics": json.dumps(gates) if gates else "",
+            "references": f"Chapter {chapter_num}, {title}"
+        })
+
+    # Hard guarantee: never return 0 cards
+    if not cards:
+        cards.append({
+            "id": f"ch{chapter_num:02d}_overview_001",
+            "type": "section",
+            "title": "Chapter Overview",
+            "boxed_text": raw.strip()[:4000],
+            "mechanics": json.dumps(extract_gates(raw)),
+            "references": f"Chapter {chapter_num}"
+        })
     
     return cards
 
@@ -168,6 +206,8 @@ def main():
     packs_dir = Path(config['packs_dir'])
     elapsed = (time.time() - start_time) * 1000
     log(f"[build] Config loaded in {elapsed:.0f}ms")
+    log(f"[build] Chapters dir: {chapters_dir}")
+    log(f"[build] Packs dir: {packs_dir}")
     
     # Ensure packs directory and logs subdirectory exist
     packs_dir.mkdir(parents=True, exist_ok=True)
@@ -180,6 +220,7 @@ def main():
     
     if not chapter_file:
         log(f"ERROR: Chapter file not found for chapter {args.chapter}")
+        log(f"[build] Searched in: {chapters_dir}")
         sys.exit(1)
     
     log(f"[build] Using chapter file: {chapter_file}")
@@ -195,9 +236,22 @@ def main():
     # Extract cards
     log("[build] Extracting cards...")
     extract_start = time.time()
-    cards = extract_cards_from_text(raw_text, args.chapter)
+    cards = build_cards(args.chapter, raw_text)
     extract_elapsed = (time.time() - extract_start) * 1000
     log(f"[build] Extracted {len(cards)} cards in {extract_elapsed:.0f}ms")
+    
+    # Report heading patterns detected
+    heading_counts = {}
+    for card in cards:
+        card_type = card.get('type', 'unknown')
+        heading_counts[card_type] = heading_counts.get(card_type, 0) + 1
+    
+    if heading_counts:
+        log(f"[build] Heading patterns: {dict(heading_counts)}")
+    
+    if len(cards) == 0:
+        log("ERROR: No cards extracted - validation will fail")
+        sys.exit(1)
     
     # Build chapter pack (PLAY-safe: NO raw_text)
     log("[build] Building pack structure...")
@@ -240,7 +294,7 @@ def main():
     
     total_elapsed = (time.time() - start_time) * 1000
     log(f"[build] DONE: {output_path} ({total_elapsed:.0f}ms total, {pack_size_kb:.1f}KB)")
-    log(f"[build] Log: {log_path}")
+    log(f"[build] Cards: {len(cards)}, Log: {log_path}")
 
 if __name__ == "__main__":
     main()
