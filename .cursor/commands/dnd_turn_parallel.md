@@ -1,38 +1,58 @@
-# /dnd_turn_parallel — Parallel Agents Dispatch (HARDENED)
+# /dnd_turn_parallel — Parallel Agents Dispatch (HARDENED v2)
 
 ## Cursor Tool Output Limits (prevents connection bugs)
-**CRITICAL**: If a terminal/tool command would produce more than ~30 lines of output:
+**CRITICAL**: If a terminal/tool command would produce more than ~30 lines:
 - Redirect full output to a file under `C:\DnD\.coord-<session-id>\logs\`
 - Print ONLY a 10–20 line summary to chat
 - Never paste large command outputs into chat
 
 **If a debug session is active:**
-- Do not run tool-based commands; ask user to stop debug first
+- Do not run tool-based commands; stop debug first.
+
+---
+
+## IMPORTANT: Where to run this
+- Run `/dnd_turn_parallel` **in Cursor Chat** (the command palette chat), not in PowerShell.
+- PowerShell will NOT recognize `/dnd_turn_parallel` (it will throw CommandNotFound).
+
+---
 
 ## Goal
-Fan-out a single player turn to 4 worker agents (REFEREE, NARRATOR, STATE_PATCHER, QA_COMPLIANCE).
-Each agent writes exactly one JSON output file to `C:\DnD\.coord-<session-id>\`.
-No agent may write anywhere else.
+Fan-out a single player turn to 4 workers:
+- **REFEREE** (mechanics only)
+- **NARRATOR** (narration only)
+- **STATE_PATCHER** (state deltas only)
+- **QA_COMPLIANCE** (schema + guardrails)
+
+Each worker writes exactly one JSON file to:
+`C:\DnD\.coord-<session-id>\dnd_out_<ROLE>.json`
+
+No worker may write anywhere else.
+
+---
 
 ## Usage
 `/dnd_turn_parallel [session-id]`
 
-If `session-id` is omitted, generate: `dnd-YYYYMMDD-HHmmss`
+If omitted, generate: `dnd-$(Get-Date -Format 'yyyyMMdd-HHmmss')`
 
 ---
 
-## INPUT FENCE (agents may only use these inputs)
-**TURN_TEXT (required):** user's latest action/intent (the current turn)
+## INPUT FENCE (global)
+Workers may only use these read inputs:
 
-**Read-only packs (repo):**
+### TURN_TEXT (required)
+- The user's latest action/intent (the current turn)
+
+### Read-only packs (repo)
 - `C:\DnD\DnD_Cursor\packs\session_preload.json`
 - `C:\DnD\DnD_Cursor\packs\chapter_pack_<n>.json` (current chapter)
 - `C:\DnD\DnD_Cursor\packs\encounter_pack.json`
 
-**Read-only state (optional):**
+### Read-only state (optional)
 - `C:\DnD\Campaigns\Phandelver\saves\CURRENT_STATE.json` (if it exists)
 
-**DO NOT READ BEYOND THIS LIST**
+### DO NOT READ BEYOND THIS LIST
 - No browsing chapters/PDFs during PLAY.
 - No reading other repo files.
 - No reading any campaign files except CURRENT_STATE.json (optional).
@@ -47,7 +67,8 @@ If `session-id` is omitted, generate: `dnd-YYYYMMDD-HHmmss`
 2) Coordination directory MUST be:
 - `C:\DnD\.coord-<session-id>\`
 
-3) Create it if missing.
+3) Create subfolders if missing:
+- `C:\DnD\.coord-<session-id>\logs\`
 
 4) Safety checks (ABORT if violated):
 - Coord dir MUST NOT be inside:
@@ -56,7 +77,7 @@ If `session-id` is omitted, generate: `dnd-YYYYMMDD-HHmmss`
 
 ---
 
-## Step 2 — Dispatch 4 workers (parallel)
+## Step 2 — Dispatch workers (lane-locked)
 
 ### Global rules (ALL workers)
 - Write ONLY one file: your role's JSON output file (exact name below).
@@ -68,11 +89,20 @@ If `session-id` is omitted, generate: `dnd-YYYYMMDD-HHmmss`
 ---
 
 ### Worker A — REFEREE (mechanics only)
-**Allowed inputs:** TURN_TEXT + packs + optional CURRENT_STATE.json  
-**Forbidden:** narration/worldbuilding, state patches  
-**Output file:** `C:\DnD\.coord-<session-id>\dnd_out_REFEREE.json`
+**Allowed inputs:**
+- TURN_TEXT
+- pack files (3)
+- optional CURRENT_STATE.json
 
-**Strict schema (exact keys):**
+**Explicitly forbidden:**
+- Narration/worldbuilding
+- State patches / "what changes" assertions
+- Reading other agents' outputs
+
+**Output file:**
+- `C:\DnD\.coord-<session-id>\dnd_out_REFEREE.json`
+
+**Strict schema (no extra keys):**
 ```json
 {
   "agent_role": "REFEREE",
@@ -90,18 +120,27 @@ If `session-id` is omitted, generate: `dnd-YYYYMMDD-HHmmss`
 ```
 
 **Rules:**
-- Decide if a roll is required.
-- If required=true, fill in skill_or_check, dc, formula, reason.
-- mechanics_notes: array of short mechanics-only strings (no narration).
+- If a roll is required, set roll_request.required=true and fill skill_or_check, dc, formula, reason.
+- If no roll is required, roll_request must still exist (use defaults).
+- mechanics_notes is an array of strings; it may be empty.
 
 ---
 
 ### Worker B — NARRATOR (narration only)
-**Allowed inputs:** TURN_TEXT + encounter_pack + optional CURRENT_STATE.json  
-**Forbidden:** DCs, rolls, rules text, patches/state changes  
-**Output file:** `C:\DnD\.coord-<session-id>\dnd_out_NARRATOR.json`
+**Allowed inputs:**
+- TURN_TEXT
+- pack files (3)
+- optional CURRENT_STATE.json
 
-**Strict schema (exact keys):**
+**Explicitly forbidden:**
+- DCs, dice, mechanics rulings
+- State patches
+- Reading other agents' outputs
+
+**Output file:**
+- `C:\DnD\.coord-<session-id>\dnd_out_NARRATOR.json`
+
+**Strict schema (no extra keys):**
 ```json
 {
   "agent_role": "NARRATOR",
@@ -112,17 +151,29 @@ If `session-id` is omitted, generate: `dnd-YYYYMMDD-HHmmss`
 ```
 
 **Rules:**
-- Output only narration for the immediate moment.
-- Never mention dice/DC/modifiers/rules.
+- Narration must be a string.
+- If truly no narration: use "(none)".
+- No mechanics language like "DC 15", "roll", "advantage", etc.
 
 ---
 
 ### Worker C — STATE_PATCHER (state deltas only)
-**Allowed inputs:** TURN_TEXT + optional CURRENT_STATE.json + packs  
-**Forbidden:** narration, inventing stats, DCs/rolls  
-**Output file:** `C:\DnD\.coord-<session-id>\dnd_out_STATE_PATCHER.json`
+**Allowed inputs:**
+- TURN_TEXT
+- pack files (3)
+- optional CURRENT_STATE.json
+- **AND the REFEREE output file ONLY:**
+  - `C:\DnD\.coord-<session-id>\dnd_out_REFEREE.json` (read-only)
 
-**Strict schema (exact keys):**
+**Explicitly forbidden:**
+- Writing narration
+- Determining DCs or inventing roll outcomes
+- Reading NARRATOR or QA outputs
+
+**Output file:**
+- `C:\DnD\.coord-<session-id>\dnd_out_STATE_PATCHER.json`
+
+**Strict schema (no extra keys):**
 ```json
 {
   "agent_role": "STATE_PATCHER",
@@ -133,27 +184,35 @@ If `session-id` is omitted, generate: `dnd-YYYYMMDD-HHmmss`
 ```
 
 **Rules:**
-- patches MUST be an array.
-- If REFEREE roll_request.required=true this turn, patches MUST be [].
-- Otherwise output JSON Patch-like ops:
+- Read REFEREE output. If roll_request.required=true => you MUST output patches: [].
+- Only emit patches that are deterministic without a roll (e.g., "party moves to door" if movement is allowed and distance is known in state/packs).
+- If state is unknown (no CURRENT_STATE.json), be conservative: output patches: [].
+- Patch format (JSON Patch-like):
   - op: "add" | "replace" | "remove"
-  - path: JSON pointer (starts with "/")
-  - value: required for add/replace, omitted for remove
-- Example:
+  - path: JSON Pointer starting with /
+  - value: required for add/replace
+- Example patch:
   ```json
   [
-    { "op": "replace", "path": "/scene/torch_lit", "value": true }
+    { "op": "replace", "path": "/scene/door/status", "value": "opened" }
   ]
   ```
 
 ---
 
-### Worker D — QA_COMPLIANCE (validator only)
-**Allowed inputs:** the 3 worker JSON output files + rules in this doc  
-**Forbidden:** generating game content  
-**Output file:** `C:\DnD\.coord-<session-id>\dnd_out_QA_COMPLIANCE.json`
+### Worker D — QA_COMPLIANCE (validation only)
+**Allowed inputs:**
+- The four agent output files in the coordination directory (read-only)
+- Nothing else
 
-**Strict schema (exact keys):**
+**Explicitly forbidden:**
+- Changing content ("fixing" other agents)
+- Adding narration/mechanics/patches of its own
+
+**Output file:**
+- `C:\DnD\.coord-<session-id>\dnd_out_QA_COMPLIANCE.json`
+
+**Strict schema (no extra keys):**
 ```json
 {
   "agent_role": "QA_COMPLIANCE",
@@ -164,28 +223,29 @@ If `session-id` is omitted, generate: `dnd-YYYYMMDD-HHmmss`
 }
 ```
 
-**Checks:**
-- All 3 worker files exist and are valid JSON.
-- agent_role matches filename role.
-- blocked is boolean.
-- REFEREE has roll_request.required boolean.
-- NARRATOR has narration string.
-- STATE_PATCHER has patches array.
-- All files located ONLY in `C:\DnD\.coord-<session-id>\`.
-- If failures: status="fail" and issues populated.
-- If critical (missing files / wrong location): blocked=true.
+**Rules:**
+- Validate:
+  - All required files exist and are valid JSON
+  - agent_role matches each filename role
+  - Required keys exist per schema
+  - If REFEREE requires roll => STATE_PATCHER patches must be []
+  - Files are in `C:\DnD\.coord-<session-id>\` (not repo/campaign)
+- On failure: set status="fail" and populate issues[].
+- If failure is critical (wrong location / missing files): set blocked=true.
 
 ---
 
-## Step 3 — Deterministic wait (DO NOT MERGE EARLY)
+## Step 3 — Deterministic wait
 
-**Required files (exact names):**
-- `dnd_out_REFEREE.json`
-- `dnd_out_NARRATOR.json`
-- `dnd_out_STATE_PATCHER.json`
-- `dnd_out_QA_COMPLIANCE.json`
+**CRITICAL**: Do not proceed until all four output files exist.
 
-**Optional wait loop (PowerShell):**
+**Required filenames:**
+- dnd_out_REFEREE.json
+- dnd_out_NARRATOR.json
+- dnd_out_STATE_PATCHER.json
+- dnd_out_QA_COMPLIANCE.json
+
+**Optional PowerShell wait loop (write full output to logs if needed):**
 ```powershell
 $dir="C:\DnD\.coord-<session-id>"
 $need=@("dnd_out_REFEREE.json","dnd_out_NARRATOR.json","dnd_out_STATE_PATCHER.json","dnd_out_QA_COMPLIANCE.json")
@@ -194,18 +254,20 @@ for ($i=0; $i -lt 30; $i++) {
   if ($missing.Count -eq 0) { break }
   Start-Sleep -Seconds 1
 }
-if ($missing.Count -gt 0) { throw "Timeout missing: $($missing -join ', ')" }
+if ($missing.Count -gt 0) { throw "Timeout. Missing: $($missing -join ', ')" }
 ```
 
 ---
 
-## Step 4 — Next instruction
+## Step 4 — Next instruction to user
 
-When all 4 files exist:
+If all files exist:
 - Tell user: `Run /dnd_turn_merge <session-id>`
-- Do NOT merge inside this command.
+
+If any missing or QA failed:
+- Output only: `BLOCKED: Pack missing required data: <reason>`
 
 ---
 
 ## FILE INTEGRITY SENTINEL (do not remove)
-SENTINEL_SHA1: 6d1e7b2a9a1c9a2b5d2f0b52c9db2a5d5a9b2a55
+SENTINEL_SHA1: 9f2a7e3c1d4b7aa0c3c9f1d2a6b8c0d1e4f5a678
