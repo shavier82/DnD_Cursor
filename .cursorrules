@@ -7,7 +7,8 @@
 # QUICK START FOR NEW SESSIONS
 # -------------------------
 - **BEFORE STARTING:** Read `C:\DnD\DnD_Cursor\SESSION_START_GUIDE.md` for session initialization steps
-- **ALWAYS START BY:** Reading `C:\DnD\Campaigns\Phandelver\saves\CURRENT_STATE.json` to understand current situation
+- **ALWAYS START BY:** Reading `C:\DnD\Campaigns\<campaign>\saves\CURRENT_STATE.json` to understand current situation
+- **READ CAMPAIGN EVENTS:** Read `C:\DnD\Campaigns\<campaign>\saves\CAMPAIGN_EVENTS.json` to understand story context, NPC relationships, and past choices
 - **REFERENCE DOCS:** `CAMPAIGN_PATHS.md` for file locations, `.cursorrules` for rules
 
 # -------------------------
@@ -50,29 +51,31 @@ Forbidden in BUILD:
 ## PLAY MODE (runtime)
 Purpose: run turns using packs only. NO raw text scanning.
 Allowed inputs (read-only):
-- C:\DnD\Campaigns\Phandelver\packs\session_preload.json
-- C:\DnD\Campaigns\Phandelver\packs\chapter_pack_<n>.json
-- C:\DnD\Campaigns\Phandelver\packs\encounter_pack.json
-- **REQUIRED: C:\DnD\Campaigns\Phandelver\characters\*.json (character stats)**
-- Optional state: C:\DnD\Campaigns\Phandelver\saves\CURRENT_STATE.json
+- C:\DnD\Campaigns\<campaign>\packs\session_preload.json
+- C:\DnD\Campaigns\<campaign>\packs\chapter_pack_<n>.json
+- C:\DnD\Campaigns\<campaign>\packs\encounter_pack.json
+- **REQUIRED: C:\DnD\Campaigns\<campaign>\characters\*.json (character stats)**
+- **REQUIRED: C:\DnD\Campaigns\<campaign>\saves\CAMPAIGN_EVENTS.json (story context, NPC relationships, past choices)**
+- Optional state: C:\DnD\Campaigns\<campaign>\saves\CURRENT_STATE.json
 - Optional coordination: C:\DnD\.coord-<session-id>\dnd_out_*.json
 Forbidden in PLAY:
 - Reading any sourcebook/chapter .txt files
 - Browsing PDFs, repo docs, or chapter folders
 - "Looking up" rules outside the packs
-- Writing anywhere except coord outputs and CURRENT_STATE.json (if the engine does that explicitly)
+- Writing anywhere except coord outputs, CURRENT_STATE.json, and CAMPAIGN_EVENTS.json (if the engine does that explicitly)
 
 ## CAMPAIGN PATHS (CRITICAL - FILE LOCATIONS)
 - **CRITICAL: The campaign directory is `C:\DnD\Campaigns` (plural "Campaigns"), NOT `C:\DnD\Campaign` (singular).**
-- **Always use the correct path: `C:\DnD\Campaigns\Phandelver`**
+- **Always use the correct path: `C:\DnD\Campaigns\<campaign>`**
 - **If you cannot find campaign files, verify the path spelling:**
-  - Correct: `C:\DnD\Campaigns\Phandelver`
-  - Wrong: `C:\DnD\Campaign\Phandelver` (singular "Campaign" is incorrect)
+  - Correct: `C:\DnD\Campaigns\<campaign>`
+  - Wrong: `C:\DnD\Campaign\<campaign>` (singular "Campaign" is incorrect)
 - **Key directory structure:**
-  - Campaign root: `C:\DnD\Campaigns\Phandelver`
-  - Character files: `C:\DnD\Campaigns\Phandelver\characters\*.json`
-  - Chapter packs: `C:\DnD\Campaigns\Phandelver\packs\*.json`
-  - Save state: `C:\DnD\Campaigns\Phandelver\saves\CURRENT_STATE.json`
+  - Campaign root: `C:\DnD\Campaigns\<campaign>`
+  - Character files: `C:\DnD\Campaigns\<campaign>\characters\*.json`
+  - Chapter packs: `C:\DnD\Campaigns\<campaign>\packs\*.json`
+  - Save state: `C:\DnD\Campaigns\<campaign>\saves\CURRENT_STATE.json`
+  - Campaign events: `C:\DnD\Campaigns\<campaign>\saves\CAMPAIGN_EVENTS.json`
   - Config file: `C:\DnD\DnD_Cursor\config\paths.json`
 - **Path verification:**
   - If paths are not found, run: `powershell -ExecutionPolicy Bypass -File "C:\DnD\DnD_Cursor\scripts\verify_paths.ps1"`
@@ -82,7 +85,8 @@ Forbidden in PLAY:
 ## CHARACTER STATS LOADING (CRITICAL - PLAY MODE)
 - **Character stats MUST be loaded before any gameplay begins.**
 - During session initialization (`/dnd_session_init` or bootstrap):
-  - Validate that character JSON files exist in: C:\DnD\Campaigns\Phandelver\characters\*.json
+  - Validate that character JSON files exist in: C:\DnD\Campaigns\<campaign>\characters\*.json
+  - Load CAMPAIGN_EVENTS.json from: C:\DnD\Campaigns\<campaign>\saves\CAMPAIGN_EVENTS.json
   - Load all character files and verify they contain required fields: name, class, level, ac, hp (current/max), stats
   - If any required character file is missing or invalid: BLOCK and output:
     "BLOCKED: Missing or invalid character data: <character name or file>"
@@ -90,7 +94,7 @@ Forbidden in PLAY:
   - When a player character is mentioned in TURN_TEXT, load their character file
   - Use character's AC, HP, ability scores, and features from the JSON file
   - Do NOT assume or guess character stats - if file is missing, BLOCK
-- Character files are located at: C:\DnD\Campaigns\Phandelver\characters\<character-name>.json
+- Character files are located at: C:\DnD\Campaigns\<campaign>\characters\<character-name>.json
 - Required character file fields:
   - name (string)
   - class (string)
@@ -266,6 +270,8 @@ QA_COMPLIANCE: validate schemas/files/locations only.
 - Include target AC in mechanics_notes (e.g., "Goblin AC: 15").
 - **MAGICAL WEAPON MODIFIERS (CRITICAL):**
   - Before processing any attack, REFEREE MUST check equipped weapons from CSV_Inventory
+  - **Default weapon assumption:** If player doesn't specify weapon/attack type, use equipped weapon from CSV_Inventory
+  - **Multiple attack options:** If character has multiple attack options (e.g., beast attacks vs weapon), player should specify. If not specified, default to equipped weapon.
   - Apply weapon bonuses to attack and damage rolls:
     - +1 weapon: +1 to attack roll, +1 to damage roll
     - +2 weapon: +2 to attack roll, +2 to damage roll
@@ -335,7 +341,7 @@ QA_COMPLIANCE: validate schemas/files/locations only.
 ## REQUIRED DATA BEFORE COMBAT ACTIONS (CRITICAL)
 - **DO NOT process combat actions (attacks, damage, saves) without required character data.**
 - Before processing any attack (player or enemy), REFEREE must:
-  1. **Load the character's JSON file** from: C:\DnD\Campaigns\Phandelver\characters\<character-name>.json
+  1. **Load the character's JSON file** from: C:\DnD\Campaigns\<campaign>\characters\<character-name>.json
   2. Extract required stats: AC, HP (current/max), ability scores, resistances
   3. **Check equipped weapons from CSV_Inventory:**
      - Query CSV_Inventory for character's equipped weapons (equipped="Yes")
@@ -376,6 +382,76 @@ QA_COMPLIANCE: validate schemas/files/locations only.
   - Apply weapon bonuses (+1, +2, +3) to attack and damage rolls
   - Apply special weapon properties when conditions are met (e.g., max damage vs specific creature types)
   - Document weapon modifiers in mechanics_notes (e.g., "Hew: +1 attack, +1 damage, max damage vs Plants")
+
+## CAMPAIGN EVENTS SYSTEM (CRITICAL - STORY CONTINUITY - ALL CAMPAIGNS)
+- **CAMPAIGN_EVENTS.json tracks story events, choices, NPC relationships, and consequences across ALL campaigns.**
+- **File location:** `C:\DnD\Campaigns\<campaign>\saves\CAMPAIGN_EVENTS.json`
+- **MANDATORY: All agents MUST read CAMPAIGN_EVENTS.json at session start to understand story context.**
+- **Before any NPC interaction, REFEREE/NARRATOR MUST:**
+  1. **Load CAMPAIGN_EVENTS.json** from: `C:\DnD\Campaigns\<campaign>\saves\CAMPAIGN_EVENTS.json`
+  2. **Check NPC relationships** in `/npcs/<npc_name>/relationship` (e.g., "grateful", "hostile", "neutral")
+  3. **Review past interactions** in `/npcs/<npc_name>/interactions` array
+  4. **Check quest status** in `/quests/<quest_id>/status` if relevant
+  5. **Reference consequences** in `/consequences/` to understand how past choices affect current situation
+  6. **Use this context** to inform dialogue, reactions, and story progression
+- **AUTOMATIC EVENT TRACKING (CRITICAL):**
+  - **The system automatically tracks events from state changes** - no manual intervention needed
+  - **Script:** `C:\DnD\DnD_Cursor\scripts\auto_event_tracker.ps1` runs after each turn merge
+  - **Automatically detects:**
+    - Encounter completions (from `/encounters/` in state)
+    - Quest item discoveries (when `/discoveries/` match quest objectives)
+    - Quest location arrivals (when `/scene/location` matches quest locations)
+    - Major milestones from state changes
+  - **Automatically updates:**
+    - Creates event entries for completed encounters
+    - Updates quest status when quest items are discovered
+    - Tracks quest progress when party arrives at quest locations
+  - **Manual updates still allowed** for complex events, NPC relationships, and choices
+  - **Reference:** `C:\DnD\DnD_Cursor\docs\AUTO_EVENT_TRACKING.md` for details
+- **STATE_PATCHER SHOULD update CAMPAIGN_EVENTS.json when:**
+  - Complex story events that auto-tracker can't detect
+  - NPC relationships change (positive/negative interactions)
+  - Quests are given (initial quest creation)
+  - Significant player choices are made (moral decisions, resource allocation)
+  - Consequences of past choices manifest
+- **Event update format:**
+  ```json
+  {
+    "op": "add",
+    "path": "/events/-",
+    "value": {
+      "id": "unique_event_id",
+      "timestamp": "ISO timestamp",
+      "chapter": <number>,
+      "location": "location_name",
+      "type": "story_event|quest|encounter|choice",
+      "title": "Event Title",
+      "description": "What happened",
+      "participants": ["Character1", "Character2"],
+      "choices": [{"action": "...", "consequence": "..."}],
+      "outcomes": {}
+    }
+  }
+  ```
+- **NPC relationship update format:**
+  ```json
+  {
+    "op": "replace",
+    "path": "/npcs/<npc_name>/relationship",
+    "value": "grateful|hostile|neutral|positive|negative"
+  }
+  ```
+- **Quest update format:**
+  ```json
+  {
+    "op": "replace",
+    "path": "/quests/<quest_id>/status",
+    "value": "active|completed|failed"
+  }
+  ```
+- **Never assume NPC relationships or story context** - ALWAYS check CAMPAIGN_EVENTS.json first
+- **This ensures continuity across sessions and that past choices impact future events**
+- **Reference:** `C:\DnD\DnD_Cursor\docs\CAMPAIGN_EVENTS_SYSTEM.md` for detailed documentation
 
 ## GOOGLE SHEETS UPDATES (CRITICAL - POST-ENCOUNTER)
 - **After distributing loot or awarding XP, MUST update Google Sheets.**

@@ -241,6 +241,19 @@ if ($patcher.patches -and $patcher.patches.Count -gt 0) {
             } catch {
                 # Fail silently - state save is not critical
             }
+            
+            # Auto-track events and quests
+            try {
+                $autoTrackerScript = Join-Path $PSScriptRoot "auto_event_tracker.ps1"
+                if (Test-Path $autoTrackerScript) {
+                    $campaignName = if ($currentState.campaign) { $currentState.campaign } else { "Phandelver" }
+                    if ($patcher.patches -and $patcher.patches.Count -gt 0) {
+                        & $autoTrackerScript -Campaign $campaignName -StateFile $stateFile -Patches $patcher.patches
+                    }
+                }
+            } catch {
+                # Fail silently - auto-tracking is not critical
+            }
         }
     }
 }
