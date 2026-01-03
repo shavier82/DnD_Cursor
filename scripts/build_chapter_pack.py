@@ -14,18 +14,20 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any
 
-# Heading patterns for different chapter formats
+# Heading detection (broad - structure-first approach)
 HEADING_PATTERNS = [
-    # Classic keyed areas: H1: Cave Mouth
-    re.compile(r"^\s*([A-Z]{1,3}\d+)\s*[:\-]\s*(.+?)\s*$"),
-    # Alternate keyed areas: Area H1 - Cave Mouth
-    re.compile(r"^\s*(?:Area\s+)?([A-Z]{1,3}\d+)\s*[\-:]\s*(.+?)\s*$", re.IGNORECASE),
-    # Common subsection markers
-    re.compile(r"^\s*(Development|Treasure|Roleplaying|What(?:'|')?s Next\??|General Features)\s*\.?\s*$", re.IGNORECASE),
+    # Keyed areas: H1: Cave Mouth / A3: Something / W12 - Whatever
+    re.compile(r"^\s*([A-Z]{1,3}\d{1,3})\s*[:\-]\s*(.+?)\s*$"),
+    # "Area H1: ..." / "Area H1 - ..."
+    re.compile(r"^\s*Area\s+([A-Z]{1,3}\d{1,3})\s*[:\-]\s*(.+?)\s*$", re.IGNORECASE),
+    # Chapter/part style headers: "Running This Chapter", "What's Next?", etc.
+    re.compile(r"^\s*(Running This Chapter|The\s+Road\s+to\s+.+|What(?:'|')?s Next\??|General Features)\s*$", re.IGNORECASE),
+    # Subsection headers often used everywhere: Development / Treasure / Roleplaying / etc.
+    re.compile(r"^\s*(Development|Treasure|Roleplaying|Tactics|Creatures|Hazards|Visibility|Light|Sound|Ceilings|Doors|Endless Void|Briny Maze|Cardinal Directions|Movement|Illumination|Air)\s*\.?\s*$", re.IGNORECASE),
 ]
 
-# "Title-ish" line: used as a fallback heading detector
-TITLEISH = re.compile(r"^[A-Z][A-Za-z0-9'(),:\-\s]{2,80}$")
+# "Looks like a title line" fallback:
+TITLEISH = re.compile(r"^[A-Z][A-Za-z0-9'(),:\-\s]{2,90}$")
 
 # DC/roll extraction patterns
 DC_CHECK = re.compile(r"\bDC\s+(\d+)\s+([A-Za-z]+)\s*\(([^)]+)\)\s+check\b", re.IGNORECASE)
@@ -60,16 +62,17 @@ def extract_gates(text: str) -> List[Dict[str, Any]]:
         })
     return gates
 
-def split_into_sections(raw: str) -> List[Dict[str, Any]]:
-    """Split chapter text into sections based on heading patterns"""
-    lines = [ln.rstrip() for ln in raw.replace("\r\n", "\n").split("\n")]
-    marks: List[Dict[str, Any]] = []
+def split_into_sections(raw: str) -> List[Dict[str, str]]:
+    """Split chapter text into sections based on heading patterns (structure-first)"""
+    lines = raw.replace("\r\n", "\n").split("\n")
+    marks = []
 
-    def mark(i: int, title: str, code: str = ""):
-        marks.append({"i": i, "title": title.strip(), "code": code.strip()})
+    def add_mark(i: int, title: str):
+        marks.append((i, title.strip()))
 
     for i, ln in enumerate(lines):
-        if not ln.strip():
+        s = ln.strip()
+        if not s:
             continue
 
         matched = False
@@ -77,52 +80,55 @@ def split_into_sections(raw: str) -> List[Dict[str, Any]]:
             m = pat.match(ln)
             if m:
                 if m.lastindex and m.lastindex >= 2:
-                    code = m.group(1)
-                    title = f"{code}: {m.group(2)}"
-                    mark(i, title=title, code=code)
+                    add_mark(i, f"{m.group(1)}: {m.group(2)}")
                 else:
-                    mark(i, title=m.group(1), code="")
+                    add_mark(i, m.group(1))
                 matched = True
                 break
         if matched:
             continue
 
-        # Title-ish fallback: must be surrounded by blank lines
-        if TITLEISH.match(ln):
+        # Title-ish fallback only if surrounded by blank lines (reduces false positives)
+        if TITLEISH.match(s):
             prev_blank = (i == 0) or (not lines[i - 1].strip())
-            next_blank = (i == len(lines) - 1) or (not lines[i + 1].strip())
+            next_blank = (i >= len(lines) - 1) or (not lines[i + 1].strip())
             if prev_blank and next_blank:
-                mark(i, title=ln, code="")
+                add_mark(i, s)
 
-    # If nothing detected, return single section
+    # If no headings detected, single section
     if not marks:
-        return [{"title": "Chapter Overview", "body": raw.strip(), "code": ""}]
+        return [{"title": "Chapter Overview", "body": raw.strip()}]
 
-    # Build sections
-    marks = sorted(set((m["i"], m["title"], m["code"]) for m in marks), key=lambda x: x[0])
-    sections: List[Dict[str, Any]] = []
-    for idx, (start_i, title, code) in enumerate(marks):
+    # Dedup + sort
+    marks = sorted(set(marks), key=lambda x: x[0])
+
+    sections = []
+    for idx, (start_i, title) in enumerate(marks):
         end_i = marks[idx + 1][0] if idx + 1 < len(marks) else len(lines)
         body = "\n".join(lines[start_i + 1:end_i]).strip()
-        if not body:
-            continue
-        sections.append({"title": title, "body": body, "code": code})
-    
-    return sections or [{"title": "Chapter Overview", "body": raw.strip(), "code": ""}]
+        if body:
+            sections.append({"title": title, "body": body})
+
+    return sections or [{"title": "Chapter Overview", "body": raw.strip()}]
 
 def build_cards(chapter_num: int, raw: str) -> List[Dict[str, Any]]:
-    """Build cards from chapter text"""
+    """Build cards from chapter text (structure-first, chapter-correct IDs)"""
     sections = split_into_sections(raw)
     cards: List[Dict[str, Any]] = []
-    
-    for n, sec in enumerate(sections, start=1):
+
+    for idx, sec in enumerate(sections, start=1):
         title = sec["title"]
         body = sec["body"]
         gates = extract_gates(body)
 
-        # Determine card type
-        kind = "location" if re.match(r"^[A-Z]{1,3}\d+:", title) else "section"
-        card_id = f"ch{chapter_num:02d}_{slugify(title)}_{n:03d}"
+        # Determine card type based on title pattern
+        if re.match(r"^[A-Z]{1,3}\d{1,3}:", title):
+            kind = "location"
+        else:
+            kind = "section"
+
+        # CRITICAL: Use chapter_num parameter, never hardcode
+        card_id = f"ch{chapter_num:02d}_{slugify(title)}_{idx:03d}"
 
         # Limit body text to prevent huge cards
         body_limited = body[:4000] if len(body) > 4000 else body

@@ -49,6 +49,11 @@ Workers may only use these read inputs:
 - `C:\DnD\Campaigns\Phandelver\packs\chapter_pack_<n>.json` (current chapter)
 - `C:\DnD\Campaigns\Phandelver\packs\encounter_pack.json`
 
+### Read-only character stats (required)
+- `C:\DnD\Campaigns\Phandelver\characters\*.json` (character stat files)
+- REFEREE must load character JSON files before processing combat actions
+- If character file is missing, REFEREE must BLOCK the action
+
 ### Read-only state (optional)
 - `C:\DnD\Campaigns\Phandelver\saves\CURRENT_STATE.json` (if it exists)
 
@@ -98,12 +103,49 @@ Workers may only use these read inputs:
 **Allowed inputs:**
 - TURN_TEXT
 - campaign pack files (3): `C:\DnD\Campaigns\Phandelver\packs\*.json`
-- optional CURRENT_STATE.json
+- **character JSON files**: `C:\DnD\Campaigns\Phandelver\characters\*.json`
+- **REQUIRED: CURRENT_STATE.json** (MUST be loaded to check gates before ANY information reveal)
 
 **Explicitly forbidden:**
 - Narration/worldbuilding
 - State patches / "what changes" assertions
 - Reading other agents' outputs
+
+**CRITICAL: Character stats loading:**
+- Before processing any combat action involving a player character, REFEREE MUST:
+  1. Load the character's JSON file from the characters directory
+  2. Extract AC, HP, ability scores, and features
+  3. **Check active conditions** using: `python C:\DnD\DnD_Cursor\scripts\manage_conditions.py effects <character_name>`
+  4. **Apply condition effects** to AC, attack rolls, saves, skills:
+     - AC modifiers (ac_mod)
+     - Attack advantage/disadvantage
+     - Save advantage/disadvantage
+     - Skill advantage/disadvantage
+     - Speed modifiers
+     - Damage resistance/immunity
+  5. Use these combined values for all calculations
+- If character file is missing or invalid: set "blocked": true with reason
+
+**CRITICAL: Gates enforcement (MANDATORY):**
+- **BEFORE revealing ANY information from cards, REFEREE MUST:**
+  1. **Load CURRENT_STATE.json** to check gate status
+  2. **Check card's `gates` array** - does the information require a gate check?
+  3. **If gate exists and NOT passed in state:**
+     - DO NOT reveal the gated information
+     - Request the required roll (DC, ability, skill)
+     - Only reveal basic/non-gated information
+  4. **If gate exists and IS passed in state:**
+     - Reveal the gated information
+     - Reference the discovery from state
+  5. **If no gate exists:**
+     - Information is always available (basic information)
+- **Gate checking is MANDATORY for ALL skill checks, saves, and information reveals**
+- **Never assume a gate has been passed** - always check state first
+- **Example workflow:**
+  - Card has gate: DC 10 Wisdom (Survival) for trail details
+  - Check state: `/gates/goblin_trail_details` = false
+  - Action: Request roll, do NOT reveal details
+  - After successful roll: STATE_PATCHER updates gate, then reveal details
 
 **Output file:**
 - `C:\DnD\.coord-<session-id>\dnd_out_REFEREE.json`
@@ -185,7 +227,8 @@ Workers may only use these read inputs:
   "agent_role": "STATE_PATCHER",
   "blocked": false,
   "reason": "",
-  "patches": []
+  "patches": [],
+  "sheet_ops": []
 }
 ```
 
@@ -203,6 +246,54 @@ Workers may only use these read inputs:
     { "op": "replace", "path": "/scene/door/status", "value": "opened" }
   ]
   ```
+- **CRITICAL: Gate tracking (MANDATORY):**
+  - **After REFEREE requests a gate check (roll_request.required=true with gate context):**
+    - Wait for roll result (do NOT update gates yet)
+  - **After successful gate check (when roll succeeds):**
+    - Emit patches to update gates and discoveries:
+      ```json
+      [
+        {
+          "op": "add",
+          "path": "/gates/<gate_name>",
+          "value": true
+        },
+        {
+          "op": "add",
+          "path": "/discoveries/<discovery_name>",
+          "value": true
+        }
+      ]
+      ```
+  - **Gate names must match card context:**
+    - Use card ID or scene-based names: `goblin_trail_details`, `snare_trap_noticed`
+    - Be specific and unique per gate
+  - **Only update gates after successful checks** - failed checks do NOT update gates
+- **Sheet Operations (sheet_ops):**
+  - Emit sheet_ops array for Google Sheets updates (conditions, currency, resources, XP)
+  - Operations: `condition_add`, `condition_remove`, `condition_tick`, `currency_add`, `resource_set`
+  - Example sheet_ops:
+    ```json
+    [
+      {
+        "op": "condition_add",
+        "character_id": "eglath_bearkiller",
+        "condition": "poisoned",
+        "source": "goblin_arrow",
+        "duration_type": "rounds",
+        "duration_value": 3,
+        "ticks_remaining": 3,
+        "mechanical_effects": ""
+      }
+    ]
+    ```
+- **State Saving:**
+  - After encounters end or scene transitions, emit patches with paths like:
+    - `/encounter/goblin_ambush` - marks encounter as completed
+    - `/scene/area` - updates current area
+    - `/scene/location` - updates current location
+    - `/combat/ended` - marks combat as ended
+  - The merge script automatically saves state to `CURRENT_STATE.json` when these patches are detected
 
 ---
 
@@ -236,8 +327,15 @@ Workers may only use these read inputs:
   - Required keys exist per schema
   - If REFEREE requires roll => STATE_PATCHER patches must be []
   - Files are in `C:\DnD\.coord-<session-id>\` (not repo/campaign)
+  - **Gates enforcement (CRITICAL - MANDATORY):**
+    - Load CURRENT_STATE.json to check gate status
+    - If REFEREE reveals gated information: verify gate exists in card AND gate is passed in state
+    - If gate not passed but gated information revealed: set status="fail", add issue "Gate violation: <gate_name> not passed"
+    - If REFEREE requests gate check: verify roll_request has correct DC/ability/skill matching card gates
+    - If STATE_PATCHER updates gates: verify roll was successful (check REFEREE output for roll result)
+    - If gate updated without successful roll: set status="fail", add issue "Gate updated without successful check"
 - On failure: set status="fail" and populate issues[].
-- If failure is critical (wrong location / missing files): set blocked=true.
+- If failure is critical (wrong location / missing files / gate violation): set blocked=true.
 
 ---
 

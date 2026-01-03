@@ -34,3 +34,5 @@ Set-Content -Path $outputPath -Value $preload -Encoding UTF8
 
 Write-Host "Built: $outputPath"
 
+
+

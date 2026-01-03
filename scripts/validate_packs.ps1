@@ -122,6 +122,28 @@ foreach ($file in $packFiles) {
                 $exitCode = 1
                 continue
             }
+            
+            # Validate card IDs match chapter number
+            $expectedPrefix = "ch{0:D2}_" -f $content.chapter
+            $badCardIds = @()
+            foreach ($card in $content.cards) {
+                if (-not $card.id) {
+                    $badCardIds += "Card missing 'id' field"
+                } elseif (-not $card.id.StartsWith($expectedPrefix)) {
+                    $badCardIds += "Card id '$($card.id)' does not start with '$expectedPrefix' (chapter $($content.chapter))"
+                }
+            }
+            if ($badCardIds.Count -gt 0) {
+                $errorMsg = "$($file.Name): Card ID validation failed:"
+                foreach ($badId in $badCardIds) {
+                    $errorMsg += "`n    - $badId"
+                }
+                $errors += $errorMsg
+                Write-Host " FAILED" -ForegroundColor Red
+                Write-Host "  $errorMsg" -ForegroundColor Red
+                $exitCode = 1
+                continue
+            }
         }
         
         Write-Host " OK" -ForegroundColor Green

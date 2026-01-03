@@ -111,3 +111,5 @@ Since PDF parsing is not yet implemented, you'll need to manually update charact
 - Spell slot calculation based on class/level
 - Integration with parallel agents for character-aware gameplay
 
+
+

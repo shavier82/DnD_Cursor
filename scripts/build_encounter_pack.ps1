@@ -43,3 +43,5 @@ Set-Content -Path $outputPath -Value $encounterPack -Encoding UTF8
 
 Write-Host "Built: $outputPath"
 
+
+
