@@ -357,3 +357,47 @@ QA_COMPLIANCE: validate schemas/files/locations only.
 - This applies to both player attacks and enemy attacks.
 - **Character stats MUST be loaded from JSON files - never guess or assume.**
 - **Condition effects MUST be checked before every combat action.**
+
+## GOOGLE SHEETS UPDATES (CRITICAL - POST-ENCOUNTER)
+- **After distributing loot or awarding XP, MUST update Google Sheets.**
+- **Script:** `C:\DnD\DnD_Cursor\scripts\update_sheets_data.py`
+- **Available commands:**
+  1. **Update XP:**
+     ```powershell
+     python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py xp "Character Name" <xp_value>
+     ```
+  2. **Update Currency:**
+     ```powershell
+     python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py currency "Character Name" --cp <value> --sp <value> --ep <value> --gp <value> --pp <value>
+     ```
+  3. **Add Inventory Item:**
+     ```powershell
+     python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Character Name" "Item Name" --type "Item Type" --equipped "Yes/No" --notes "Notes" --quantity <qty> --weight <lbs>
+     ```
+  4. **Update Resources:**
+     ```powershell
+     python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py resource "Character Name" <resource_name> --max <value> --remaining <value> --active
+     ```
+- **Character name mapping:**
+  - `Brevin` / `Brovin` → `Halfling Rogue` (character_id: `halfling_rogue`)
+  - `Ergath` → `Eglath Bearkiller` (character_id: `eglath_bearkiller`)
+  - `Torgga` → `Torgga Brawnanvil` (character_id: `torgga_brawnanvil`)
+  - `Vandross` → `Vandross Ephrates` (character_id: `vandross_ephrates`)
+- **After loot distribution:**
+  1. Calculate total treasure value
+  2. Distribute currency equally (or as specified)
+  3. Update currency for each character
+  4. Add inventory items to CSV_Inventory for each character
+  5. Verify all updates succeeded
+- **Inventory item fields:**
+  - `item` - Item name (required)
+  - `--type` - Item type (e.g., "Weapon", "Spell Scroll", "Treasure")
+  - `--equipped` - "Yes" or "No" (default: "No")
+  - `--notes` - Item notes (e.g., "Loot: Venomfang's hoard")
+  - `--quantity` - Quantity (default: 1)
+  - `--weight` - Weight in lbs (optional)
+- **If update fails:**
+  - Check character name mapping
+  - Verify character exists in CSV_Characters sheet
+  - Check service account permissions
+  - Output error message and BLOCK if critical

@@ -7,6 +7,7 @@ This guide explains how to update character data in Google Sheets for XP, curren
 The `update_sheets_data.py` script allows you to:
 - **Update XP** for characters
 - **Update currency** (cp, sp, ep, gp, pp)
+- **Add inventory items** to CSV_Inventory sheet
 - **Update resources** (rage, superiority_dice, spell slots, etc.)
 - **Sync from local JSON files** (updates all tracked data)
 
@@ -29,6 +30,31 @@ python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py currency "Brevin" --gp 20
 # Update multiple currency types
 python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py currency "Torgga" --cp 50 --sp 20 --gp 100
 ```
+
+### Add Inventory Item
+
+```powershell
+# Add a basic item
+python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Brevin" "Potion of Healing" --type "Potion" --notes "Loot: Goblin ambush"
+
+# Add a weapon (equipped)
+python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Eglath Bearkiller" "Hew (+1 battleaxe)" --type "Weapon (Battleaxe)" --equipped "Yes" --notes "+1 battleaxe, max damage vs Plant creatures. Loot: Venomfang's hoard"
+
+# Add a spell scroll
+python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Torgga Brawnanvil" "Spell scroll of lightning bolt" --type "Spell Scroll" --notes "Loot: Venomfang's hoard"
+
+# Add treasure with quantity
+python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Vandross Ephrates" "Silver goblet with moonstone" --type "Treasure" --quantity 1 --notes "Value: 60 gp. Loot: Venomfang's hoard"
+```
+
+**Inventory Item Parameters:**
+- `character` - Character name (required)
+- `item` - Item name (required)
+- `--type` - Item type (e.g., "Weapon", "Spell Scroll", "Treasure", "Potion")
+- `--equipped` - "Yes" or "No" (default: "No")
+- `--notes` - Item notes/description
+- `--quantity` - Quantity (default: 1)
+- `--weight` - Weight in lbs (optional)
 
 ### Update Resources
 
@@ -90,9 +116,16 @@ Common resources:
    python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py xp "Brevin" 3100
    ```
 
-2. **Distribute Gold:**
+2. **Distribute Currency:**
    ```powershell
    python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py currency "Brevin" --gp 50
+   python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py currency "Ergath" --gp 50
+   ```
+
+3. **Add Inventory Items:**
+   ```powershell
+   python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Brevin" "Spell scroll of misty step" --type "Spell Scroll" --notes "Loot: Venomfang's hoard"
+   python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Eglath Bearkiller" "Hew (+1 battleaxe)" --type "Weapon (Battleaxe)" --equipped "Yes" --notes "Loot: Venomfang's hoard"
    ```
 
 ### During Combat (Resources)
@@ -122,7 +155,7 @@ python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py sync "C:\DnD\Campaigns\Ph
 ## Notes
 
 - **HP tracking**: HP is managed in the sheets directly (not updated via this script)
-- **Inventory**: Inventory is managed in `CSV_Inventory` sheet directly (not updated via this script)
+- **Inventory**: Inventory can now be added via `inventory` command, or managed directly in `CSV_Inventory` sheet
 - **Read-only sync**: Use `sync_characters_from_sheets.py` to pull data FROM sheets TO local JSON files
 - **Write-only updates**: Use `update_sheets_data.py` to push data FROM local JSON TO sheets
 

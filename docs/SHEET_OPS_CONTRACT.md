@@ -129,7 +129,18 @@ Adds an item to character inventory.
 - `equipped` - "Yes" or "No" (default: "No")
 - `notes` - Optional notes
 
-**Note:** Inventory operations are currently managed directly in CSV_Inventory sheet. A script can be added if needed.
+**Note:** Inventory operations can now be performed via the `update_sheets_data.py` script:
+
+```powershell
+python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Character Name" "Item Name" --type "Item Type" --equipped "Yes/No" --notes "Notes" --quantity <qty> --weight <lbs>
+```
+
+**Example:**
+```powershell
+python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Eglath Bearkiller" "Hew (+1 battleaxe)" --type "Weapon (Battleaxe)" --equipped "Yes" --notes "Loot: Venomfang's hoard"
+```
+
+Alternatively, inventory can still be managed directly in the CSV_Inventory sheet.
 
 ### Resource Operations
 

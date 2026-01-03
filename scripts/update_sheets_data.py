@@ -217,6 +217,75 @@ def update_character_resources(service, spreadsheet_id, character_id, resources_
         print(f"ERROR: Failed to update resources: {error}")
         return False
 
+def add_inventory_item(service, spreadsheet_id, character_id, item_name, quantity=1, item_type='', equipped='No', notes='', weight_lbs=''):
+    """Add an inventory item to CSV_Inventory sheet"""
+    # Get character name from CSV_Characters
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheet_id,
+        range='CSV_Characters!A:B'
+    ).execute()
+    
+    values = result.get('values', [])
+    character_name = ''
+    for row in values[1:]:
+        if len(row) >= 2 and row[0].strip().lower() == character_id.lower():
+            character_name = row[1].strip()
+            break
+    
+    if not character_name:
+        print(f"ERROR: Character ID '{character_id}' not found")
+        return False
+    
+    # Get headers from CSV_Inventory
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheet_id,
+        range='CSV_Inventory!A1:Z1'
+    ).execute()
+    
+    headers = [h.strip() for h in result.get('values', [[]])[0]]
+    
+    # Find column indices
+    col_map = {}
+    for i, header in enumerate(headers):
+        col_map[header.lower()] = i
+    
+    # Build row data
+    row_data = [''] * len(headers)
+    
+    # Map columns (note: "Now " has trailing space)
+    if 'character_id' in col_map:
+        row_data[col_map['character_id']] = character_id
+    if 'name' in col_map:
+        row_data[col_map['name']] = character_name
+    if 'now ' in col_map:  # Note the trailing space
+        row_data[col_map['now ']] = item_name
+    elif 'now' in col_map:
+        row_data[col_map['now']] = item_name
+    if 'quantity' in col_map:
+        row_data[col_map['quantity']] = str(quantity)
+    if 'type' in col_map:
+        row_data[col_map['type']] = item_type
+    if 'equipped' in col_map:
+        row_data[col_map['equipped']] = equipped
+    if 'notes' in col_map:
+        row_data[col_map['notes']] = notes
+    if 'weight_lbs' in col_map:
+        row_data[col_map['weight_lbs']] = str(weight_lbs) if weight_lbs else ''
+    
+    # Append row to CSV_Inventory
+    try:
+        service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range='CSV_Inventory!A:Z',
+            valueInputOption='RAW',
+            insertDataOption='INSERT_ROWS',
+            body={'values': [row_data]}
+        ).execute()
+        return True
+    except HttpError as error:
+        print(f"ERROR: Failed to add inventory item: {error}")
+        return False
+
 def sync_from_json(service, spreadsheet_id, json_file_path):
     """Sync character data from local JSON file to sheets"""
     with open(json_file_path, 'r', encoding='utf-8-sig') as f:
@@ -283,6 +352,16 @@ def main():
     # Sync from JSON
     sync_parser = subparsers.add_parser('sync', help='Sync from local JSON file')
     sync_parser.add_argument('json_file', help='Path to character JSON file')
+    
+    # Inventory add
+    inventory_parser = subparsers.add_parser('inventory', help='Add inventory item')
+    inventory_parser.add_argument('character', help='Character name')
+    inventory_parser.add_argument('item', help='Item name')
+    inventory_parser.add_argument('--quantity', type=int, default=1, help='Quantity')
+    inventory_parser.add_argument('--type', default='', help='Item type')
+    inventory_parser.add_argument('--equipped', default='No', choices=['Yes', 'No'], help='Equipped status')
+    inventory_parser.add_argument('--notes', default='', help='Item notes')
+    inventory_parser.add_argument('--weight', default='', help='Weight in lbs')
     
     args = parser.parse_args()
     
@@ -362,6 +441,20 @@ def main():
             print("OK: Sync completed")
         else:
             print("ERROR: Sync failed")
+            sys.exit(1)
+    
+    elif args.command == 'inventory':
+        character_id = get_character_id_from_name(args.character, service, args.spreadsheet_id)
+        if not character_id:
+            print(f"ERROR: Character '{args.character}' not found")
+            sys.exit(1)
+        
+        if add_inventory_item(service, args.spreadsheet_id, character_id, args.item,
+                              quantity=args.quantity, item_type=args.type,
+                              equipped=args.equipped, notes=args.notes, weight_lbs=args.weight):
+            print(f"OK: Added {args.item} to {args.character}'s inventory")
+        else:
+            print(f"ERROR: Failed to add inventory item")
             sys.exit(1)
     
     return 0

@@ -7,7 +7,7 @@ The Google Sheets integration provides bidirectional sync between local characte
 - **Currency** (cp, sp, ep, gp, pp)
 - **Resources** (rage, superiority_dice, spell slots, etc.)
 - **HP** (read-only from sheets, managed in sheets)
-- **Inventory** (read-only from sheets, managed in sheets)
+- **Inventory** (can be added via script or managed directly in sheets)
 
 ## Two-Way Sync
 
@@ -34,6 +34,7 @@ python C:\DnD\DnD_Cursor\scripts\sync_characters_from_sheets.py
 Updates Google Sheets with data from local JSON files or direct commands:
 - XP updates
 - Currency updates
+- Inventory item additions
 - Resource updates
 
 **Usage:**
@@ -46,6 +47,9 @@ python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py currency "Brevin" --gp 20
 
 # Update resource
 python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py resource "Ergath" rage --remaining 1
+
+# Add inventory item
+python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Brevin" "Potion of Healing" --type "Potion" --notes "Loot: Goblin ambush"
 
 # Full sync from JSON
 python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py sync "C:\DnD\Campaigns\Phandelver\characters\Ergath.json"
@@ -85,7 +89,11 @@ python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py sync "C:\DnD\Campaigns\Ph
    python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py currency "Ergath" --gp 50
    ```
 
-3. **Update inventory in sheets directly** (CSV_Inventory tab)
+3. **Add inventory items:**
+   ```powershell
+   python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Brevin" "Spell scroll of misty step" --type "Spell Scroll" --notes "Loot: Venomfang's hoard"
+   python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py inventory "Eglath Bearkiller" "Hew (+1 battleaxe)" --type "Weapon (Battleaxe)" --equipped "Yes" --notes "Loot: Venomfang's hoard"
+   ```
 
 ### After Rest
 1. **Restore resources:**
@@ -149,7 +157,8 @@ The scripts handle these name variations:
 2. **XP Tracking**: Use `update_sheets_data.py xp` after each encounter
 3. **Resource Tracking**: Update resources immediately when used
 4. **Currency**: Update currency after loot distribution
-5. **Regular Sync**: Pull from sheets at session start and after major updates
+5. **Inventory**: Add inventory items using `update_sheets_data.py inventory` after loot distribution
+6. **Regular Sync**: Pull from sheets at session start and after major updates
 
 ## Integration with Combat System
 
