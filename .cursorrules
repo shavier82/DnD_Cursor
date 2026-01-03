@@ -124,21 +124,34 @@ Forbidden in PLAY:
 
 ## GATES SYSTEM (CRITICAL - INFORMATION CONTROL - MANDATORY ENFORCEMENT)
 - **Cards contain `gates` arrays that define required DC checks/saves.**
-- **REFEREE MUST ALWAYS check gates before revealing ANY information.**
+- **REFEREE AND NARRATOR MUST ALWAYS check gates before revealing ANY information.**
 - **This is MANDATORY - no exceptions.**
-- **Before revealing ANY information from a card, REFEREE MUST:**
-  1. **Load CURRENT_STATE.json** (required - check `/gates/` and `/discoveries/`)
-  2. **Check card's `gates` array** - does this information require a gate?
-  3. **If gate exists in card AND gate not passed in state:**
-     - DO NOT reveal the gated information
+- **CRITICAL WORKFLOW - BEFORE REVEALING ANY INFORMATION FROM A CARD:**
+  1. **Load CURRENT_STATE.json** (REQUIRED - check `/gates/` and `/discoveries/`)
+  2. **Check card's `mechanics` field** - does it contain checks/saves? If yes, information is likely gated.
+  3. **Check card's `gates` array** (if present) - what information requires a gate?
+  4. **Separate observable vs. hidden information:**
+     - **Observable information** = What can be seen/heard from current position (exterior descriptions, visible features)
+     - **Hidden information** = What requires checks, entry, or investigation (interior details, hidden occupants, plans, motivations)
+  5. **If card has mechanics/gates AND gate not passed in state:**
+     - DO NOT reveal hidden/gated information
+     - DO NOT reveal interior details if characters are outside
+     - DO NOT reveal occupant details, numbers, plans, or motivations without checks
      - Request the required roll (set roll_request.required=true with correct DC, ability, skill)
-     - Only reveal basic/non-gated information from the card
+     - ONLY reveal observable/basic information from the card
      - Block gated information until gate is passed
-  4. **If gate exists in card AND gate IS passed in state:**
+  6. **If gate exists in card AND gate IS passed in state:**
      - Reveal the gated information
      - Reference the discovery from state
-  5. **If no gate exists in card:**
+  7. **If no gate/mechanics exists in card:**
      - Information is always available (basic information)
+- **MANDATORY CHECKLIST before ANY narration:**
+  - [ ] Loaded CURRENT_STATE.json?
+  - [ ] Checked card's mechanics field?
+  - [ ] Checked card's gates array (if present)?
+  - [ ] Separated observable vs. hidden information?
+  - [ ] Verified gates are passed before revealing hidden info?
+  - [ ] Only revealing what characters can observe from their current position?
 - **Gate structure in cards:**
   - `gates` array contains objects with: `type` (check/save), `dc`, `ability`, `skill`, `note`
   - Example: `{"type": "check", "dc": 10, "ability": "Wisdom", "skill": "Survival", "note": ""}`
@@ -171,6 +184,12 @@ Forbidden in PLAY:
   - Gated information is not revealed without gate being passed
 - **Never assume gates are passed** - ALWAYS check state first, request roll if not passed
 - **This applies to ALL skill checks, saves, and information reveals** - no exceptions
+- **CRITICAL: When narrating directly (not using parallel agents), you act as both REFEREE and NARRATOR:**
+  - You MUST follow the gates workflow before ANY narration
+  - You MUST check CURRENT_STATE.json before revealing information
+  - You MUST separate observable information (can reveal) from hidden information (requires checks)
+  - You MUST NOT reveal interior details, occupant information, or hidden plans when characters are outside a building
+  - If card has `mechanics` field with checks, treat that information as gated until checks are passed
 
 # -------------------------
 # PARALLEL AGENT PIPELINE (PLAY)
@@ -211,7 +230,7 @@ No extra text before NARRATION and no extra text after PATCH.
 # ROLE LANES (worker agents)
 # -------------------------
 REFEREE: mechanics/rolls/DCs only.
-NARRATOR: narration only.
+NARRATOR: narration only. **MUST check gates before revealing information (same as REFEREE).**
 STATE_PATCHER: state patch only; if roll required => patches must be [].
 QA_COMPLIANCE: validate schemas/files/locations only.
 
