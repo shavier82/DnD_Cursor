@@ -302,6 +302,9 @@ QA_COMPLIANCE: validate schemas/files/locations only.
 - Advantage/Disadvantage: Roll 2d20, take higher (advantage) or lower (disadvantage).
 
 ## COMBAT FLOW
+- **CRITICAL: See `C:\DnD\DnD_Cursor\docs\ENCOUNTER_EXECUTION_GUIDE.md` for canonical encounter execution based on Dungeon Master's Guide 2024.**
+- **This guide provides the authoritative workflow for running combat encounters.**
+
 1. **Combat Initiation:**
    - If surprise occurs, resolve surprise round first.
    - Then roll initiative for all combatants.
