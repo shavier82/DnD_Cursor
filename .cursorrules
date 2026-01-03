@@ -264,6 +264,15 @@ QA_COMPLIANCE: validate schemas/files/locations only.
 - Attack rolls target AC (Armor Class), NOT DC.
 - Format: "PLAYER: Roll Attack roll (weapon type) vs AC. Reply with TOTAL. (Formula: 1d20)"
 - Include target AC in mechanics_notes (e.g., "Goblin AC: 15").
+- **MAGICAL WEAPON MODIFIERS (CRITICAL):**
+  - Before processing any attack, REFEREE MUST check equipped weapons from CSV_Inventory
+  - Apply weapon bonuses to attack and damage rolls:
+    - +1 weapon: +1 to attack roll, +1 to damage roll
+    - +2 weapon: +2 to attack roll, +2 to damage roll
+    - +3 weapon: +3 to attack roll, +3 to damage roll
+  - Check for special weapon properties (e.g., "deals maximum damage vs Plant creatures")
+  - If weapon has special properties, apply them when conditions are met
+  - Example: Hew (+1 battleaxe) = +1 attack, +1 damage, max damage vs Plants/wooden objects
 - If attack hits (meets or exceeds AC), request damage roll.
 - Advantage/Disadvantage: Roll 2d20, take higher (advantage) or lower (disadvantage).
 
@@ -325,14 +334,19 @@ QA_COMPLIANCE: validate schemas/files/locations only.
 
 ## REQUIRED DATA BEFORE COMBAT ACTIONS (CRITICAL)
 - **DO NOT process combat actions (attacks, damage, saves) without required character data.**
-- Before processing any attack against a player character, REFEREE must:
+- Before processing any attack (player or enemy), REFEREE must:
   1. **Load the character's JSON file** from: C:\DnD\Campaigns\Phandelver\characters\<character-name>.json
   2. Extract required stats: AC, HP (current/max), ability scores, resistances
-  3. **Check active conditions:**
+  3. **Check equipped weapons from CSV_Inventory:**
+     - Query CSV_Inventory for character's equipped weapons (equipped="Yes")
+     - Read weapon notes for magical properties (+1, +2, +3 bonuses, special abilities)
+     - Apply weapon bonuses to attack and damage rolls
+     - Check for special properties (e.g., max damage vs specific creature types)
+  4. **Check active conditions:**
      - Run: `python C:\DnD\DnD_Cursor\scripts\manage_conditions.py effects <character_name>`
      - Get combined mechanical effects JSON
      - Apply condition modifiers to AC, attack rolls, saves, skills
-  4. Use these combined values (base stats + condition effects) for all calculations
+  5. Use these combined values (base stats + weapon bonuses + condition effects) for all calculations
 - Required character data for combat:
   - Target's AC (Armor Class) - from character JSON + condition modifiers (ac_mod)
   - Target's current HP (if damage is being applied) - from character JSON
@@ -357,6 +371,11 @@ QA_COMPLIANCE: validate schemas/files/locations only.
 - This applies to both player attacks and enemy attacks.
 - **Character stats MUST be loaded from JSON files - never guess or assume.**
 - **Condition effects MUST be checked before every combat action.**
+- **Magical weapon modifiers MUST be checked before every attack:**
+  - Check CSV_Inventory for equipped weapons with magical properties
+  - Apply weapon bonuses (+1, +2, +3) to attack and damage rolls
+  - Apply special weapon properties when conditions are met (e.g., max damage vs specific creature types)
+  - Document weapon modifiers in mechanics_notes (e.g., "Hew: +1 attack, +1 damage, max damage vs Plants")
 
 ## GOOGLE SHEETS UPDATES (CRITICAL - POST-ENCOUNTER)
 - **After distributing loot or awarding XP, MUST update Google Sheets.**
@@ -393,9 +412,13 @@ QA_COMPLIANCE: validate schemas/files/locations only.
   - `item` - Item name (required)
   - `--type` - Item type (e.g., "Weapon", "Spell Scroll", "Treasure")
   - `--equipped` - "Yes" or "No" (default: "No")
-  - `--notes` - Item notes (e.g., "Loot: Venomfang's hoard")
+  - `--notes` - Item notes **MUST include magical properties** (e.g., "+1 to attack and damage. Special: max damage vs Plants. Loot: Venomfang's hoard")
   - `--quantity` - Quantity (default: 1)
   - `--weight` - Weight in lbs (optional)
+- **Magical item notes format:**
+  - Always document: bonus to attack/damage (e.g., "+1 to attack and damage rolls")
+  - Always document: special properties (e.g., "Deals maximum damage when attacking Plant creatures or wooden objects")
+  - Example: "+1 to attack and damage rolls. Special: Deals maximum damage when attacking Plant creatures or wooden objects. Loot: Venomfang's hoard"
 - **If update fails:**
   - Check character name mapping
   - Verify character exists in CSV_Characters sheet
