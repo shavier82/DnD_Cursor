@@ -32,6 +32,8 @@ This document provides canonical guidance for executing combat encounters in D&D
 
 ## Combat Flow
 
+**CRITICAL: All combat turns MUST be processed using the parallel agent pipeline (`/dnd_turn_parallel` followed by `/dnd_turn_merge`). This ensures proper narrative generation, state management, and combat narrative tracking. See `.cursorrules` PARALLEL AGENT PIPELINE section for details.**
+
 ### Step 1: Establish Positions
 - The DM determines where all the characters and monsters are located
 - Given the adventurers' marching order or their stated positions in the room or other location, the DM figures out where the adversaries are—how far away and in what direction

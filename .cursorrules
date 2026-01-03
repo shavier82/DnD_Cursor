@@ -327,6 +327,16 @@ QA_COMPLIANCE: validate schemas/files/locations only.
 - Advantage/Disadvantage: Roll 2d20, take higher (advantage) or lower (disadvantage).
 
 ## COMBAT FLOW
+- **CRITICAL: ALL COMBAT TURNS MUST USE THE PARALLEL AGENT PIPELINE.**
+- **MANDATORY WORKFLOW:**
+  - **Every combat turn MUST be processed using `/dnd_turn_parallel <session-id>` followed by `/dnd_turn_merge <session-id>`.**
+  - **DO NOT process combat turns directly - this bypasses the narrative system and proper state management.**
+  - **The parallel agent system ensures:**
+    - Turn-by-turn cinematic narratives are created
+    - Narratives are automatically combined at encounter end
+    - Proper state updates through STATE_PATCHER
+    - CSV/Sheets updates are tracked correctly
+    - Combat narrative system functions as designed
 - **CRITICAL: See `C:\DnD\DnD_Cursor\docs\ENCOUNTER_EXECUTION_GUIDE.md` for canonical encounter execution based on Dungeon Master's Guide 2024.**
 - **This guide provides the authoritative workflow for running combat encounters.**
 
@@ -344,11 +354,13 @@ QA_COMPLIANCE: validate schemas/files/locations only.
    - **State MUST reflect combat is in progress before proceeding with turns.**
 
 2. **Turn Order:**
+   - **MANDATORY: Process each turn using `/dnd_turn_parallel <session-id>` then `/dnd_turn_merge <session-id>`.**
    - Process turns in initiative order (highest first).
    - Track HP, conditions, and status for all combatants.
    - STATE_PATCHER must update combat state after each turn.
    - **NARRATOR must create a cinematic narrative for each turn** describing what happened in an engaging, dramatic way.
    - **Turn narratives must be stored** in CURRENT_STATE.json at `/combat/turn_narratives` array.
+   - **DO NOT process combat turns directly - always use the parallel agent pipeline.**
 
 3. **Combat State:**
    - Track: HP, AC, conditions, positions, status (alive/unconscious/dead).
