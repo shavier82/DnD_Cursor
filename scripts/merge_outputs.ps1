@@ -254,6 +254,19 @@ if ($patcher.patches -and $patcher.patches.Count -gt 0) {
             } catch {
                 # Fail silently - auto-tracking is not critical
             }
+            
+            # Combine combat narratives when combat ends
+            try {
+                if ($currentState.combat -and $currentState.combat.ended -and $currentState.combat.turn_narratives) {
+                    $combineScript = Join-Path $PSScriptRoot "combine_combat_narrative.ps1"
+                    if (Test-Path $combineScript) {
+                        $campaignName = if ($currentState.campaign) { $currentState.campaign } else { "Phandelver" }
+                        & $combineScript -Campaign $campaignName -StateFile $stateFile
+                    }
+                }
+            } catch {
+                # Fail silently - narrative combination is not critical
+            }
         }
     }
 }
@@ -264,12 +277,12 @@ Write-Output $narrationText
 Write-Output ""
 Write-Output "ASK:"
 Write-Output $askText
-Write-Output ""
-Write-Output "PATCH:"
-# Print JSON for PATCH on one line to be deterministic
+    Write-Output ""
+    Write-Output "PATCH:"
+    # Print JSON for PATCH on one line to be deterministic
 # Always output PATCH block (empty array [] if no patches, per contract requirement)
-if ($patchOut.Count -eq 0) {
-    Write-Output "[]"
-} else {
-    Write-Output ($patchOut | ConvertTo-Json -Depth 20 -Compress)
+    if ($patchOut.Count -eq 0) {
+        Write-Output "[]"
+    } else {
+        Write-Output ($patchOut | ConvertTo-Json -Depth 20 -Compress)
 }

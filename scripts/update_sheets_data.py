@@ -217,6 +217,67 @@ def update_character_resources(service, spreadsheet_id, character_id, resources_
         print(f"ERROR: Failed to update resources: {error}")
         return False
 
+def update_character_spell_slots(service, spreadsheet_id, character_id, slot_level, max_slots=None, remaining=None):
+    """Update spell slots for a character in CSV_SpellSlots"""
+    # Get current spell slots for this character
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheet_id,
+        range='CSV_SpellSlots!A:Z'
+    ).execute()
+    
+    values = result.get('values', [])
+    if len(values) < 2:
+        return False
+    
+    headers = [h.strip().lower() for h in values[0]]
+    
+    # Find column indices
+    slot_level_col = headers.index('slot_level') if 'slot_level' in headers else None
+    max_col = headers.index('max') if 'max' in headers else None
+    remaining_col = headers.index('remaining') if 'remaining' in headers else None
+    
+    if slot_level_col is None:
+        return False
+    
+    # Find the row for this character and slot level
+    updates = []
+    for i, row in enumerate(values[1:], start=2):
+        if len(row) > 0 and row[0].strip().lower() == character_id.lower():
+            if len(row) > slot_level_col:
+                row_slot_level = row[slot_level_col].strip().lower() if row[slot_level_col] else ''
+                if row_slot_level == slot_level.lower():
+                    # Found the matching row
+                    if max_col is not None and max_slots is not None:
+                        max_letter = chr(65 + max_col)
+                        updates.append({
+                            'range': f'CSV_SpellSlots!{max_letter}{i}',
+                            'values': [[str(max_slots)]]
+                        })
+                    
+                    if remaining_col is not None and remaining is not None:
+                        rem_letter = chr(65 + remaining_col)
+                        updates.append({
+                            'range': f'CSV_SpellSlots!{rem_letter}{i}',
+                            'values': [[str(remaining)]]
+                        })
+                    break
+    
+    if not updates:
+        return False
+    
+    try:
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body={
+                'valueInputOption': 'RAW',
+                'data': updates
+            }
+        ).execute()
+        return True
+    except HttpError as error:
+        print(f"ERROR: Failed to update spell slots: {error}")
+        return False
+
 def add_inventory_item(service, spreadsheet_id, character_id, item_name, quantity=1, item_type='', equipped='No', notes='', weight_lbs=''):
     """Add an inventory item to CSV_Inventory sheet"""
     # Get character name from CSV_Characters
@@ -321,7 +382,7 @@ def sync_from_json(service, spreadsheet_id, json_file_path):
     return True
 
 def main():
-    parser = argparse.ArgumentParser(description='Update Google Sheets data (XP, Currency, Resources)')
+    parser = argparse.ArgumentParser(description='Update Google Sheets data (XP, Currency, Resources, Spell Slots, Inventory)')
     parser.add_argument('--credentials', default='C:\\DnD\\keys\\google_sheets_key.json', help='Credentials file')
     parser.add_argument('--spreadsheet-id', default='1kCcauRdoetVuSv7O1uH6gb95psX0S7quy1uilVpc2dw', help='Spreadsheet ID')
     
@@ -362,6 +423,13 @@ def main():
     inventory_parser.add_argument('--equipped', default='No', choices=['Yes', 'No'], help='Equipped status')
     inventory_parser.add_argument('--notes', default='', help='Item notes')
     inventory_parser.add_argument('--weight', default='', help='Weight in lbs')
+    
+    # Spell slots update
+    spellslot_parser = subparsers.add_parser('spellslot', help='Update spell slots')
+    spellslot_parser.add_argument('character', help='Character name')
+    spellslot_parser.add_argument('slot_level', help='Spell slot level (e.g., 1st, 2nd, 3rd)')
+    spellslot_parser.add_argument('--max', type=int, help='Max spell slots')
+    spellslot_parser.add_argument('--remaining', type=int, help='Remaining spell slots')
     
     args = parser.parse_args()
     
@@ -455,6 +523,19 @@ def main():
             print(f"OK: Added {args.item} to {args.character}'s inventory")
         else:
             print(f"ERROR: Failed to add inventory item")
+            sys.exit(1)
+    
+    elif args.command == 'spellslot':
+        character_id = get_character_id_from_name(args.character, service, args.spreadsheet_id)
+        if not character_id:
+            print(f"ERROR: Character '{args.character}' not found")
+            sys.exit(1)
+        
+        if update_character_spell_slots(service, args.spreadsheet_id, character_id, args.slot_level,
+                                       max_slots=args.max, remaining=args.remaining):
+            print(f"OK: Updated {args.character} spell slots ({args.slot_level})")
+        else:
+            print(f"ERROR: Failed to update spell slots")
             sys.exit(1)
     
     return 0

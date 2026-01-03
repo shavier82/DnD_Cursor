@@ -82,27 +82,52 @@ Forbidden in PLAY:
   - Reference document: `C:\DnD\DnD_Cursor\CAMPAIGN_PATHS.md`
 - **All scripts and tools use `paths.json` for path resolution - check this file if paths are unclear.**
 
+## DATA SOURCE OF TRUTH (CRITICAL - ALL MODES)
+- **Google Sheets CSV is the SOURCE OF TRUTH for all character data.**
+- **MANDATORY WORKFLOW:**
+  1. **READ from CSV/Sheets FIRST** before any mechanics/calculations
+  2. Use CSV/Sheets values for all calculations
+  3. **UPDATE CSV/Sheets IMMEDIATELY** when values change (HP, resources, spell slots, etc.)
+- **CSV Sheets are canonical:**
+  - `CSV_Characters` - HP, AC, level, XP, ability scores
+  - `CSV_Resources` - Rage, superiority dice, action surge, second wind, etc. (NOT spell slots)
+  - `CSV_SpellSlots` - Spell slots by level (1st, 2nd, 3rd, etc.) - remaining and max
+  - `CSV_Inventory` - Equipped weapons, magical properties, items
+  - `CSV_Currency` - Current currency values
+  - `CSV_ConditionReference` - Active conditions and their effects
+- **JSON files are secondary/optional:**
+  - JSON files may exist for reference or syncing
+  - **DO NOT use JSON files as source of truth for current HP, resources, or spell slots**
+  - JSON files should be synced FROM sheets, not TO sheets
+- **Before ANY combat action, resource use, or mechanics:**
+  - Query CSV/Sheets to get current values
+  - Use those values for calculations
+  - Update CSV/Sheets immediately after changes
+
 ## CHARACTER STATS LOADING (CRITICAL - PLAY MODE)
-- **Character stats MUST be loaded before any gameplay begins.**
+- **Character stats MUST be loaded from Google Sheets CSV before any gameplay begins.**
 - During session initialization (`/dnd_session_init` or bootstrap):
-  - Validate that character JSON files exist in: C:\DnD\Campaigns\<campaign>\characters\*.json
   - Load CAMPAIGN_EVENTS.json from: C:\DnD\Campaigns\<campaign>\saves\CAMPAIGN_EVENTS.json
-  - Load all character files and verify they contain required fields: name, class, level, ac, hp (current/max), stats
-  - If any required character file is missing or invalid: BLOCK and output:
-    "BLOCKED: Missing or invalid character data: <character name or file>"
-- REFEREE agent MUST read character JSON files before processing any combat actions:
-  - When a player character is mentioned in TURN_TEXT, load their character file
-  - Use character's AC, HP, ability scores, and features from the JSON file
-  - Do NOT assume or guess character stats - if file is missing, BLOCK
-- Character files are located at: C:\DnD\Campaigns\<campaign>\characters\<character-name>.json
-- Required character file fields:
-  - name (string)
-  - class (string)
-  - level (integer)
-  - ac (integer)
-  - hp.current (integer)
-  - hp.max (integer)
-  - stats (object with strength, dexterity, constitution, intelligence, wisdom, charisma)
+  - Query CSV_Characters to get current HP, AC, level, XP
+  - Query CSV_Resources to get current resource values (rage, superiority dice, action surge, etc.)
+  - Query CSV_SpellSlots to get current spell slots (remaining and max by level)
+  - Query CSV_Inventory to get equipped weapons and items
+  - Query CSV_ConditionReference to get active conditions
+  - If character data cannot be read from CSV/Sheets: BLOCK and output:
+    "BLOCKED: Cannot read character data from Google Sheets CSV: <character name>"
+- REFEREE agent MUST read from CSV/Sheets before processing any combat actions:
+  - Query CSV_Characters for current HP, AC, ability scores
+  - Query CSV_Resources for current resource values (remaining uses, active status) - NOT spell slots
+  - Query CSV_SpellSlots for current spell slots (remaining and max by level: 1st, 2nd, 3rd, etc.)
+  - Query CSV_Inventory for equipped weapons and magical properties
+  - Query CSV_ConditionReference for active conditions and effects
+  - Use CSV/Sheets values for all calculations - DO NOT use JSON files
+  - Do NOT assume or guess character stats - if CSV/Sheets unavailable, BLOCK
+- JSON files (if they exist) are for reference only:
+  - Located at: C:\DnD\Campaigns\<campaign>\characters\<character-name>.json
+  - May contain static data (class, race, background, features)
+  - **DO NOT use JSON files for current HP, resources, or spell slots**
+  - JSON files should be synced FROM sheets using `sync_characters_from_sheets.py`
 
 ## PASSIVE PERCEPTION (CRITICAL - TRAP DETECTION)
 - **Passive Perception = 10 + Wisdom modifier + proficiency bonus (if proficient in Perception)**
@@ -322,6 +347,8 @@ QA_COMPLIANCE: validate schemas/files/locations only.
    - Process turns in initiative order (highest first).
    - Track HP, conditions, and status for all combatants.
    - STATE_PATCHER must update combat state after each turn.
+   - **NARRATOR must create a cinematic narrative for each turn** describing what happened in an engaging, dramatic way.
+   - **Turn narratives must be stored** in CURRENT_STATE.json at `/combat/turn_narratives` array.
 
 3. **Combat State:**
    - Track: HP, AC, conditions, positions, status (alive/unconscious/dead).
@@ -350,39 +377,91 @@ QA_COMPLIANCE: validate schemas/files/locations only.
   - /combat/initiative_order (array of combatants with initiative values)
   - /combat/current_turn (whose turn it is)
   - /combat/combatants/{name} (HP, AC, status, conditions)
+  - /combat/turn_narratives (array of turn-by-turn cinematic narratives)
 - Update after each action that changes combat state.
+- **NARRATOR must add a turn narrative** to `/combat/turn_narratives` array after each turn with:
+  - `round` (integer)
+  - `turn_order` (integer - position in initiative)
+  - `combatant` (string - name of who acted)
+  - `narrative` (string - cinematic description of what happened)
+  - `timestamp` (ISO timestamp)
+
+## COMBAT NARRATIVE SYSTEM (CRITICAL)
+- **At the end of each turn:**
+  - NARRATOR must create a cinematic narrative describing what happened (2-4 sentences, engaging and dramatic)
+  - STATE_PATCHER must add the narrative to `/combat/turn_narratives` array in CURRENT_STATE.json
+  - Format: `{"round": 1, "turn_order": 1, "combatant": "Brevin", "narrative": "...", "timestamp": "..."}`
+- **At the end of the encounter (when `/combat/ended` = true):**
+  - NARRATOR must combine all turn narratives from `/combat/turn_narratives` into one cohesive play-by-play narrative
+  - The combined narrative should flow naturally, telling the story of the entire encounter
+  - Save the combined narrative to: `C:\DnD\Campaigns\<campaign>\saves\combat_narratives.json`
+  - File structure:
+    ```json
+    {
+      "encounter_id": "unique_id",
+      "location": "location_name",
+      "timestamp": "ISO timestamp",
+      "participants": ["Character1", "Character2", "Enemy1"],
+      "rounds": 2,
+      "turn_narratives": [...],
+      "combined_narrative": "Full play-by-play narrative of the encounter"
+    }
+    ```
+  - Also append to a master combat log file: `C:\DnD\Campaigns\<campaign>\saves\combat_log.txt` (append mode)
+- **Narrative style:**
+  - Use vivid, descriptive language
+  - Describe actions, reactions, and consequences
+  - Include environmental details when relevant
+  - Make it feel like a story, not just mechanics
 
 ## REAL-TIME UPDATES DURING COMBAT (CRITICAL)
-- **HP, spell slots, and resources MUST be updated in Google Sheets immediately as they change during combat.**
+- **CSV/Sheets is the source of truth - READ FIRST, UPDATE IMMEDIATELY.**
+- **HP, spell slots, and resources MUST be read from CSV/Sheets before use and updated immediately when they change.**
 - **DO NOT wait until combat ends to update character data.**
-- **Update workflow during combat:**
-  1. **When HP changes (damage/healing):**
+- **Workflow during combat (READ → CALCULATE → UPDATE):**
+  1. **BEFORE any action (attack, spell, resource use):**
+     - Read current HP from CSV_Characters (hp_current)
+     - Read current resource values from CSV_Resources (remaining, active) - NOT spell slots
+     - Read current spell slots from CSV_SpellSlots (remaining and max by level: 1st, 2nd, 3rd, etc.)
+     - Use these values for calculations
+  2. **When HP changes (damage/healing):**
+     - Calculate new HP value
      - Update immediately: `python C:\DnD\DnD_Cursor\scripts\update_hp.py "Character Name" <new_hp>`
-     - OR update in sheets directly, then sync to local JSON
      - Update CURRENT_STATE.json combatants HP
-  2. **When spell slots are used:**
-     - Update immediately: `python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py resource "Character Name" "1st" --remaining <new_value>`
+     - Verify update succeeded (check script output)
+  3. **When spell slots are used:**
+     - Read current remaining slots from CSV_SpellSlots
+     - Calculate new remaining value
+     - Update immediately: `python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py spellslot "Character Name" "1st" --max <max> --remaining <new_value>`
      - Update for each spell level used (1st, 2nd, 3rd, etc.)
-  3. **When resources are used (rage, action surge, etc.):**
+     - Verify update succeeded
+  4. **When resources are used (rage, action surge, superiority dice, etc.):**
+     - Read current remaining/active from CSV_Resources
+     - Calculate new remaining/active values
      - Update immediately: `python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py resource "Character Name" <resource_name> --max <max> --remaining <new_value> --active`
      - Include `--active` flag if resource is currently active (e.g., rage)
      - Remove `--active` flag when resource ends
-  4. **When conditions are applied/removed:**
+     - Verify update succeeded
+  5. **When conditions are applied/removed:**
      - Use condition management system: `python C:\DnD\DnD_Cursor\scripts\manage_conditions.py add/remove <character_name> <condition_name>`
-  5. **After each update:**
-     - Verify update succeeded (check script output)
+     - Verify update succeeded
+  6. **After each update:**
      - Update CURRENT_STATE.json to reflect changes
-     - Continue combat with updated values
+     - Continue combat with updated values from CSV/Sheets
 - **CRITICAL: Never proceed with combat using outdated HP/resource values.**
+- **CRITICAL: Always read from CSV/Sheets FIRST, then update immediately after changes.**
 - **Example combat turn:**
-  - Character takes 5 damage: Update HP immediately → Continue with new HP
-  - Character casts spell: Update spell slot immediately → Continue with remaining slots
-  - Character enters rage: Update rage resource immediately → Continue with rage active
+  - Before attack: Read current HP from CSV_Characters
+  - Character takes 5 damage: Calculate new HP → Update CSV immediately → Update state → Continue
+  - Before spell: Read current spell slots from CSV_Resources
+  - Character casts spell: Calculate new remaining → Update CSV immediately → Continue
+  - Before resource use: Read current remaining from CSV_Resources
+  - Character enters rage: Calculate new remaining/active → Update CSV immediately → Continue
 - **This ensures:**
+  - CSV/Sheets is always the source of truth
   - Character data in sheets is always current
-  - Local JSON files can be synced to reflect current state
   - No data loss if combat is interrupted
-  - Accurate tracking for future turns
+  - Accurate tracking for future turns (next turn reads current values from CSV)
 
 ## ENEMY TURNS (CRITICAL)
 - **The system ALWAYS plays enemy turns automatically.**
@@ -402,42 +481,51 @@ QA_COMPLIANCE: validate schemas/files/locations only.
 
 ## REQUIRED DATA BEFORE COMBAT ACTIONS (CRITICAL)
 - **DO NOT process combat actions (attacks, damage, saves) without required character data.**
+- **CSV/Sheets is the source of truth - READ FIRST, UPDATE IMMEDIATELY.**
 - Before processing any attack (player or enemy), REFEREE must:
-  1. **Load the character's JSON file** from: C:\DnD\Campaigns\<campaign>\characters\<character-name>.json
-  2. Extract required stats: AC, HP (current/max), ability scores, resistances
-  3. **Check equipped weapons from CSV_Inventory:**
+  1. **Query CSV_Characters for current stats:**
+     - Get current HP (hp_current), max HP (hp_max), AC, level, XP
+     - Get ability scores (if stored in CSV_Characters)
+     - Use these values - DO NOT use JSON files for current HP/AC
+  2. **Query CSV_Resources for current resource values:**
+     - Get remaining uses for all resources (rage, superiority_dice, spell slots, etc.)
+     - Get active status for resources (e.g., rage active: Yes/No)
+     - Use these values - DO NOT use JSON files for resources
+  3. **Query CSV_Inventory for equipped weapons:**
      - Query CSV_Inventory for character's equipped weapons (equipped="Yes")
      - Read weapon notes for magical properties (+1, +2, +3 bonuses, special abilities)
      - Apply weapon bonuses to attack and damage rolls
      - Check for special properties (e.g., max damage vs specific creature types)
-  4. **Check active conditions:**
+  4. **Query CSV_ConditionReference for active conditions:**
      - Run: `python C:\DnD\DnD_Cursor\scripts\manage_conditions.py effects <character_name>`
      - Get combined mechanical effects JSON
      - Apply condition modifiers to AC, attack rolls, saves, skills
-  5. Use these combined values (base stats + weapon bonuses + condition effects) for all calculations
-- Required character data for combat:
-  - Target's AC (Armor Class) - from character JSON + condition modifiers (ac_mod)
-  - Target's current HP (if damage is being applied) - from character JSON
-  - Any relevant resistances/immunities - from character JSON features + conditions
-  - Active conditions and their effects - from Google Sheets CSV_ConditionReference
+  5. Use these combined values (CSV stats + weapon bonuses + condition effects) for all calculations
+- Required character data for combat (all from CSV/Sheets):
+  - Target's AC (Armor Class) - from CSV_Characters + condition modifiers (ac_mod)
+  - Target's current HP (if damage is being applied) - from CSV_Characters (hp_current)
+  - Resource values (remaining uses, active status) - from CSV_Resources
+  - Any relevant resistances/immunities - from character features (static) + conditions
+  - Active conditions and their effects - from CSV_ConditionReference
 - **Condition Effects (CRITICAL):**
   - Before any combat roll, REFEREE MUST check active conditions using the `effects` command
   - Apply all condition effects:
-    - AC modifiers (ac_mod) - add to base AC
+    - AC modifiers (ac_mod) - add to base AC from CSV_Characters
     - Attack advantage/disadvantage - apply to attack rolls
     - Save advantage/disadvantage - apply to saving throws
     - Skill advantage/disadvantage - apply to ability checks
     - Speed modifiers - apply to movement
     - Damage resistance/immunity - apply to damage calculations
-  - Condition effects **override or modify** base stats
+  - Condition effects **override or modify** base stats from CSV
   - If multiple conditions apply, combine their effects
   - Advantage + Disadvantage = normal roll (D&D 5e rule)
-- If character JSON file is missing or invalid:
+- If character data cannot be read from CSV/Sheets:
   - BLOCK the action
-  - Output: "BLOCKED: Missing required character data: <character-name>.json not found or invalid"
-  - Do NOT proceed with combat until character file exists and is valid
+  - Output: "BLOCKED: Cannot read character data from Google Sheets CSV: <character-name>"
+  - Do NOT proceed with combat until CSV/Sheets is accessible
 - This applies to both player attacks and enemy attacks.
-- **Character stats MUST be loaded from JSON files - never guess or assume.**
+- **Character stats MUST be read from CSV/Sheets - never guess or assume.**
+- **Resources MUST be read from CSV_Resources before use and updated immediately after use.**
 - **Condition effects MUST be checked before every combat action.**
 - **Magical weapon modifiers MUST be checked before every attack:**
   - Check CSV_Inventory for equipped weapons with magical properties
@@ -516,7 +604,9 @@ QA_COMPLIANCE: validate schemas/files/locations only.
 - **Reference:** `C:\DnD\DnD_Cursor\docs\CAMPAIGN_EVENTS_SYSTEM.md` for detailed documentation
 
 ## GOOGLE SHEETS UPDATES (CRITICAL - POST-ENCOUNTER)
+- **CSV/Sheets is the source of truth - READ FIRST, then UPDATE.**
 - **After distributing loot or awarding XP, MUST update Google Sheets.**
+- **Workflow: READ current values from CSV → Calculate new values → UPDATE CSV immediately.**
 - **Script:** `C:\DnD\DnD_Cursor\scripts\update_sheets_data.py`
 - **Available commands:**
   1. **Update XP:**
@@ -535,6 +625,10 @@ QA_COMPLIANCE: validate schemas/files/locations only.
      ```powershell
      python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py resource "Character Name" <resource_name> --max <value> --remaining <value> --active
      ```
+  5. **Update Spell Slots:**
+     ```powershell
+     python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py spellslot "Character Name" "1st" --max <value> --remaining <value>
+     ```
 - **Non-Spellcaster Resource Tracking (CRITICAL):**
   - **ALL non-spellcaster resources MUST be tracked in CSV_Resources**
   - **When a character uses a resource, ALWAYS update CSV_Resources immediately**
@@ -550,13 +644,14 @@ QA_COMPLIANCE: validate schemas/files/locations only.
     - **Rogue (Brevin):**
       - No limited-use resources to track (Cunning Action, Sneak Attack are at-will)
     - **Cleric (Torgga):**
-      - Spell slots tracked by level (`1st`, `2nd`, `3rd`, etc.)
-      - Channel Divinity (if applicable, max: 1-3 depending on level)
-  - **Resource update workflow:**
-    1. When character uses resource: Update `--remaining` and `--active` if applicable
-    2. When resource ends: Update `--active` to remove flag (or set to false)
-    3. After short rest: Restore resources that reset on short rest
-    4. After long rest: Restore all resources to max
+      - Spell slots tracked by level (`1st`, `2nd`, `3rd`, etc.) in CSV_SpellSlots (use `spellslot` command)
+      - Channel Divinity (if applicable, max: 1-3 depending on level) in CSV_Resources
+  - **Resource update workflow (READ → CALCULATE → UPDATE):**
+    1. **BEFORE using resource:** Read current `remaining` and `active` from CSV_Resources
+    2. **When character uses resource:** Calculate new `remaining` → Update CSV_Resources with `--remaining` and `--active` if applicable
+    3. **When resource ends:** Calculate new `active` → Update CSV_Resources to remove `--active` flag
+    4. **After short rest:** Read current values → Calculate restored values → Update CSV_Resources for resources that reset on short rest
+    5. **After long rest:** Read current values → Calculate restored values → Update CSV_Resources to restore all resources to max
   - **Example commands:**
     ```powershell
     # Enter rage (use 1, set active)
@@ -574,12 +669,13 @@ QA_COMPLIANCE: validate schemas/files/locations only.
   - `Ergath` → `Eglath Bearkiller` (character_id: `eglath_bearkiller`)
   - `Torgga` → `Torgga Brawnanvil` (character_id: `torgga_brawnanvil`)
   - `Vandross` → `Vandross Ephrates` (character_id: `vandross_ephrates`)
-- **After loot distribution:**
-  1. Calculate total treasure value
-  2. Distribute currency equally (or as specified)
-  3. Update currency for each character
-  4. Add inventory items to CSV_Inventory for each character
-  5. Verify all updates succeeded
+- **After loot distribution (READ → CALCULATE → UPDATE):**
+  1. **Read current currency** from CSV_Currency for each character
+  2. Calculate total treasure value
+  3. Calculate new currency values (current + distributed)
+  4. Update currency in CSV_Currency for each character
+  5. Add inventory items to CSV_Inventory for each character
+  6. Verify all updates succeeded (check script output)
 - **Inventory item fields:**
   - `item` - Item name (required)
   - `--type` - Item type (e.g., "Weapon", "Spell Scroll", "Treasure")
