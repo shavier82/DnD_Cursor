@@ -306,6 +306,14 @@ QA_COMPLIANCE: validate schemas/files/locations only.
    - If surprise occurs, resolve surprise round first.
    - Then roll initiative for all combatants.
    - Establish turn order.
+   - **CRITICAL: Immediately update CURRENT_STATE.json:**
+     - Set `/combat/initiated` = true
+     - Set `/combat/ended` = false
+     - Set `/combat/round` = 1 (or appropriate round number)
+     - Add `/combat/initiative_order` array with all combatants and their initiative values
+     - Add `/combat/combatants` object with HP, AC, status for all combatants
+     - Update `/scene/location` and `/scene/description` to reflect combat location
+   - **State MUST reflect combat is in progress before proceeding with turns.**
 
 2. **Turn Order:**
    - Process turns in initiative order (highest first).
