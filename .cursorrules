@@ -492,6 +492,40 @@ QA_COMPLIANCE: validate schemas/files/locations only.
      ```powershell
      python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py resource "Character Name" <resource_name> --max <value> --remaining <value> --active
      ```
+- **Non-Spellcaster Resource Tracking (CRITICAL):**
+  - **ALL non-spellcaster resources MUST be tracked in CSV_Resources**
+  - **When a character uses a resource, ALWAYS update CSV_Resources immediately**
+  - **Required resources to track:**
+    - **Barbarian (Ergath):**
+      - `rage` - Max uses per long rest (level 1-2: 2, level 3-5: 3, level 6-11: 4, level 12-16: 5, level 17-20: 6)
+      - Update when entering rage: `--remaining <new_value> --active`
+      - Update when rage ends: remove `--active` flag
+    - **Fighter (Vandross):**
+      - `second_wind` - 1 use per short rest (max: 1)
+      - `action_surge` - 1 use per short rest (max: 1, 2 uses at level 17+)
+      - `superiority_dice` - If Battle Master subclass (max varies by level)
+    - **Rogue (Brevin):**
+      - No limited-use resources to track (Cunning Action, Sneak Attack are at-will)
+    - **Cleric (Torgga):**
+      - Spell slots tracked by level (`1st`, `2nd`, `3rd`, etc.)
+      - Channel Divinity (if applicable, max: 1-3 depending on level)
+  - **Resource update workflow:**
+    1. When character uses resource: Update `--remaining` and `--active` if applicable
+    2. When resource ends: Update `--active` to remove flag (or set to false)
+    3. After short rest: Restore resources that reset on short rest
+    4. After long rest: Restore all resources to max
+  - **Example commands:**
+    ```powershell
+    # Enter rage (use 1, set active)
+    python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py resource "Ergath" rage --max 3 --remaining 1 --active
+    
+    # Use Action Surge
+    python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py resource "Vandross Ephrates" action_surge --max 1 --remaining 0
+    
+    # After short rest (restore Action Surge)
+    python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py resource "Vandross Ephrates" action_surge --max 1 --remaining 1
+    ```
+  - **CRITICAL: Always include --max when updating resources to ensure max value is correct**
 - **Character name mapping:**
   - `Brevin` / `Brovin` → `Halfling Rogue` (character_id: `halfling_rogue`)
   - `Ergath` → `Eglath Bearkiller` (character_id: `eglath_bearkiller`)
