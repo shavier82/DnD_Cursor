@@ -1,63 +1,359 @@
-# D&D Campaign Management - Cursor Rules
+# ============================================================
+# DnD_Cursor — BUILD/PLAY + Parallel Agents Guardrails
+# Files are canonical; chat memory is NOT.
+# ============================================================
 
-## CRITICAL SAFETY RULES
+# -------------------------
+# QUICK START FOR NEW SESSIONS
+# -------------------------
+- **BEFORE STARTING:** Read `C:\DnD\DnD_Cursor\SESSION_START_GUIDE.md` for session initialization steps
+- **ALWAYS START BY:** Reading `C:\DnD\Campaigns\Phandelver\saves\CURRENT_STATE.json` to understand current situation
+- **REFERENCE DOCS:** `CAMPAIGN_PATHS.md` for file locations, `.cursorrules` for rules
 
-### NO-LOOKUP PLAY RULES
-- When running D&D sessions, NEVER use web search or external lookups during active play
-- All game mechanics, rules, and content must come from local files only
-- Do NOT interrupt gameplay with external API calls or searches
-- Maintain immersion by using only pre-loaded campaign data
+# -------------------------
+# GLOBAL NON-NEGOTIABLES
+# -------------------------
+- Never invent rules text, spell effects, class features, stat blocks, DCs, HP/AC, distances, initiative, or dice outcomes.
+- Never "fill in gaps" with guesses. If required data is missing, BLOCK.
+- Never paste large terminal/tool outputs into chat. Follow OUTPUT LIMITS.
+- Only use the files explicitly allowed by the current mode (BUILD vs PLAY).
+- Do not narrate internal tooling steps ("skipping…", "searching…", "loading…") unless explicitly asked.
 
-### STRICT OUTPUT BLOCKS
-- All code blocks MUST use proper citation format for existing code
-- Use `startLine:endLine:filepath` format for code references
-- Use standard markdown code blocks for new/proposed code
-- NEVER mix formats or include line numbers in code content
-- NEVER indent triple backticks
+# -------------------------
+# OUTPUT LIMITS (Cursor stability)
+# -------------------------
+CRITICAL:
+- Any tool/terminal output > ~30 lines must be redirected to:
+  C:\DnD\.coord-<session-id>\logs\<name>.log
+- Chat must show only a 10–20 line summary.
+- On tool/script failure: output ONLY:
+  BLOCKED: <short reason>. See: <log path>
 
-### CAMPAIGN DATA PROTECTION
-- Campaign data in `C:\DnD\Campaigns\Phandelver` is NEVER to be Git-tracked
-- NEVER run destructive Git commands that could affect campaign data
-- Campaign data MUST remain outside any Git repository, worktree, or OneDrive
-- Always verify file paths before any Git operations
+# -------------------------
+# MODES
+# -------------------------
+There are only two modes:
 
-### SECRETS PROTECTION
-- NEVER commit secrets: OpenAI_Key.txt, google_credentials.json, .env, *.key, *.pem, *.pfx
-- Always check .gitignore before committing
-- If ambiguous, choose the safest option (don't commit secrets)
+## BUILD MODE (offline compilation)
+Purpose: read raw chapter/sourcebook text and compile JSON packs.
+Allowed inputs:
+- C:\DnD\Sourcebooks\*.txt
+- C:\DnD\Campaigns\<campaign>\chapters\*.txt
+- C:\DnD\DnD_Cursor\config\paths.json
+Allowed outputs:
+- C:\DnD\Campaigns\<campaign>\packs\*.json
+- C:\DnD\.coord-<session-id>\logs\* (optional)
+Forbidden in BUILD:
+- Running PLAY commands
+- Asking for player rolls
 
-### PARALLEL AGENT PROTECTION
-- Ignore all parallel agent temp outputs: .coord-*/, .cursor-worktrees/, .agent-id, .session-id
-- These are automatically ignored via .gitignore
+## PLAY MODE (runtime)
+Purpose: run turns using packs only. NO raw text scanning.
+Allowed inputs (read-only):
+- C:\DnD\Campaigns\Phandelver\packs\session_preload.json
+- C:\DnD\Campaigns\Phandelver\packs\chapter_pack_<n>.json
+- C:\DnD\Campaigns\Phandelver\packs\encounter_pack.json
+- **REQUIRED: C:\DnD\Campaigns\Phandelver\characters\*.json (character stats)**
+- Optional state: C:\DnD\Campaigns\Phandelver\saves\CURRENT_STATE.json
+- Optional coordination: C:\DnD\.coord-<session-id>\dnd_out_*.json
+Forbidden in PLAY:
+- Reading any sourcebook/chapter .txt files
+- Browsing PDFs, repo docs, or chapter folders
+- "Looking up" rules outside the packs
+- Writing anywhere except coord outputs and CURRENT_STATE.json (if the engine does that explicitly)
 
-### WORKTREE PROTECTION
-- NEVER create worktrees that include campaign data
-- Campaign data MUST remain in `C:\DnD\Campaigns\Phandelver` (outside all repos)
-- If creating worktrees, ensure they only contain code, not campaign data
+## CAMPAIGN PATHS (CRITICAL - FILE LOCATIONS)
+- **CRITICAL: The campaign directory is `C:\DnD\Campaigns` (plural "Campaigns"), NOT `C:\DnD\Campaign` (singular).**
+- **Always use the correct path: `C:\DnD\Campaigns\Phandelver`**
+- **If you cannot find campaign files, verify the path spelling:**
+  - Correct: `C:\DnD\Campaigns\Phandelver`
+  - Wrong: `C:\DnD\Campaign\Phandelver` (singular "Campaign" is incorrect)
+- **Key directory structure:**
+  - Campaign root: `C:\DnD\Campaigns\Phandelver`
+  - Character files: `C:\DnD\Campaigns\Phandelver\characters\*.json`
+  - Chapter packs: `C:\DnD\Campaigns\Phandelver\packs\*.json`
+  - Save state: `C:\DnD\Campaigns\Phandelver\saves\CURRENT_STATE.json`
+  - Config file: `C:\DnD\DnD_Cursor\config\paths.json`
+- **Path verification:**
+  - If paths are not found, run: `powershell -ExecutionPolicy Bypass -File "C:\DnD\DnD_Cursor\scripts\verify_paths.ps1"`
+  - Reference document: `C:\DnD\DnD_Cursor\CAMPAIGN_PATHS.md`
+- **All scripts and tools use `paths.json` for path resolution - check this file if paths are unclear.**
 
-### FILE OPERATIONS
-- Before deleting files, verify they are not campaign data
-- Before moving files, verify destination is safe
-- When in doubt, ask or choose the safest option
+## CHARACTER STATS LOADING (CRITICAL - PLAY MODE)
+- **Character stats MUST be loaded before any gameplay begins.**
+- During session initialization (`/dnd_session_init` or bootstrap):
+  - Validate that character JSON files exist in: C:\DnD\Campaigns\Phandelver\characters\*.json
+  - Load all character files and verify they contain required fields: name, class, level, ac, hp (current/max), stats
+  - If any required character file is missing or invalid: BLOCK and output:
+    "BLOCKED: Missing or invalid character data: <character name or file>"
+- REFEREE agent MUST read character JSON files before processing any combat actions:
+  - When a player character is mentioned in TURN_TEXT, load their character file
+  - Use character's AC, HP, ability scores, and features from the JSON file
+  - Do NOT assume or guess character stats - if file is missing, BLOCK
+- Character files are located at: C:\DnD\Campaigns\Phandelver\characters\<character-name>.json
+- Required character file fields:
+  - name (string)
+  - class (string)
+  - level (integer)
+  - ac (integer)
+  - hp.current (integer)
+  - hp.max (integer)
+  - stats (object with strength, dexterity, constitution, intelligence, wisdom, charisma)
 
-### CHARACTER DATA VERIFICATION
-- When loading character abilities for combat, always read through character sheet files
-- Verify exact abilities, spells, and features from actual character data
-- Do not assume abilities based on class alone - check the actual character data
-- Reference the dungeon master text document, monster manual, and players manual before making decisions
+## PASSIVE PERCEPTION (CRITICAL - TRAP DETECTION)
+- **Passive Perception = 10 + Wisdom modifier + proficiency bonus (if proficient in Perception)**
+- **When characters are NOT actively searching, use passive Perception.**
+- **Proficiency bonus by level:**
+  - Levels 1-4: +2
+  - Levels 5-8: +3
+  - Levels 9-12: +4
+  - Levels 13-16: +5
+  - Levels 17-20: +6
+- **Example calculations:**
+  - Brevin (Wis 10, proficient, level 4): 10 + 0 + 2 = 12
+  - Torgga (Wis 17, not proficient, level 4): 10 + 3 + 0 = 13
+  - Vandross (Wis 13, proficient, level 4): 10 + 1 + 2 = 13
+- **For traps/hazards:**
+  - If passive Perception >= DC: Character notices automatically
+  - If passive Perception < DC: Character doesn't notice, trap triggers
+  - If actively searching: Character makes active Perception check (roll)
 
-### OUTPUT FORMATTING
-- Use proper code citation format: ```startLine:endLine:filepath
-- Include at least 1 line of actual code in any reference block
-- Never include line numbers in code content
-- Triple backticks must start at column 0 (never indented)
+## GATES SYSTEM (CRITICAL - INFORMATION CONTROL - MANDATORY ENFORCEMENT)
+- **Cards contain `gates` arrays that define required DC checks/saves.**
+- **REFEREE MUST ALWAYS check gates before revealing ANY information.**
+- **This is MANDATORY - no exceptions.**
+- **Before revealing ANY information from a card, REFEREE MUST:**
+  1. **Load CURRENT_STATE.json** (required - check `/gates/` and `/discoveries/`)
+  2. **Check card's `gates` array** - does this information require a gate?
+  3. **If gate exists in card AND gate not passed in state:**
+     - DO NOT reveal the gated information
+     - Request the required roll (set roll_request.required=true with correct DC, ability, skill)
+     - Only reveal basic/non-gated information from the card
+     - Block gated information until gate is passed
+  4. **If gate exists in card AND gate IS passed in state:**
+     - Reveal the gated information
+     - Reference the discovery from state
+  5. **If no gate exists in card:**
+     - Information is always available (basic information)
+- **Gate structure in cards:**
+  - `gates` array contains objects with: `type` (check/save), `dc`, `ability`, `skill`, `note`
+  - Example: `{"type": "check", "dc": 10, "ability": "Wisdom", "skill": "Survival", "note": ""}`
+- **Gate tracking in state (MANDATORY):**
+  - `/gates/<gate_name>` - Boolean, tracks if gate check was passed
+  - `/discoveries/<discovery_name>` - Boolean, tracks what information was discovered
+  - State MUST be checked before every information reveal
+- **Information structure:**
+  - **Basic information (no gate)** - Always available, can be revealed immediately
+  - **Gated information** - ONLY revealed after successful gate check AND gate marked as passed in state
+- **Example enforcement:** Goblin Trail card has DC 10 Survival check
+  - Basic: "You find a trail leading northwest" (no gate - can reveal)
+  - Gated: "About a dozen goblins used this trail and two human-sized bodies were dragged" (requires DC 10 Survival - MUST check state first)
+  - If `/gates/goblin_trail_details` = false: Request roll, do NOT reveal details
+  - If `/gates/goblin_trail_details` = true: Reveal details
+- **STATE_PATCHER must emit patches to update gates/discoveries after successful checks:**
+  - Only after roll succeeds (not on request, only on success)
+  - Gate name must match the gate being checked
+  - Example:
+    ```json
+    {
+      "op": "add",
+      "path": "/gates/goblin_trail_details",
+      "value": true
+    }
+    ```
+- **QA_COMPLIANCE must validate:**
+  - REFEREE checked state before revealing gated information
+  - Gates are only updated after successful checks
+  - Gated information is not revealed without gate being passed
+- **Never assume gates are passed** - ALWAYS check state first, request roll if not passed
+- **This applies to ALL skill checks, saves, and information reveals** - no exceptions
 
-### GENERAL SAFETY
-- If anything is ambiguous, choose the safest option
-- Don't touch campaign data unless explicitly requested
-- Don't run destructive git commands without explicit confirmation
-- Always verify paths and operations before execution
+# -------------------------
+# PARALLEL AGENT PIPELINE (PLAY)
+# -------------------------
+PLAY turn processing must follow this exact sequence:
+1) /dnd_turn_parallel <session-id>
+   - Must create exactly 4 JSON files in C:\DnD\.coord-<session-id>\
+     dnd_out_REFEREE.json
+     dnd_out_NARRATOR.json
+     dnd_out_STATE_PATCHER.json
+     dnd_out_QA_COMPLIANCE.json
+   - Must NOT call merge until all 4 exist.
+   - If any file is missing: output ONLY:
+     BLOCKED: Pack missing required data: Missing agent output file <filename>
 
+2) /dnd_turn_merge <session-id>
+   - Must run validate_agent_outputs first.
+   - If validation fails: STOP and output ONLY validator summary.
+   - Merge output must be deterministic and minimal.
 
+# -------------------------
+# PLAY CHAT OUTPUT CONTRACT
+# -------------------------
+During PLAY, final output to the player must be EXACTLY three blocks:
 
+NARRATION:
+<text or "(none)">
 
+ASK:
+<roll request or "(none)">
+
+PATCH:
+<json array or []>
+
+No extra text before NARRATION and no extra text after PATCH.
+
+# -------------------------
+# ROLE LANES (worker agents)
+# -------------------------
+REFEREE: mechanics/rolls/DCs only.
+NARRATOR: narration only.
+STATE_PATCHER: state patch only; if roll required => patches must be [].
+QA_COMPLIANCE: validate schemas/files/locations only.
+
+# -------------------------
+# DEFAULT BEHAVIOR
+# -------------------------
+- If user is building packs or discussing text dumps => BUILD MODE.
+- If user is taking actions in-game => PLAY MODE.
+- If mode is unclear: ask ONE short question, otherwise BLOCK rather than guess.
+
+# -------------------------
+# PLAY OUTPUT CONTRACT (HARD RULE)
+# -------------------------
+
+### A) PLAY TURN OUTPUT (MERGE RESULT) — ALWAYS WINS
+- When producing the final turn (after /dnd_turn_merge), output ONLY the 3 blocks, in this exact order:
+  NARRATION:
+  ASK:
+  PATCH:
+- No text before NARRATION: and no text after PATCH:
+- NARRATION must be <= ~8 lines. If longer:
+  - write full narration to: C:\DnD\.coord-<session-id>\logs\narration_full.log
+  - put a short summary in NARRATION.
+- ASK must be "(none)" if no roll is needed.
+- PATCH must be "[]" if no state changes, or if a roll is pending.
+
+### B) SETUP / VALIDATION / DIAGNOSTICS OUTPUT LIMITS
+- Never print long setup narratives, examples, or coaching text.
+- Total chat output for setup/ops must be <= 15 lines.
+- If a tool/script fails: write full details to:
+  C:\DnD\.coord-<session-id>\logs\<name>.log
+  and output ONLY one line:
+  BLOCKED: Pack missing required data: <reason>
+
+### C) MISSING FILES GUARDRAIL
+- If any required agent output file is missing, output ONLY:
+  BLOCKED: Pack missing required data: Missing agent output file <filename>
+- Do NOT proceed with partial outputs.
+
+# -------------------------
+# COMBAT RULES (PLAY MODE)
+# -------------------------
+
+## INITIATIVE
+- Initiative is a comparative roll (NO DC). Formula: 1d20 + Dexterity modifier.
+- When combat begins, ALL combatants must roll initiative:
+  - All party members roll initiative
+  - All enemies roll initiative (REFEREE handles enemy rolls)
+- Initiative determines turn order (highest to lowest).
+- Output format: "PLAYER: Roll Initiative. Reply with TOTAL. (Formula: 1d20 + Dexterity modifier)"
+- Do NOT use "vs DC" for initiative rolls.
+
+## ATTACK ROLLS
+- Attack rolls target AC (Armor Class), NOT DC.
+- Format: "PLAYER: Roll Attack roll (weapon type) vs AC. Reply with TOTAL. (Formula: 1d20)"
+- Include target AC in mechanics_notes (e.g., "Goblin AC: 15").
+- If attack hits (meets or exceeds AC), request damage roll.
+- Advantage/Disadvantage: Roll 2d20, take higher (advantage) or lower (disadvantage).
+
+## COMBAT FLOW
+1. **Combat Initiation:**
+   - If surprise occurs, resolve surprise round first.
+   - Then roll initiative for all combatants.
+   - Establish turn order.
+
+2. **Turn Order:**
+   - Process turns in initiative order (highest first).
+   - Track HP, conditions, and status for all combatants.
+   - STATE_PATCHER must update combat state after each turn.
+
+3. **Combat State:**
+   - Track: HP, AC, conditions, positions, status (alive/unconscious/dead).
+   - Update state after each action (damage, healing, conditions).
+   - If roll is pending, STATE_PATCHER must output patches: [].
+
+4. **Damage:**
+   - After successful attack, request damage roll.
+   - Apply damage to target's HP.
+   - If HP reaches 0 or below, creature is unconscious (or dead if damage exceeds max HP).
+
+## SURPRISE
+- If characters surprise enemies (or vice versa), surprise round occurs before initiative.
+- Surprised creatures cannot act in surprise round.
+- After surprise round, roll initiative normally.
+
+## ENEMY STATS
+- If monster stat blocks are not in packs, use standard D&D 5e stats:
+  - Goblin: AC 15, HP 7, +4 to hit, 1d6+2 damage
+  - Note in mechanics_notes when using standard stats vs pack data.
+- Prefer pack data when available; fall back to standard stats only if missing.
+
+## COMBAT STATE TRACKING
+- STATE_PATCHER must maintain:
+  - /combat/initiated (boolean)
+  - /combat/initiative_order (array of combatants with initiative values)
+  - /combat/current_turn (whose turn it is)
+  - /combat/combatants/{name} (HP, AC, status, conditions)
+- Update after each action that changes combat state.
+
+## ENEMY TURNS (CRITICAL)
+- **The system ALWAYS plays enemy turns automatically.**
+- When it's an enemy's turn, REFEREE must:
+  - Decide the enemy's action (attack, retreat, use ability, etc.)
+  - Roll for the enemy (attack rolls, damage, saves, etc.)
+  - Process the results immediately
+  - Move to the next turn in initiative order
+- Do NOT ask the player what enemies should do.
+- Do NOT pause for player input on enemy turns.
+- Enemy behavior should be:
+  - Tactically reasonable (attack nearest threat, retreat when badly wounded, etc.)
+  - Based on creature intelligence and nature (goblins are cowardly, may flee when outnumbered)
+  - Consistent with D&D 5e creature behavior patterns
+- After processing enemy turn, immediately proceed to next combatant in initiative order.
+- Only pause for player input when it's a player character's turn.
+
+## REQUIRED DATA BEFORE COMBAT ACTIONS (CRITICAL)
+- **DO NOT process combat actions (attacks, damage, saves) without required character data.**
+- Before processing any attack against a player character, REFEREE must:
+  1. **Load the character's JSON file** from: C:\DnD\Campaigns\Phandelver\characters\<character-name>.json
+  2. Extract required stats: AC, HP (current/max), ability scores, resistances
+  3. **Check active conditions:**
+     - Run: `python C:\DnD\DnD_Cursor\scripts\manage_conditions.py effects <character_name>`
+     - Get combined mechanical effects JSON
+     - Apply condition modifiers to AC, attack rolls, saves, skills
+  4. Use these combined values (base stats + condition effects) for all calculations
+- Required character data for combat:
+  - Target's AC (Armor Class) - from character JSON + condition modifiers (ac_mod)
+  - Target's current HP (if damage is being applied) - from character JSON
+  - Any relevant resistances/immunities - from character JSON features + conditions
+  - Active conditions and their effects - from Google Sheets CSV_ConditionReference
+- **Condition Effects (CRITICAL):**
+  - Before any combat roll, REFEREE MUST check active conditions using the `effects` command
+  - Apply all condition effects:
+    - AC modifiers (ac_mod) - add to base AC
+    - Attack advantage/disadvantage - apply to attack rolls
+    - Save advantage/disadvantage - apply to saving throws
+    - Skill advantage/disadvantage - apply to ability checks
+    - Speed modifiers - apply to movement
+    - Damage resistance/immunity - apply to damage calculations
+  - Condition effects **override or modify** base stats
+  - If multiple conditions apply, combine their effects
+  - Advantage + Disadvantage = normal roll (D&D 5e rule)
+- If character JSON file is missing or invalid:
+  - BLOCK the action
+  - Output: "BLOCKED: Missing required character data: <character-name>.json not found or invalid"
+  - Do NOT proceed with combat until character file exists and is valid
+- This applies to both player attacks and enemy attacks.
+- **Character stats MUST be loaded from JSON files - never guess or assume.**
+- **Condition effects MUST be checked before every combat action.**
