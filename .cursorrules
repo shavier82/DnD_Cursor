@@ -341,6 +341,38 @@ QA_COMPLIANCE: validate schemas/files/locations only.
   - /combat/combatants/{name} (HP, AC, status, conditions)
 - Update after each action that changes combat state.
 
+## REAL-TIME UPDATES DURING COMBAT (CRITICAL)
+- **HP, spell slots, and resources MUST be updated in Google Sheets immediately as they change during combat.**
+- **DO NOT wait until combat ends to update character data.**
+- **Update workflow during combat:**
+  1. **When HP changes (damage/healing):**
+     - Update immediately: `python C:\DnD\DnD_Cursor\scripts\update_hp.py "Character Name" <new_hp>`
+     - OR update in sheets directly, then sync to local JSON
+     - Update CURRENT_STATE.json combatants HP
+  2. **When spell slots are used:**
+     - Update immediately: `python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py resource "Character Name" "1st" --remaining <new_value>`
+     - Update for each spell level used (1st, 2nd, 3rd, etc.)
+  3. **When resources are used (rage, action surge, etc.):**
+     - Update immediately: `python C:\DnD\DnD_Cursor\scripts\update_sheets_data.py resource "Character Name" <resource_name> --max <max> --remaining <new_value> --active`
+     - Include `--active` flag if resource is currently active (e.g., rage)
+     - Remove `--active` flag when resource ends
+  4. **When conditions are applied/removed:**
+     - Use condition management system: `python C:\DnD\DnD_Cursor\scripts\manage_conditions.py add/remove <character_name> <condition_name>`
+  5. **After each update:**
+     - Verify update succeeded (check script output)
+     - Update CURRENT_STATE.json to reflect changes
+     - Continue combat with updated values
+- **CRITICAL: Never proceed with combat using outdated HP/resource values.**
+- **Example combat turn:**
+  - Character takes 5 damage: Update HP immediately → Continue with new HP
+  - Character casts spell: Update spell slot immediately → Continue with remaining slots
+  - Character enters rage: Update rage resource immediately → Continue with rage active
+- **This ensures:**
+  - Character data in sheets is always current
+  - Local JSON files can be synced to reflect current state
+  - No data loss if combat is interrupted
+  - Accurate tracking for future turns
+
 ## ENEMY TURNS (CRITICAL)
 - **The system ALWAYS plays enemy turns automatically.**
 - When it's an enemy's turn, REFEREE must:
