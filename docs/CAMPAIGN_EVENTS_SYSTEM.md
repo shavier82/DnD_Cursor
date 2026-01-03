@@ -188,6 +188,21 @@ All agents should:
 - **CAMPAIGN_EVENTS.json**: Tracks story context, relationships, choices, consequences
 - Both files work together to provide complete campaign context
 
+## Automatic Event Tracking
+
+The system automatically tracks many events from state changes without manual intervention:
+
+- **Encounter completions** - Automatically creates events when encounters are completed
+- **Quest item discoveries** - Automatically updates quest status when quest items are discovered
+- **Quest location arrivals** - Automatically tracks progress when party arrives at quest locations
+- **Major milestones** - Detects and records significant state changes
+
+**Script:** `C:\DnD\DnD_Cursor\scripts\auto_event_tracker.ps1`
+
+**Integration:** Runs automatically after each turn merge (`merge_outputs.ps1`)
+
+**Reference:** See `C:\DnD\DnD_Cursor\docs\AUTO_EVENT_TRACKING.md` for detailed documentation on what gets tracked automatically and how it works.
+
 ## Manual Updates
 
 Events can be manually updated by editing the JSON file directly, or through STATE_PATCHER patches:
