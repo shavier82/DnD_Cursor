@@ -329,7 +329,9 @@ QA_COMPLIANCE: validate schemas/files/locations only.
 ## COMBAT FLOW
 - **CRITICAL: ALL COMBAT TURNS MUST USE THE PARALLEL AGENT PIPELINE.**
 - **MANDATORY WORKFLOW:**
-  - **Every combat turn MUST be processed using `/dnd_turn_parallel <session-id>` followed by `/dnd_turn_merge <session-id>`.**
+  - **The AI assistant MUST automatically process every combat turn using the parallel agent system.**
+  - **The AI creates the 4 agent output files, then runs validation and merge automatically.**
+  - **Players should NEVER need to manually invoke `/dnd_turn_parallel` or `/dnd_turn_merge` - the AI handles this automatically.**
   - **DO NOT process combat turns directly - this bypasses the narrative system and proper state management.**
   - **The parallel agent system ensures:**
     - Turn-by-turn cinematic narratives are created
@@ -354,7 +356,8 @@ QA_COMPLIANCE: validate schemas/files/locations only.
    - **State MUST reflect combat is in progress before proceeding with turns.**
 
 2. **Turn Order:**
-   - **MANDATORY: Process each turn using `/dnd_turn_parallel <session-id>` then `/dnd_turn_merge <session-id>`.**
+   - **MANDATORY: The AI automatically processes each turn by creating the 4 agent output files, running validation, and merging.**
+   - **Players provide dice rolls/actions, and the AI handles all parallel agent processing automatically.**
    - Process turns in initiative order (highest first).
    - Track HP, conditions, and status for all combatants.
    - STATE_PATCHER must update combat state after each turn.
