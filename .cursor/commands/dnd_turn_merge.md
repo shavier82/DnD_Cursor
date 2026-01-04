@@ -30,8 +30,13 @@ Validates agent outputs, then merges them into the final 3-block user-facing res
 powershell -NoProfile -ExecutionPolicy Bypass -File C:\DnD\DnD_Cursor\scripts\validate_agent_outputs.ps1 -SessionId <session-id>
 ```
 
+**To suppress progress messages (quiet mode):**
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File C:\DnD\DnD_Cursor\scripts\validate_agent_outputs.ps1 -SessionId <session-id> -Quiet
+```
+
 **Expected result:**
-- Exit code 0 if validation passes
+- Exit code 0 if validation passes (no output in quiet mode, errors still shown)
 - If validation fails, output will show which agent outputs are invalid
 - **DO NOT proceed to merge if validation fails**
 

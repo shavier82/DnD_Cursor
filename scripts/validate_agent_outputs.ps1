@@ -1,6 +1,9 @@
 param(
     [Parameter(Mandatory = $true)]
-    [string]$SessionId
+    [string]$SessionId,
+    
+    [Parameter(Mandatory = $false)]
+    [switch]$Quiet = $false
 )
 
 Set-StrictMode -Version Latest
@@ -42,8 +45,10 @@ $schemas = @{
 
 $errors = @()
 
-Write-Output ("Validating agent outputs for session: " + $SessionId)
-Write-Output ("Coord dir: " + $CoordDir)
+if (-not $Quiet) {
+    Write-Output ("Validating agent outputs for session: " + $SessionId)
+    Write-Output ("Coord dir: " + $CoordDir)
+}
 
 foreach ($agent in $schemas.Keys) {
     $file = $schemas[$agent].file
@@ -118,7 +123,9 @@ foreach ($agent in $schemas.Keys) {
         }
     }
 
-    Write-Output ("OK: " + $agent)
+    if (-not $Quiet) {
+        Write-Output ("OK: " + $agent)
+    }
 }
 
 if ($errors.Count -gt 0) {
@@ -127,5 +134,7 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-Write-Output "VALIDATION OK"
+if (-not $Quiet) {
+    Write-Output "VALIDATION OK"
+}
 exit 0
