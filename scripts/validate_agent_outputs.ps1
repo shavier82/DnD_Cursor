@@ -46,8 +46,8 @@ $schemas = @{
 $errors = @()
 
 if (-not $Quiet) {
-    Write-Output ("Validating agent outputs for session: " + $SessionId)
-    Write-Output ("Coord dir: " + $CoordDir)
+Write-Output ("Validating agent outputs for session: " + $SessionId)
+Write-Output ("Coord dir: " + $CoordDir)
 }
 
 foreach ($agent in $schemas.Keys) {
@@ -124,7 +124,7 @@ foreach ($agent in $schemas.Keys) {
     }
 
     if (-not $Quiet) {
-        Write-Output ("OK: " + $agent)
+    Write-Output ("OK: " + $agent)
     }
 }
 
@@ -135,6 +135,6 @@ if ($errors.Count -gt 0) {
 }
 
 if (-not $Quiet) {
-    Write-Output "VALIDATION OK"
+Write-Output "VALIDATION OK"
 }
 exit 0
