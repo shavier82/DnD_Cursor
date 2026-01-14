@@ -1,0 +1,7644 @@
+{
+  "blade_ward": {
+    "spell_id": "blade_ward",
+    "name": "Blade Ward",
+    "level": 0,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "ward",
+      "blade"
+    ]
+  },
+  "dancing_lights": {
+    "spell_id": "dancing_lights",
+    "name": "Dancing Lights",
+    "level": 0,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "lights",
+      "dancing"
+    ]
+  },
+  "friends": {
+    "spell_id": "friends",
+    "name": "Friends",
+    "level": 0,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "friends",
+      "enchantment"
+    ]
+  },
+  "light": {
+    "spell_id": "light",
+    "name": "Light",
+    "level": 0,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "light",
+      "evocation"
+    ]
+  },
+  "mage_hand": {
+    "spell_id": "mage_hand",
+    "name": "Mage Hand",
+    "level": 0,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "hand",
+      "mage",
+      "conjuration"
+    ]
+  },
+  "mending": {
+    "spell_id": "mending",
+    "name": "Mending",
+    "level": 0,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "transmutation",
+      "mending"
+    ]
+  },
+  "message": {
+    "spell_id": "message",
+    "name": "Message",
+    "level": 0,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "message",
+      "transmutation"
+    ]
+  },
+  "minor_illusion": {
+    "spell_id": "minor_illusion",
+    "name": "Minor Illusion",
+    "level": 0,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "minor"
+    ]
+  },
+  "prestidigitation": {
+    "spell_id": "prestidigitation",
+    "name": "Prestidigitation",
+    "level": 0,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "prestidigitation",
+      "transmutation"
+    ]
+  },
+  "starry_wisp": {
+    "spell_id": "starry_wisp",
+    "name": "Starry Wisp",
+    "level": 0,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "wisp",
+      "evocation",
+      "starry"
+    ]
+  },
+  "thunderclap": {
+    "spell_id": "thunderclap",
+    "name": "Thunderclap",
+    "level": 0,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "thunderclap",
+      "evocation"
+    ]
+  },
+  "true_strike": {
+    "spell_id": "true_strike",
+    "name": "True Strike",
+    "level": 0,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "true",
+      "divination",
+      "strike"
+    ]
+  },
+  "vicious_mockery": {
+    "spell_id": "vicious_mockery",
+    "name": "Vicious Mockery",
+    "level": 0,
+    "school": "Enchantment",
+    "classes": [
+      "Bard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "enchantment",
+      "mockery",
+      "vicious"
+    ]
+  },
+  "animal_friendship": {
+    "spell_id": "animal_friendship",
+    "name": "Animal Friendship",
+    "level": 1,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "friendship",
+      "animal",
+      "enchantment"
+    ]
+  },
+  "bane": {
+    "spell_id": "bane",
+    "name": "Bane",
+    "level": 1,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Warlock"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "bane",
+      "enchantment"
+    ]
+  },
+  "charm_person": {
+    "spell_id": "charm_person",
+    "name": "Charm Person",
+    "level": 1,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "person",
+      "charm",
+      "enchantment"
+    ]
+  },
+  "color_spray": {
+    "spell_id": "color_spray",
+    "name": "Color Spray",
+    "level": 1,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "spray",
+      "illusion",
+      "color"
+    ]
+  },
+  "command": {
+    "spell_id": "command",
+    "name": "Command",
+    "level": 1,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "command",
+      "enchantment"
+    ]
+  },
+  "comprehend_languages": {
+    "spell_id": "comprehend_languages",
+    "name": "Comprehend Languages",
+    "level": 1,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "comprehend",
+      "divination",
+      "languages"
+    ]
+  },
+  "cure_wounds": {
+    "spell_id": "cure_wounds",
+    "name": "Cure Wounds",
+    "level": 1,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "wounds",
+      "cure"
+    ]
+  },
+  "detect_magic": {
+    "spell_id": "detect_magic",
+    "name": "Detect Magic",
+    "level": 1,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "magic",
+      "divination",
+      "detect"
+    ]
+  },
+  "disguise_self": {
+    "spell_id": "disguise_self",
+    "name": "Disguise Self",
+    "level": 1,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "self",
+      "disguise",
+      "illusion"
+    ]
+  },
+  "dissonant_whispers": {
+    "spell_id": "dissonant_whispers",
+    "name": "Dissonant Whispers",
+    "level": 1,
+    "school": "Enchantment",
+    "classes": [
+      "Bard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "whispers",
+      "dissonant",
+      "enchantment"
+    ]
+  },
+  "faerie_fire": {
+    "spell_id": "faerie_fire",
+    "name": "Faerie Fire",
+    "level": 1,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "faerie",
+      "fire"
+    ]
+  },
+  "feather_fall": {
+    "spell_id": "feather_fall",
+    "name": "Feather Fall",
+    "level": 1,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "fall",
+      "feather",
+      "transmutation"
+    ]
+  },
+  "healing_word": {
+    "spell_id": "healing_word",
+    "name": "Healing Word",
+    "level": 1,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "word",
+      "abjuration",
+      "healing"
+    ]
+  },
+  "heroism": {
+    "spell_id": "heroism",
+    "name": "Heroism",
+    "level": 1,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "heroism",
+      "enchantment"
+    ]
+  },
+  "identify": {
+    "spell_id": "identify",
+    "name": "Identify",
+    "level": 1,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "identify",
+      "divination"
+    ]
+  },
+  "illusory_script": {
+    "spell_id": "illusory_script",
+    "name": "Illusory Script",
+    "level": 1,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "script",
+      "illusory",
+      "illusion"
+    ]
+  },
+  "longstrider": {
+    "spell_id": "longstrider",
+    "name": "Longstrider",
+    "level": 1,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Ranger",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "longstrider",
+      "transmutation"
+    ]
+  },
+  "silent_image": {
+    "spell_id": "silent_image",
+    "name": "Silent Image",
+    "level": 1,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "image",
+      "silent"
+    ]
+  },
+  "sleep": {
+    "spell_id": "sleep",
+    "name": "Sleep",
+    "level": 1,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "sleep",
+      "enchantment"
+    ]
+  },
+  "speak_with_animals": {
+    "spell_id": "speak_with_animals",
+    "name": "Speak with Animals",
+    "level": 1,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Ranger",
+      "Warlock"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "divination",
+      "with",
+      "animals",
+      "speak"
+    ]
+  },
+  "tasha’s_hideous_laughter": {
+    "spell_id": "tasha’s_hideous_laughter",
+    "name": "Tasha’s Hideous Laughter",
+    "level": 1,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "enchantment",
+      "laughter",
+      "tasha",
+      "hideous"
+    ]
+  },
+  "thunderwave": {
+    "spell_id": "thunderwave",
+    "name": "Thunderwave",
+    "level": 1,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "thunderwave",
+      "evocation"
+    ]
+  },
+  "unseen_servant": {
+    "spell_id": "unseen_servant",
+    "name": "Unseen Servant",
+    "level": 1,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "servant",
+      "unseen",
+      "conjuration"
+    ]
+  },
+  "aid": {
+    "spell_id": "aid",
+    "name": "Aid",
+    "level": 2,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "aid"
+    ]
+  },
+  "animal_messenger": {
+    "spell_id": "animal_messenger",
+    "name": "Animal Messenger",
+    "level": 2,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "messenger",
+      "animal",
+      "enchantment"
+    ]
+  },
+  "blindness/deafness": {
+    "spell_id": "blindness/deafness",
+    "name": "Blindness/Deafness",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "blindness",
+      "deafness",
+      "transmutation"
+    ]
+  },
+  "calm_emotions": {
+    "spell_id": "calm_emotions",
+    "name": "Calm Emotions",
+    "level": 2,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Cleric"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "emotions",
+      "calm",
+      "enchantment"
+    ]
+  },
+  "cloud_of_daggers": {
+    "spell_id": "cloud_of_daggers",
+    "name": "Cloud of Daggers",
+    "level": 2,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "daggers",
+      "cloud",
+      "conjuration"
+    ]
+  },
+  "crown_of_madness": {
+    "spell_id": "crown_of_madness",
+    "name": "Crown of Madness",
+    "level": 2,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "enchantment",
+      "madness",
+      "crown"
+    ]
+  },
+  "detect_thoughts": {
+    "spell_id": "detect_thoughts",
+    "name": "Detect Thoughts",
+    "level": 2,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "divination",
+      "thoughts",
+      "detect"
+    ]
+  },
+  "enhance_ability": {
+    "spell_id": "enhance_ability",
+    "name": "Enhance Ability",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Ranger",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "ability",
+      "enhance",
+      "transmutation"
+    ]
+  },
+  "enlarge/reduce": {
+    "spell_id": "enlarge/reduce",
+    "name": "Enlarge/Reduce",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "enlarge",
+      "transmutation",
+      "reduce"
+    ]
+  },
+  "enthrall": {
+    "spell_id": "enthrall",
+    "name": "Enthrall",
+    "level": 2,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Warlock"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "enthrall",
+      "enchantment"
+    ]
+  },
+  "heat_metal": {
+    "spell_id": "heat_metal",
+    "name": "Heat Metal",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "metal",
+      "transmutation",
+      "heat"
+    ]
+  },
+  "hold_person": {
+    "spell_id": "hold_person",
+    "name": "Hold Person",
+    "level": 2,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "person",
+      "hold",
+      "enchantment"
+    ]
+  },
+  "invisibility": {
+    "spell_id": "invisibility",
+    "name": "Invisibility",
+    "level": 2,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "invisibility",
+      "illusion"
+    ]
+  },
+  "knock": {
+    "spell_id": "knock",
+    "name": "Knock",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "transmutation",
+      "knock"
+    ]
+  },
+  "lesser_restoration": {
+    "spell_id": "lesser_restoration",
+    "name": "Lesser Restoration",
+    "level": 2,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "lesser",
+      "abjuration",
+      "restoration"
+    ]
+  },
+  "locate_animals_or_plants": {
+    "spell_id": "locate_animals_or_plants",
+    "name": "Locate Animals or Plants",
+    "level": 2,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "locate",
+      "or",
+      "animals",
+      "plants",
+      "divination"
+    ]
+  },
+  "locate_object": {
+    "spell_id": "locate_object",
+    "name": "Locate Object",
+    "level": 2,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "object",
+      "divination",
+      "locate"
+    ]
+  },
+  "magic_mouth": {
+    "spell_id": "magic_mouth",
+    "name": "Magic Mouth",
+    "level": 2,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "magic",
+      "illusion",
+      "mouth"
+    ]
+  },
+  "mirror_image": {
+    "spell_id": "mirror_image",
+    "name": "Mirror Image",
+    "level": 2,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "mirror",
+      "illusion",
+      "image"
+    ]
+  },
+  "phantasmal_force": {
+    "spell_id": "phantasmal_force",
+    "name": "Phantasmal Force",
+    "level": 2,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "phantasmal",
+      "illusion",
+      "force"
+    ]
+  },
+  "see_invisibility": {
+    "spell_id": "see_invisibility",
+    "name": "See Invisibility",
+    "level": 2,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "invisibility",
+      "see",
+      "divination"
+    ]
+  },
+  "shatter": {
+    "spell_id": "shatter",
+    "name": "Shatter",
+    "level": 2,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "shatter",
+      "evocation"
+    ]
+  },
+  "silence": {
+    "spell_id": "silence",
+    "name": "Silence",
+    "level": 2,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "silence",
+      "illusion"
+    ]
+  },
+  "suggestion": {
+    "spell_id": "suggestion",
+    "name": "Suggestion",
+    "level": 2,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "suggestion",
+      "enchantment"
+    ]
+  },
+  "zone_of_truth": {
+    "spell_id": "zone_of_truth",
+    "name": "Zone of Truth",
+    "level": 2,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "truth",
+      "zone",
+      "enchantment"
+    ]
+  },
+  "bestow_curse": {
+    "spell_id": "bestow_curse",
+    "name": "Bestow Curse",
+    "level": 3,
+    "school": "Necromancy",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "curse",
+      "necromancy",
+      "bestow"
+    ]
+  },
+  "clairvoyance": {
+    "spell_id": "clairvoyance",
+    "name": "Clairvoyance",
+    "level": 3,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "clairvoyance",
+      "divination"
+    ]
+  },
+  "dispel_magic": {
+    "spell_id": "dispel_magic",
+    "name": "Dispel Magic",
+    "level": 3,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "magic",
+      "abjuration",
+      "dispel"
+    ]
+  },
+  "fear": {
+    "spell_id": "fear",
+    "name": "Fear",
+    "level": 3,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "fear"
+    ]
+  },
+  "feign_death": {
+    "spell_id": "feign_death",
+    "name": "Feign Death",
+    "level": 3,
+    "school": "Necromancy",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "feign",
+      "death",
+      "necromancy"
+    ]
+  },
+  "glyph_of_warding": {
+    "spell_id": "glyph_of_warding",
+    "name": "Glyph of Warding",
+    "level": 3,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "abjuration",
+      "glyph",
+      "warding"
+    ]
+  },
+  "hypnotic_pattern": {
+    "spell_id": "hypnotic_pattern",
+    "name": "Hypnotic Pattern",
+    "level": 3,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "hypnotic",
+      "pattern",
+      "illusion"
+    ]
+  },
+  "leomund’s_tiny_hut": {
+    "spell_id": "leomund’s_tiny_hut",
+    "name": "Leomund’s Tiny Hut",
+    "level": 3,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "hut",
+      "leomund",
+      "evocation",
+      "tiny"
+    ]
+  },
+  "major_image": {
+    "spell_id": "major_image",
+    "name": "Major Image",
+    "level": 3,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "major",
+      "image",
+      "illusion"
+    ]
+  },
+  "mass_healing_word": {
+    "spell_id": "mass_healing_word",
+    "name": "Mass Healing Word",
+    "level": 3,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "word",
+      "abjuration",
+      "healing",
+      "mass"
+    ]
+  },
+  "nondetection": {
+    "spell_id": "nondetection",
+    "name": "Nondetection",
+    "level": 3,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Ranger",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "nondetection"
+    ]
+  },
+  "plant_growth": {
+    "spell_id": "plant_growth",
+    "name": "Plant Growth",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "plant",
+      "growth",
+      "transmutation"
+    ]
+  },
+  "sending": {
+    "spell_id": "sending",
+    "name": "Sending",
+    "level": 3,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "sending",
+      "divination"
+    ]
+  },
+  "slow": {
+    "spell_id": "slow",
+    "name": "Slow",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "transmutation",
+      "slow"
+    ]
+  },
+  "speak_with_dead": {
+    "spell_id": "speak_with_dead",
+    "name": "Speak with Dead",
+    "level": 3,
+    "school": "Necromancy",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "with",
+      "necromancy",
+      "speak",
+      "dead"
+    ]
+  },
+  "speak_with_plants": {
+    "spell_id": "speak_with_plants",
+    "name": "Speak with Plants",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "plants",
+      "with",
+      "transmutation",
+      "speak"
+    ]
+  },
+  "stinking_cloud": {
+    "spell_id": "stinking_cloud",
+    "name": "Stinking Cloud",
+    "level": 3,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "stinking",
+      "cloud",
+      "conjuration"
+    ]
+  },
+  "tongues": {
+    "spell_id": "tongues",
+    "name": "Tongues",
+    "level": 3,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "divination",
+      "tongues"
+    ]
+  },
+  "charm_monster": {
+    "spell_id": "charm_monster",
+    "name": "Charm Monster",
+    "level": 4,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "monster",
+      "charm",
+      "enchantment"
+    ]
+  },
+  "compulsion": {
+    "spell_id": "compulsion",
+    "name": "Compulsion",
+    "level": 4,
+    "school": "Enchantment",
+    "classes": [
+      "Bard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "compulsion",
+      "enchantment"
+    ]
+  },
+  "confusion": {
+    "spell_id": "confusion",
+    "name": "Confusion",
+    "level": 4,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "confusion",
+      "enchantment"
+    ]
+  },
+  "dimension_door": {
+    "spell_id": "dimension_door",
+    "name": "Dimension Door",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "dimension",
+      "door",
+      "conjuration"
+    ]
+  },
+  "fount_of_moonlight": {
+    "spell_id": "fount_of_moonlight",
+    "name": "Fount of Moonlight",
+    "level": 4,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "moonlight",
+      "fount",
+      "evocation"
+    ]
+  },
+  "freedom_of_movement": {
+    "spell_id": "freedom_of_movement",
+    "name": "Freedom of Movement",
+    "level": 4,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "abjuration",
+      "movement",
+      "freedom"
+    ]
+  },
+  "greater_invisibility": {
+    "spell_id": "greater_invisibility",
+    "name": "Greater Invisibility",
+    "level": 4,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "invisibility",
+      "greater",
+      "illusion"
+    ]
+  },
+  "hallucinatory_terrain": {
+    "spell_id": "hallucinatory_terrain",
+    "name": "Hallucinatory Terrain",
+    "level": 4,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "hallucinatory",
+      "illusion",
+      "terrain"
+    ]
+  },
+  "locate_creature": {
+    "spell_id": "locate_creature",
+    "name": "Locate Creature",
+    "level": 4,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "divination",
+      "locate",
+      "creature"
+    ]
+  },
+  "phantasmal_killer": {
+    "spell_id": "phantasmal_killer",
+    "name": "Phantasmal Killer",
+    "level": 4,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "phantasmal",
+      "illusion",
+      "killer"
+    ]
+  },
+  "polymorph": {
+    "spell_id": "polymorph",
+    "name": "Polymorph",
+    "level": 4,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "polymorph",
+      "transmutation"
+    ]
+  },
+  "animate_objects": {
+    "spell_id": "animate_objects",
+    "name": "Animate Objects",
+    "level": 5,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "transmutation",
+      "objects",
+      "animate"
+    ]
+  },
+  "awaken": {
+    "spell_id": "awaken",
+    "name": "Awaken",
+    "level": 5,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "awaken",
+      "transmutation"
+    ]
+  },
+  "dominate_person": {
+    "spell_id": "dominate_person",
+    "name": "Dominate Person",
+    "level": 5,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "person",
+      "enchantment",
+      "dominate"
+    ]
+  },
+  "dream": {
+    "spell_id": "dream",
+    "name": "Dream",
+    "level": 5,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "dream"
+    ]
+  },
+  "geas": {
+    "spell_id": "geas",
+    "name": "Geas",
+    "level": 5,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "geas",
+      "enchantment"
+    ]
+  },
+  "greater_restoration": {
+    "spell_id": "greater_restoration",
+    "name": "Greater Restoration",
+    "level": 5,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "greater",
+      "abjuration",
+      "restoration"
+    ]
+  },
+  "hold_monster": {
+    "spell_id": "hold_monster",
+    "name": "Hold Monster",
+    "level": 5,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "monster",
+      "hold",
+      "enchantment"
+    ]
+  },
+  "legend_lore": {
+    "spell_id": "legend_lore",
+    "name": "Legend Lore",
+    "level": 5,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "legend",
+      "lore",
+      "divination"
+    ]
+  },
+  "mass_cure_wounds": {
+    "spell_id": "mass_cure_wounds",
+    "name": "Mass Cure Wounds",
+    "level": 5,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "cure",
+      "wounds",
+      "mass"
+    ]
+  },
+  "mislead": {
+    "spell_id": "mislead",
+    "name": "Mislead",
+    "level": 5,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "mislead"
+    ]
+  },
+  "modify_memory": {
+    "spell_id": "modify_memory",
+    "name": "Modify Memory",
+    "level": 5,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "modify",
+      "memory",
+      "enchantment"
+    ]
+  },
+  "planar_binding": {
+    "spell_id": "planar_binding",
+    "name": "Planar Binding",
+    "level": 5,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "binding",
+      "abjuration",
+      "planar"
+    ]
+  },
+  "raise_dead": {
+    "spell_id": "raise_dead",
+    "name": "Raise Dead",
+    "level": 5,
+    "school": "Necromancy",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "necromancy",
+      "raise",
+      "dead"
+    ]
+  },
+  "rary’s_telepathic_bond": {
+    "spell_id": "rary’s_telepathic_bond",
+    "name": "Rary’s Telepathic Bond",
+    "level": 5,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "rary",
+      "telepathic",
+      "bond",
+      "divination"
+    ]
+  },
+  "scrying": {
+    "spell_id": "scrying",
+    "name": "Scrying",
+    "level": 5,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "divination",
+      "scrying"
+    ]
+  },
+  "seeming": {
+    "spell_id": "seeming",
+    "name": "Seeming",
+    "level": 5,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "seeming"
+    ]
+  },
+  "synaptic_static": {
+    "spell_id": "synaptic_static",
+    "name": "Synaptic Static",
+    "level": 5,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "enchantment",
+      "static",
+      "synaptic"
+    ]
+  },
+  "teleportation_circle": {
+    "spell_id": "teleportation_circle",
+    "name": "Teleportation Circle",
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "circle",
+      "teleportation",
+      "conjuration"
+    ]
+  },
+  "yolande’s_regal_presence": {
+    "spell_id": "yolande’s_regal_presence",
+    "name": "Yolande’s Regal Presence",
+    "level": 5,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "yolande",
+      "presence",
+      "s",
+      "regal",
+      "enchantment"
+    ]
+  },
+  "eyebite": {
+    "spell_id": "eyebite",
+    "name": "Eyebite",
+    "level": 6,
+    "school": "Necromancy",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "eyebite",
+      "necromancy"
+    ]
+  },
+  "find_the_path": {
+    "spell_id": "find_the_path",
+    "name": "Find the Path",
+    "level": 6,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "the",
+      "divination",
+      "find",
+      "path"
+    ]
+  },
+  "guards_and_wards": {
+    "spell_id": "guards_and_wards",
+    "name": "Guards and Wards",
+    "level": 6,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "and",
+      "wards",
+      "abjuration",
+      "guards"
+    ]
+  },
+  "heroes’_feast": {
+    "spell_id": "heroes’_feast",
+    "name": "Heroes’ Feast",
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjuration",
+      "feast",
+      "heroes"
+    ]
+  },
+  "mass_suggestion": {
+    "spell_id": "mass_suggestion",
+    "name": "Mass Suggestion",
+    "level": 6,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "enchantment",
+      "suggestion",
+      "mass"
+    ]
+  },
+  "otto’s_irresistible_dance": {
+    "spell_id": "otto’s_irresistible_dance",
+    "name": "Otto’s Irresistible Dance",
+    "level": 6,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "enchantment",
+      "dance",
+      "otto",
+      "irresistible"
+    ]
+  },
+  "programmed_illusion": {
+    "spell_id": "programmed_illusion",
+    "name": "Programmed Illusion",
+    "level": 6,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "programmed"
+    ]
+  },
+  "true_seeing": {
+    "spell_id": "true_seeing",
+    "name": "True Seeing",
+    "level": 6,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "true",
+      "divination",
+      "seeing"
+    ]
+  },
+  "etherealness": {
+    "spell_id": "etherealness",
+    "name": "Etherealness",
+    "level": 7,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "etherealness",
+      "conjuration"
+    ]
+  },
+  "forcecage": {
+    "spell_id": "forcecage",
+    "name": "Forcecage",
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "forcecage",
+      "evocation"
+    ]
+  },
+  "mirage_arcane": {
+    "spell_id": "mirage_arcane",
+    "name": "Mirage Arcane",
+    "level": 7,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "mirage",
+      "illusion",
+      "arcane"
+    ]
+  },
+  "mordenkainen’s_magnificent_mansion": {
+    "spell_id": "mordenkainen’s_magnificent_mansion",
+    "name": "Mordenkainen’s Magnificent Mansion",
+    "level": 7,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "magnificent",
+      "mordenkainen",
+      "mansion",
+      "conjuration"
+    ]
+  },
+  "mordenkainen’s_sword": {
+    "spell_id": "mordenkainen’s_sword",
+    "name": "Mordenkainen’s Sword",
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "mordenkainen",
+      "s",
+      "sword",
+      "evocation"
+    ]
+  },
+  "power_word_fortify": {
+    "spell_id": "power_word_fortify",
+    "name": "Power Word Fortify",
+    "level": 7,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "word",
+      "fortify",
+      "power",
+      "enchantment"
+    ]
+  },
+  "prismatic_spray": {
+    "spell_id": "prismatic_spray",
+    "name": "Prismatic Spray",
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "prismatic",
+      "spray",
+      "evocation"
+    ]
+  },
+  "project_image": {
+    "spell_id": "project_image",
+    "name": "Project Image",
+    "level": 7,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "project",
+      "image"
+    ]
+  },
+  "regenerate": {
+    "spell_id": "regenerate",
+    "name": "Regenerate",
+    "level": 7,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "regenerate",
+      "transmutation"
+    ]
+  },
+  "resurrection": {
+    "spell_id": "resurrection",
+    "name": "Resurrection",
+    "level": 7,
+    "school": "Necromancy",
+    "classes": [
+      "Bard",
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "necromancy",
+      "resurrection"
+    ]
+  },
+  "symbol": {
+    "spell_id": "symbol",
+    "name": "Symbol",
+    "level": 7,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "symbol"
+    ]
+  },
+  "teleport": {
+    "spell_id": "teleport",
+    "name": "Teleport",
+    "level": 7,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "teleport",
+      "conjuration"
+    ]
+  },
+  "antipathy/sympathy": {
+    "spell_id": "antipathy/sympathy",
+    "name": "Antipathy/Sympathy",
+    "level": 8,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "antipathy",
+      "sympathy",
+      "enchantment"
+    ]
+  },
+  "befuddlement": {
+    "spell_id": "befuddlement",
+    "name": "Befuddlement",
+    "level": 8,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "befuddlement",
+      "enchantment"
+    ]
+  },
+  "dominate_monster": {
+    "spell_id": "dominate_monster",
+    "name": "Dominate Monster",
+    "level": 8,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "enchantment",
+      "monster",
+      "dominate"
+    ]
+  },
+  "glibness": {
+    "spell_id": "glibness",
+    "name": "Glibness",
+    "level": 8,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Warlock"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "glibness",
+      "enchantment"
+    ]
+  },
+  "mind_blank": {
+    "spell_id": "mind_blank",
+    "name": "Mind Blank",
+    "level": 8,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "blank",
+      "mind"
+    ]
+  },
+  "power_word_stun": {
+    "spell_id": "power_word_stun",
+    "name": "Power Word Stun",
+    "level": 8,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "word",
+      "stun",
+      "power",
+      "enchantment"
+    ]
+  },
+  "foresight": {
+    "spell_id": "foresight",
+    "name": "Foresight",
+    "level": 9,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "divination",
+      "foresight"
+    ]
+  },
+  "power_word_heal": {
+    "spell_id": "power_word_heal",
+    "name": "Power Word Heal",
+    "level": 9,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "word",
+      "heal",
+      "power",
+      "enchantment"
+    ]
+  },
+  "power_word_kill": {
+    "spell_id": "power_word_kill",
+    "name": "Power Word Kill",
+    "level": 9,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "word",
+      "kill",
+      "power",
+      "enchantment"
+    ]
+  },
+  "prismatic_wall": {
+    "spell_id": "prismatic_wall",
+    "name": "Prismatic Wall",
+    "level": 9,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "prismatic",
+      "abjuration",
+      "wall"
+    ]
+  },
+  "true_polymorph": {
+    "spell_id": "true_polymorph",
+    "name": "True Polymorph",
+    "level": 9,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "true",
+      "transmutation",
+      "polymorph"
+    ]
+  },
+  "guidance": {
+    "spell_id": "guidance",
+    "name": "Guidance",
+    "level": 0,
+    "school": "Divination",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "guidance",
+      "divination"
+    ]
+  },
+  "resistance": {
+    "spell_id": "resistance",
+    "name": "Resistance",
+    "level": 0,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "resistance"
+    ]
+  },
+  "sacred_flame": {
+    "spell_id": "sacred_flame",
+    "name": "Sacred Flame",
+    "level": 0,
+    "school": "Evocation",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "sacred",
+      "flame",
+      "evocation"
+    ]
+  },
+  "spare_the_dying": {
+    "spell_id": "spare_the_dying",
+    "name": "Spare the Dying",
+    "level": 0,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "the",
+      "dying",
+      "spare",
+      "necromancy"
+    ]
+  },
+  "thaumaturgy": {
+    "spell_id": "thaumaturgy",
+    "name": "Thaumaturgy",
+    "level": 0,
+    "school": "Transmutation",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "thaumaturgy",
+      "transmutation"
+    ]
+  },
+  "toll_the_dead": {
+    "spell_id": "toll_the_dead",
+    "name": "Toll the Dead",
+    "level": 0,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "the",
+      "toll",
+      "necromancy",
+      "dead"
+    ]
+  },
+  "word_of_radiance": {
+    "spell_id": "word_of_radiance",
+    "name": "Word of Radiance",
+    "level": 0,
+    "school": "Evocation",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "word",
+      "evocation",
+      "radiance"
+    ]
+  },
+  "bless": {
+    "spell_id": "bless",
+    "name": "Bless",
+    "level": 1,
+    "school": "Enchantment",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "bless",
+      "enchantment"
+    ]
+  },
+  "create_or_destroy_water": {
+    "spell_id": "create_or_destroy_water",
+    "name": "Create or Destroy Water",
+    "level": 1,
+    "school": "Transmutation",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "or",
+      "water",
+      "create",
+      "destroy",
+      "transmutation"
+    ]
+  },
+  "detect_evil_and_good": {
+    "spell_id": "detect_evil_and_good",
+    "name": "Detect Evil and Good",
+    "level": 1,
+    "school": "Divination",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "and",
+      "good",
+      "detect",
+      "evil",
+      "divination"
+    ]
+  },
+  "detect_poison_and_disease": {
+    "spell_id": "detect_poison_and_disease",
+    "name": "Detect Poison and Disease",
+    "level": 1,
+    "school": "Divination",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "and",
+      "poison",
+      "detect",
+      "disease",
+      "divination"
+    ]
+  },
+  "guiding_bolt": {
+    "spell_id": "guiding_bolt",
+    "name": "Guiding Bolt",
+    "level": 1,
+    "school": "Evocation",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "bolt",
+      "evocation",
+      "guiding"
+    ]
+  },
+  "inflict_wounds": {
+    "spell_id": "inflict_wounds",
+    "name": "Inflict Wounds",
+    "level": 1,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "wounds",
+      "inflict",
+      "necromancy"
+    ]
+  },
+  "protection_from_evil_and_good": {
+    "spell_id": "protection_from_evil_and_good",
+    "name": "Protection from Evil and Good",
+    "level": 1,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "and",
+      "from",
+      "protection",
+      "good",
+      "evil",
+      "abjuration"
+    ]
+  },
+  "purify_food_and_drink": {
+    "spell_id": "purify_food_and_drink",
+    "name": "Purify Food and Drink",
+    "level": 1,
+    "school": "Transmutation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "and",
+      "drink",
+      "purify",
+      "food",
+      "transmutation"
+    ]
+  },
+  "sanctuary": {
+    "spell_id": "sanctuary",
+    "name": "Sanctuary",
+    "level": 1,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "sanctuary",
+      "abjuration"
+    ]
+  },
+  "shield_of_faith": {
+    "spell_id": "shield_of_faith",
+    "name": "Shield of Faith",
+    "level": 1,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "faith",
+      "shield",
+      "abjuration"
+    ]
+  },
+  "augury": {
+    "spell_id": "augury",
+    "name": "Augury",
+    "level": 2,
+    "school": "Divination",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "divination",
+      "augury"
+    ]
+  },
+  "continual_flame": {
+    "spell_id": "continual_flame",
+    "name": "Continual Flame",
+    "level": 2,
+    "school": "Evocation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "flame",
+      "continual"
+    ]
+  },
+  "find_traps": {
+    "spell_id": "find_traps",
+    "name": "Find Traps",
+    "level": 2,
+    "school": "Divination",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "traps",
+      "find",
+      "divination"
+    ]
+  },
+  "gentle_repose": {
+    "spell_id": "gentle_repose",
+    "name": "Gentle Repose",
+    "level": 2,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Paladin",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "repose",
+      "gentle",
+      "necromancy"
+    ]
+  },
+  "prayer_of_healing": {
+    "spell_id": "prayer_of_healing",
+    "name": "Prayer of Healing",
+    "level": 2,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "prayer",
+      "abjuration",
+      "healing"
+    ]
+  },
+  "protection_from_poison": {
+    "spell_id": "protection_from_poison",
+    "name": "Protection from Poison",
+    "level": 2,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "from",
+      "poison",
+      "protection"
+    ]
+  },
+  "spiritual_weapon": {
+    "spell_id": "spiritual_weapon",
+    "name": "Spiritual Weapon",
+    "level": 2,
+    "school": "Evocation",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "weapon",
+      "spiritual",
+      "evocation"
+    ]
+  },
+  "warding_bond": {
+    "spell_id": "warding_bond",
+    "name": "Warding Bond",
+    "level": 2,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "bond",
+      "abjuration",
+      "warding"
+    ]
+  },
+  "animate_dead": {
+    "spell_id": "animate_dead",
+    "name": "Animate Dead",
+    "level": 3,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "necromancy",
+      "dead",
+      "animate"
+    ]
+  },
+  "aura_of_vitality": {
+    "spell_id": "aura_of_vitality",
+    "name": "Aura of Vitality",
+    "level": 3,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "vitality",
+      "abjuration",
+      "aura"
+    ]
+  },
+  "beacon_of_hope": {
+    "spell_id": "beacon_of_hope",
+    "name": "Beacon of Hope",
+    "level": 3,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "abjuration",
+      "hope",
+      "beacon"
+    ]
+  },
+  "create_food_and_water": {
+    "spell_id": "create_food_and_water",
+    "name": "Create Food and Water",
+    "level": 3,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "and",
+      "water",
+      "food",
+      "create",
+      "conjuration"
+    ]
+  },
+  "daylight": {
+    "spell_id": "daylight",
+    "name": "Daylight",
+    "level": 3,
+    "school": "Evocation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger",
+      "Sorcerer"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "daylight",
+      "evocation"
+    ]
+  },
+  "magic_circle": {
+    "spell_id": "magic_circle",
+    "name": "Magic Circle",
+    "level": 3,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "magic",
+      "abjuration",
+      "circle"
+    ]
+  },
+  "meld_into_stone": {
+    "spell_id": "meld_into_stone",
+    "name": "Meld into Stone",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "into",
+      "meld",
+      "stone",
+      "transmutation"
+    ]
+  },
+  "protection_from_energy": {
+    "spell_id": "protection_from_energy",
+    "name": "Protection from Energy",
+    "level": 3,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Ranger",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "from",
+      "protection",
+      "energy"
+    ]
+  },
+  "remove_curse": {
+    "spell_id": "remove_curse",
+    "name": "Remove Curse",
+    "level": 3,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "curse",
+      "remove",
+      "abjuration"
+    ]
+  },
+  "revivify": {
+    "spell_id": "revivify",
+    "name": "Revivify",
+    "level": 3,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "revivify",
+      "necromancy"
+    ]
+  },
+  "spirit_guardians": {
+    "spell_id": "spirit_guardians",
+    "name": "Spirit Guardians",
+    "level": 3,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "guardians",
+      "spirit",
+      "conjuration"
+    ]
+  },
+  "water_walk": {
+    "spell_id": "water_walk",
+    "name": "Water Walk",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Ranger",
+      "Sorcerer"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "walk",
+      "transmutation",
+      "water"
+    ]
+  },
+  "aura_of_life": {
+    "spell_id": "aura_of_life",
+    "name": "Aura of Life",
+    "level": 4,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "abjuration",
+      "life",
+      "aura"
+    ]
+  },
+  "aura_of_purity": {
+    "spell_id": "aura_of_purity",
+    "name": "Aura of Purity",
+    "level": 4,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "abjuration",
+      "purity",
+      "aura"
+    ]
+  },
+  "banishment": {
+    "spell_id": "banishment",
+    "name": "Banishment",
+    "level": 4,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "banishment"
+    ]
+  },
+  "control_water": {
+    "spell_id": "control_water",
+    "name": "Control Water",
+    "level": 4,
+    "school": "Transmutation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "transmutation",
+      "water",
+      "control"
+    ]
+  },
+  "death_ward": {
+    "spell_id": "death_ward",
+    "name": "Death Ward",
+    "level": 4,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "death",
+      "ward"
+    ]
+  },
+  "divination": {
+    "spell_id": "divination",
+    "name": "Divination",
+    "level": 4,
+    "school": "Divination",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "divination"
+    ]
+  },
+  "guardian_of_faith": {
+    "spell_id": "guardian_of_faith",
+    "name": "Guardian of Faith",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "faith",
+      "guardian",
+      "conjuration"
+    ]
+  },
+  "stone_shape": {
+    "spell_id": "stone_shape",
+    "name": "Stone Shape",
+    "level": 4,
+    "school": "Transmutation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "shape",
+      "stone",
+      "transmutation"
+    ]
+  },
+  "circle_of_power": {
+    "spell_id": "circle_of_power",
+    "name": "Circle of Power",
+    "level": 5,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "abjuration",
+      "power",
+      "circle"
+    ]
+  },
+  "commune": {
+    "spell_id": "commune",
+    "name": "Commune",
+    "level": 5,
+    "school": "Divination",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "divination",
+      "commune"
+    ]
+  },
+  "contagion": {
+    "spell_id": "contagion",
+    "name": "Contagion",
+    "level": 5,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "contagion",
+      "necromancy"
+    ]
+  },
+  "dispel_evil_and_good": {
+    "spell_id": "dispel_evil_and_good",
+    "name": "Dispel Evil and Good",
+    "level": 5,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "and",
+      "good",
+      "dispel",
+      "evil",
+      "abjuration"
+    ]
+  },
+  "flame_strike": {
+    "spell_id": "flame_strike",
+    "name": "Flame Strike",
+    "level": 5,
+    "school": "Evocation",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "strike",
+      "flame",
+      "evocation"
+    ]
+  },
+  "hallow": {
+    "spell_id": "hallow",
+    "name": "Hallow",
+    "level": 5,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "hallow"
+    ]
+  },
+  "insect_plague": {
+    "spell_id": "insect_plague",
+    "name": "Insect Plague",
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "plague",
+      "conjuration",
+      "insect"
+    ]
+  },
+  "summon_celestial": {
+    "spell_id": "summon_celestial",
+    "name": "Summon Celestial",
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "celestial",
+      "summon",
+      "conjuration"
+    ]
+  },
+  "blade_barrier": {
+    "spell_id": "blade_barrier",
+    "name": "Blade Barrier",
+    "level": 6,
+    "school": "Evocation",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "barrier",
+      "blade"
+    ]
+  },
+  "create_undead": {
+    "spell_id": "create_undead",
+    "name": "Create Undead",
+    "level": 6,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "create",
+      "necromancy",
+      "undead"
+    ]
+  },
+  "forbiddance": {
+    "spell_id": "forbiddance",
+    "name": "Forbiddance",
+    "level": 6,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "forbiddance"
+    ]
+  },
+  "harm": {
+    "spell_id": "harm",
+    "name": "Harm",
+    "level": 6,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "harm",
+      "necromancy"
+    ]
+  },
+  "heal": {
+    "spell_id": "heal",
+    "name": "Heal",
+    "level": 6,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "heal",
+      "abjuration"
+    ]
+  },
+  "planar_ally": {
+    "spell_id": "planar_ally",
+    "name": "Planar Ally",
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "ally",
+      "planar",
+      "conjuration"
+    ]
+  },
+  "sunbeam": {
+    "spell_id": "sunbeam",
+    "name": "Sunbeam",
+    "level": 6,
+    "school": "Evocation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "sunbeam",
+      "evocation"
+    ]
+  },
+  "word_of_recall": {
+    "spell_id": "word_of_recall",
+    "name": "Word of Recall",
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "word",
+      "recall",
+      "conjuration"
+    ]
+  },
+  "conjure_celestial": {
+    "spell_id": "conjure_celestial",
+    "name": "Conjure Celestial",
+    "level": 7,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjure",
+      "celestial",
+      "conjuration"
+    ]
+  },
+  "divine_word": {
+    "spell_id": "divine_word",
+    "name": "Divine Word",
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "divine",
+      "evocation",
+      "word"
+    ]
+  },
+  "fire_storm": {
+    "spell_id": "fire_storm",
+    "name": "Fire Storm",
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "storm",
+      "evocation",
+      "fire"
+    ]
+  },
+  "plane_shift": {
+    "spell_id": "plane_shift",
+    "name": "Plane Shift",
+    "level": 7,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "shift",
+      "plane",
+      "conjuration"
+    ]
+  },
+  "antimagic_field": {
+    "spell_id": "antimagic_field",
+    "name": "Antimagic Field",
+    "level": 8,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "field",
+      "abjuration",
+      "antimagic"
+    ]
+  },
+  "control_weather": {
+    "spell_id": "control_weather",
+    "name": "Control Weather",
+    "level": 8,
+    "school": "Transmutation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "transmutation",
+      "weather",
+      "control"
+    ]
+  },
+  "earthquake": {
+    "spell_id": "earthquake",
+    "name": "Earthquake",
+    "level": 8,
+    "school": "Transmutation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "earthquake",
+      "transmutation"
+    ]
+  },
+  "holy_aura": {
+    "spell_id": "holy_aura",
+    "name": "Holy Aura",
+    "level": 8,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "holy",
+      "aura"
+    ]
+  },
+  "sunburst": {
+    "spell_id": "sunburst",
+    "name": "Sunburst",
+    "level": 8,
+    "school": "Evocation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "sunburst",
+      "evocation"
+    ]
+  },
+  "astral_projection": {
+    "spell_id": "astral_projection",
+    "name": "Astral Projection",
+    "level": 9,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "astral",
+      "projection",
+      "necromancy"
+    ]
+  },
+  "gate": {
+    "spell_id": "gate",
+    "name": "Gate",
+    "level": 9,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "gate",
+      "conjuration"
+    ]
+  },
+  "mass_heal": {
+    "spell_id": "mass_heal",
+    "name": "Mass Heal",
+    "level": 9,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "heal",
+      "abjuration",
+      "mass"
+    ]
+  },
+  "true_resurrection": {
+    "spell_id": "true_resurrection",
+    "name": "True Resurrection",
+    "level": 9,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "true",
+      "necromancy",
+      "resurrection"
+    ]
+  },
+  "druidcraft": {
+    "spell_id": "druidcraft",
+    "name": "Druidcraft",
+    "level": 0,
+    "school": "Transmutation",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "transmutation",
+      "druidcraft"
+    ]
+  },
+  "elementalism": {
+    "spell_id": "elementalism",
+    "name": "Elementalism",
+    "level": 0,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "transmutation",
+      "elementalism"
+    ]
+  },
+  "poison_spray": {
+    "spell_id": "poison_spray",
+    "name": "Poison Spray",
+    "level": 0,
+    "school": "Necromancy",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "spray",
+      "poison",
+      "necromancy"
+    ]
+  },
+  "produce_flame": {
+    "spell_id": "produce_flame",
+    "name": "Produce Flame",
+    "level": 0,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "produce",
+      "flame",
+      "conjuration"
+    ]
+  },
+  "shillelagh": {
+    "spell_id": "shillelagh",
+    "name": "Shillelagh",
+    "level": 0,
+    "school": "Transmutation",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "shillelagh",
+      "transmutation"
+    ]
+  },
+  "thorn_whip": {
+    "spell_id": "thorn_whip",
+    "name": "Thorn Whip",
+    "level": 0,
+    "school": "Transmutation",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "whip",
+      "thorn",
+      "transmutation"
+    ]
+  },
+  "entangle": {
+    "spell_id": "entangle",
+    "name": "Entangle",
+    "level": 1,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "entangle",
+      "conjuration"
+    ]
+  },
+  "fog_cloud": {
+    "spell_id": "fog_cloud",
+    "name": "Fog Cloud",
+    "level": 1,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Ranger",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "fog",
+      "cloud",
+      "conjuration"
+    ]
+  },
+  "goodberry": {
+    "spell_id": "goodberry",
+    "name": "Goodberry",
+    "level": 1,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "goodberry",
+      "conjuration"
+    ]
+  },
+  "ice_knife": {
+    "spell_id": "ice_knife",
+    "name": "Ice Knife",
+    "level": 1,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "ice",
+      "knife",
+      "conjuration"
+    ]
+  },
+  "jump": {
+    "spell_id": "jump",
+    "name": "Jump",
+    "level": 1,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Ranger",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "jump",
+      "transmutation"
+    ]
+  },
+  "barkskin": {
+    "spell_id": "barkskin",
+    "name": "Barkskin",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "barkskin",
+      "transmutation"
+    ]
+  },
+  "beast_sense": {
+    "spell_id": "beast_sense",
+    "name": "Beast Sense",
+    "level": 2,
+    "school": "Divination",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "beast",
+      "divination",
+      "sense"
+    ]
+  },
+  "darkvision": {
+    "spell_id": "darkvision",
+    "name": "Darkvision",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Ranger",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "darkvision",
+      "transmutation"
+    ]
+  },
+  "flame_blade": {
+    "spell_id": "flame_blade",
+    "name": "Flame Blade",
+    "level": 2,
+    "school": "Evocation",
+    "classes": [
+      "Druid",
+      "Sorcerer"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "flame",
+      "evocation",
+      "blade"
+    ]
+  },
+  "flaming_sphere": {
+    "spell_id": "flaming_sphere",
+    "name": "Flaming Sphere",
+    "level": 2,
+    "school": "Evocation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "sphere",
+      "flaming",
+      "evocation"
+    ]
+  },
+  "gust_of_wind": {
+    "spell_id": "gust_of_wind",
+    "name": "Gust of Wind",
+    "level": 2,
+    "school": "Evocation",
+    "classes": [
+      "Druid",
+      "Ranger",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "gust",
+      "wind",
+      "evocation"
+    ]
+  },
+  "moonbeam": {
+    "spell_id": "moonbeam",
+    "name": "Moonbeam",
+    "level": 2,
+    "school": "Evocation",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "moonbeam"
+    ]
+  },
+  "pass_without_trace": {
+    "spell_id": "pass_without_trace",
+    "name": "Pass without Trace",
+    "level": 2,
+    "school": "Abjuration",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "without",
+      "abjuration",
+      "trace",
+      "pass"
+    ]
+  },
+  "spike_growth": {
+    "spell_id": "spike_growth",
+    "name": "Spike Growth",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "growth",
+      "spike",
+      "transmutation"
+    ]
+  },
+  "summon_beast": {
+    "spell_id": "summon_beast",
+    "name": "Summon Beast",
+    "level": 2,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "beast",
+      "summon",
+      "conjuration"
+    ]
+  },
+  "call_lightning": {
+    "spell_id": "call_lightning",
+    "name": "Call Lightning",
+    "level": 3,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "call",
+      "lightning",
+      "conjuration"
+    ]
+  },
+  "conjure_animals": {
+    "spell_id": "conjure_animals",
+    "name": "Conjure Animals",
+    "level": 3,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjure",
+      "animals",
+      "conjuration"
+    ]
+  },
+  "elemental_weapon": {
+    "spell_id": "elemental_weapon",
+    "name": "Elemental Weapon",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Paladin",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "weapon",
+      "transmutation",
+      "elemental"
+    ]
+  },
+  "sleet_storm": {
+    "spell_id": "sleet_storm",
+    "name": "Sleet Storm",
+    "level": 3,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "sleet",
+      "storm",
+      "conjuration"
+    ]
+  },
+  "summon_fey": {
+    "spell_id": "summon_fey",
+    "name": "Summon Fey",
+    "level": 3,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Ranger",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "fey",
+      "summon",
+      "conjuration"
+    ]
+  },
+  "water_breathing": {
+    "spell_id": "water_breathing",
+    "name": "Water Breathing",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Ranger",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "breathing",
+      "transmutation",
+      "water"
+    ]
+  },
+  "wind_wall": {
+    "spell_id": "wind_wall",
+    "name": "Wind Wall",
+    "level": 3,
+    "school": "Evocation",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "wind",
+      "wall"
+    ]
+  },
+  "blight": {
+    "spell_id": "blight",
+    "name": "Blight",
+    "level": 4,
+    "school": "Necromancy",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "necromancy",
+      "blight"
+    ]
+  },
+  "conjure_minor_elementals": {
+    "spell_id": "conjure_minor_elementals",
+    "name": "Conjure Minor Elementals",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "elementals",
+      "conjure",
+      "minor",
+      "conjuration"
+    ]
+  },
+  "conjure_woodland_beings": {
+    "spell_id": "conjure_woodland_beings",
+    "name": "Conjure Woodland Beings",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "beings",
+      "conjure",
+      "woodland",
+      "conjuration"
+    ]
+  },
+  "dominate_beast": {
+    "spell_id": "dominate_beast",
+    "name": "Dominate Beast",
+    "level": 4,
+    "school": "Enchantment",
+    "classes": [
+      "Druid",
+      "Ranger",
+      "Sorcerer"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "enchantment",
+      "beast",
+      "dominate"
+    ]
+  },
+  "fire_shield": {
+    "spell_id": "fire_shield",
+    "name": "Fire Shield",
+    "level": 4,
+    "school": "Evocation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "shield",
+      "fire"
+    ]
+  },
+  "giant_insect": {
+    "spell_id": "giant_insect",
+    "name": "Giant Insect",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjuration",
+      "insect",
+      "giant"
+    ]
+  },
+  "grasping_vine": {
+    "spell_id": "grasping_vine",
+    "name": "Grasping Vine",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjuration",
+      "grasping",
+      "vine"
+    ]
+  },
+  "ice_storm": {
+    "spell_id": "ice_storm",
+    "name": "Ice Storm",
+    "level": 4,
+    "school": "Evocation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "storm",
+      "ice",
+      "evocation"
+    ]
+  },
+  "stoneskin": {
+    "spell_id": "stoneskin",
+    "name": "Stoneskin",
+    "level": 4,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Ranger",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "transmutation",
+      "stoneskin"
+    ]
+  },
+  "summon_elemental": {
+    "spell_id": "summon_elemental",
+    "name": "Summon Elemental",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Ranger",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "elemental",
+      "summon",
+      "conjuration"
+    ]
+  },
+  "wall_of_fire": {
+    "spell_id": "wall_of_fire",
+    "name": "Wall of Fire",
+    "level": 4,
+    "school": "Evocation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "evocation",
+      "fire",
+      "wall"
+    ]
+  },
+  "antilife_shell": {
+    "spell_id": "antilife_shell",
+    "name": "Antilife Shell",
+    "level": 5,
+    "school": "Abjuration",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "antilife",
+      "abjuration",
+      "shell"
+    ]
+  },
+  "commune_with_nature": {
+    "spell_id": "commune_with_nature",
+    "name": "Commune with Nature",
+    "level": 5,
+    "school": "Divination",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "nature",
+      "divination",
+      "with",
+      "commune"
+    ]
+  },
+  "cone_of_cold": {
+    "spell_id": "cone_of_cold",
+    "name": "Cone of Cold",
+    "level": 5,
+    "school": "Evocation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "cold",
+      "cone",
+      "evocation"
+    ]
+  },
+  "conjure_elemental": {
+    "spell_id": "conjure_elemental",
+    "name": "Conjure Elemental",
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjure",
+      "elemental",
+      "conjuration"
+    ]
+  },
+  "reincarnate": {
+    "spell_id": "reincarnate",
+    "name": "Reincarnate",
+    "level": 5,
+    "school": "Necromancy",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "reincarnate",
+      "necromancy"
+    ]
+  },
+  "tree_stride": {
+    "spell_id": "tree_stride",
+    "name": "Tree Stride",
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "stride",
+      "tree",
+      "conjuration"
+    ]
+  },
+  "wall_of_stone": {
+    "spell_id": "wall_of_stone",
+    "name": "Wall of Stone",
+    "level": 5,
+    "school": "Evocation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "evocation",
+      "stone",
+      "wall"
+    ]
+  },
+  "conjure_fey": {
+    "spell_id": "conjure_fey",
+    "name": "Conjure Fey",
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjure",
+      "fey",
+      "conjuration"
+    ]
+  },
+  "flesh_to_stone": {
+    "spell_id": "flesh_to_stone",
+    "name": "Flesh to Stone",
+    "level": 6,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "to",
+      "stone",
+      "transmutation",
+      "flesh"
+    ]
+  },
+  "move_earth": {
+    "spell_id": "move_earth",
+    "name": "Move Earth",
+    "level": 6,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "move",
+      "earth",
+      "transmutation"
+    ]
+  },
+  "transport_via_plants": {
+    "spell_id": "transport_via_plants",
+    "name": "Transport via Plants",
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "transport",
+      "plants",
+      "via",
+      "conjuration"
+    ]
+  },
+  "wall_of_thorns": {
+    "spell_id": "wall_of_thorns",
+    "name": "Wall of Thorns",
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "thorns",
+      "wall",
+      "conjuration"
+    ]
+  },
+  "wind_walk": {
+    "spell_id": "wind_walk",
+    "name": "Wind Walk",
+    "level": 6,
+    "school": "Transmutation",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "walk",
+      "transmutation",
+      "wind"
+    ]
+  },
+  "reverse_gravity": {
+    "spell_id": "reverse_gravity",
+    "name": "Reverse Gravity",
+    "level": 7,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "gravity",
+      "transmutation",
+      "reverse"
+    ]
+  },
+  "animal_shapes": {
+    "spell_id": "animal_shapes",
+    "name": "Animal Shapes",
+    "level": 8,
+    "school": "Transmutation",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "shapes",
+      "animal",
+      "transmutation"
+    ]
+  },
+  "incendiary_cloud": {
+    "spell_id": "incendiary_cloud",
+    "name": "Incendiary Cloud",
+    "level": 8,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "incendiary",
+      "cloud",
+      "conjuration"
+    ]
+  },
+  "tsunami": {
+    "spell_id": "tsunami",
+    "name": "Tsunami",
+    "level": 8,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "tsunami",
+      "conjuration"
+    ]
+  },
+  "shapechange": {
+    "spell_id": "shapechange",
+    "name": "Shapechange",
+    "level": 9,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "shapechange",
+      "transmutation"
+    ]
+  },
+  "storm_of_vengeance": {
+    "spell_id": "storm_of_vengeance",
+    "name": "Storm of Vengeance",
+    "level": 9,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "storm",
+      "vengeance",
+      "of",
+      "conjuration"
+    ]
+  },
+  "compelled_duel": {
+    "spell_id": "compelled_duel",
+    "name": "Compelled Duel",
+    "level": 1,
+    "school": "Enchantment",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "compelled",
+      "duel",
+      "enchantment"
+    ]
+  },
+  "divine_favor": {
+    "spell_id": "divine_favor",
+    "name": "Divine Favor",
+    "level": 1,
+    "school": "Transmutation",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "divine",
+      "transmutation",
+      "favor"
+    ]
+  },
+  "divine_smite": {
+    "spell_id": "divine_smite",
+    "name": "Divine Smite",
+    "level": 1,
+    "school": "Evocation",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "divine",
+      "smite",
+      "evocation"
+    ]
+  },
+  "searing_smite": {
+    "spell_id": "searing_smite",
+    "name": "Searing Smite",
+    "level": 1,
+    "school": "Evocation",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "searing",
+      "smite",
+      "evocation"
+    ]
+  },
+  "thunderous_smite": {
+    "spell_id": "thunderous_smite",
+    "name": "Thunderous Smite",
+    "level": 1,
+    "school": "Evocation",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "smite",
+      "thunderous",
+      "evocation"
+    ]
+  },
+  "wrathful_smite": {
+    "spell_id": "wrathful_smite",
+    "name": "Wrathful Smite",
+    "level": 1,
+    "school": "Necromancy",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "smite",
+      "wrathful",
+      "necromancy"
+    ]
+  },
+  "find_steed": {
+    "spell_id": "find_steed",
+    "name": "Find Steed",
+    "level": 2,
+    "school": "Conjuration",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "find",
+      "steed",
+      "conjuration"
+    ]
+  },
+  "magic_weapon": {
+    "spell_id": "magic_weapon",
+    "name": "Magic Weapon",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Paladin",
+      "Ranger",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "magic",
+      "weapon",
+      "transmutation"
+    ]
+  },
+  "shining_smite": {
+    "spell_id": "shining_smite",
+    "name": "Shining Smite",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "smite",
+      "transmutation",
+      "shining"
+    ]
+  },
+  "blinding_smite": {
+    "spell_id": "blinding_smite",
+    "name": "Blinding Smite",
+    "level": 3,
+    "school": "Evocation",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "smite",
+      "blinding"
+    ]
+  },
+  "crusader’s_mantle": {
+    "spell_id": "crusader’s_mantle",
+    "name": "Crusader’s Mantle",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "crusader",
+      "s",
+      "transmutation",
+      "mantle"
+    ]
+  },
+  "staggering_smite": {
+    "spell_id": "staggering_smite",
+    "name": "Staggering Smite",
+    "level": 4,
+    "school": "Enchantment",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "staggering",
+      "smite",
+      "enchantment"
+    ]
+  },
+  "banishing_smite": {
+    "spell_id": "banishing_smite",
+    "name": "Banishing Smite",
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjuration",
+      "smite",
+      "banishing"
+    ]
+  },
+  "destructive_wave": {
+    "spell_id": "destructive_wave",
+    "name": "Destructive Wave",
+    "level": 5,
+    "school": "Evocation",
+    "classes": [
+      "Paladin"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "destructive",
+      "wave",
+      "evocation"
+    ]
+  },
+  "alarm": {
+    "spell_id": "alarm",
+    "name": "Alarm",
+    "level": 1,
+    "school": "Abjuration",
+    "classes": [
+      "Ranger",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "alarm",
+      "abjuration"
+    ]
+  },
+  "ensnaring_strike": {
+    "spell_id": "ensnaring_strike",
+    "name": "Ensnaring Strike",
+    "level": 1,
+    "school": "Conjuration",
+    "classes": [
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "ensnaring",
+      "strike",
+      "conjuration"
+    ]
+  },
+  "hail_of_thorns": {
+    "spell_id": "hail_of_thorns",
+    "name": "Hail of Thorns",
+    "level": 1,
+    "school": "Conjuration",
+    "classes": [
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "hail",
+      "thorns",
+      "conjuration"
+    ]
+  },
+  "hunter’s_mark": {
+    "spell_id": "hunter’s_mark",
+    "name": "Hunter’s Mark",
+    "level": 1,
+    "school": "Divination",
+    "classes": [
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "mark",
+      "hunter",
+      "divination"
+    ]
+  },
+  "cordon_of_arrows": {
+    "spell_id": "cordon_of_arrows",
+    "name": "Cordon of Arrows",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "cordon",
+      "arrows",
+      "transmutation",
+      "of"
+    ]
+  },
+  "conjure_barrage": {
+    "spell_id": "conjure_barrage",
+    "name": "Conjure Barrage",
+    "level": 3,
+    "school": "Conjuration",
+    "classes": [
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjuration",
+      "conjure",
+      "barrage"
+    ]
+  },
+  "lightning_arrow": {
+    "spell_id": "lightning_arrow",
+    "name": "Lightning Arrow",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "arrow",
+      "transmutation",
+      "lightning"
+    ]
+  },
+  "conjure_volley": {
+    "spell_id": "conjure_volley",
+    "name": "Conjure Volley",
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Ranger"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjure",
+      "volley",
+      "conjuration"
+    ]
+  },
+  "steel_wind_strike": {
+    "spell_id": "steel_wind_strike",
+    "name": "Steel Wind Strike",
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Ranger",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "strike",
+      "steel",
+      "wind",
+      "conjuration"
+    ]
+  },
+  "swift_quiver": {
+    "spell_id": "swift_quiver",
+    "name": "Swift Quiver",
+    "level": 5,
+    "school": "Transmutation",
+    "classes": [
+      "Ranger"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "swift",
+      "transmutation",
+      "quiver"
+    ]
+  },
+  "acid_splash": {
+    "spell_id": "acid_splash",
+    "name": "Acid Splash",
+    "level": 0,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "splash",
+      "acid",
+      "evocation"
+    ]
+  },
+  "chill_touch": {
+    "spell_id": "chill_touch",
+    "name": "Chill Touch",
+    "level": 0,
+    "school": "Necromancy",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "touch",
+      "chill",
+      "necromancy"
+    ]
+  },
+  "fire_bolt": {
+    "spell_id": "fire_bolt",
+    "name": "Fire Bolt",
+    "level": 0,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "bolt",
+      "fire"
+    ]
+  },
+  "mind_sliver": {
+    "spell_id": "mind_sliver",
+    "name": "Mind Sliver",
+    "level": 0,
+    "school": "Enchantment",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "enchantment",
+      "sliver",
+      "mind"
+    ]
+  },
+  "ray_of_frost": {
+    "spell_id": "ray_of_frost",
+    "name": "Ray of Frost",
+    "level": 0,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "evocation",
+      "frost",
+      "ray"
+    ]
+  },
+  "shocking_grasp": {
+    "spell_id": "shocking_grasp",
+    "name": "Shocking Grasp",
+    "level": 0,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "shocking",
+      "grasp",
+      "evocation"
+    ]
+  },
+  "sorcerous_burst": {
+    "spell_id": "sorcerous_burst",
+    "name": "Sorcerous Burst",
+    "level": 0,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "sorcerous",
+      "burst",
+      "evocation"
+    ]
+  },
+  "burning_hands": {
+    "spell_id": "burning_hands",
+    "name": "Burning Hands",
+    "level": 1,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "burning",
+      "hands"
+    ]
+  },
+  "chromatic_orb": {
+    "spell_id": "chromatic_orb",
+    "name": "Chromatic Orb",
+    "level": 1,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "chromatic",
+      "orb",
+      "evocation"
+    ]
+  },
+  "expeditious_retreat": {
+    "spell_id": "expeditious_retreat",
+    "name": "Expeditious Retreat",
+    "level": 1,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "expeditious",
+      "transmutation",
+      "retreat"
+    ]
+  },
+  "false_life": {
+    "spell_id": "false_life",
+    "name": "False Life",
+    "level": 1,
+    "school": "Necromancy",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "life",
+      "false",
+      "necromancy"
+    ]
+  },
+  "grease": {
+    "spell_id": "grease",
+    "name": "Grease",
+    "level": 1,
+    "school": "Conjuration",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "grease",
+      "conjuration"
+    ]
+  },
+  "mage_armor": {
+    "spell_id": "mage_armor",
+    "name": "Mage Armor",
+    "level": 1,
+    "school": "Abjuration",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "armor",
+      "mage"
+    ]
+  },
+  "magic_missile": {
+    "spell_id": "magic_missile",
+    "name": "Magic Missile",
+    "level": 1,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "magic",
+      "missile",
+      "evocation"
+    ]
+  },
+  "ray_of_sickness": {
+    "spell_id": "ray_of_sickness",
+    "name": "Ray of Sickness",
+    "level": 1,
+    "school": "Necromancy",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "necromancy",
+      "sickness",
+      "ray"
+    ]
+  },
+  "shield": {
+    "spell_id": "shield",
+    "name": "Shield",
+    "level": 1,
+    "school": "Abjuration",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "shield"
+    ]
+  },
+  "witch_bolt": {
+    "spell_id": "witch_bolt",
+    "name": "Witch Bolt",
+    "level": 1,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "bolt",
+      "evocation",
+      "witch"
+    ]
+  },
+  "alter_self": {
+    "spell_id": "alter_self",
+    "name": "Alter Self",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "alter",
+      "self",
+      "transmutation"
+    ]
+  },
+  "arcane_vigor": {
+    "spell_id": "arcane_vigor",
+    "name": "Arcane Vigor",
+    "level": 2,
+    "school": "Abjuration",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "vigor",
+      "arcane"
+    ]
+  },
+  "blur": {
+    "spell_id": "blur",
+    "name": "Blur",
+    "level": 2,
+    "school": "Illusion",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "blur"
+    ]
+  },
+  "darkness": {
+    "spell_id": "darkness",
+    "name": "Darkness",
+    "level": 2,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "darkness"
+    ]
+  },
+  "dragon’s_breath": {
+    "spell_id": "dragon’s_breath",
+    "name": "Dragon’s Breath",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "breath",
+      "dragon",
+      "transmutation"
+    ]
+  },
+  "levitate": {
+    "spell_id": "levitate",
+    "name": "Levitate",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "levitate",
+      "transmutation"
+    ]
+  },
+  "mind_spike": {
+    "spell_id": "mind_spike",
+    "name": "Mind Spike",
+    "level": 2,
+    "school": "Divination",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "divination",
+      "spike",
+      "mind"
+    ]
+  },
+  "misty_step": {
+    "spell_id": "misty_step",
+    "name": "Misty Step",
+    "level": 2,
+    "school": "Conjuration",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "step",
+      "misty",
+      "conjuration"
+    ]
+  },
+  "scorching_ray": {
+    "spell_id": "scorching_ray",
+    "name": "Scorching Ray",
+    "level": 2,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "ray",
+      "scorching"
+    ]
+  },
+  "spider_climb": {
+    "spell_id": "spider_climb",
+    "name": "Spider Climb",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "climb",
+      "spider",
+      "transmutation"
+    ]
+  },
+  "web": {
+    "spell_id": "web",
+    "name": "Web",
+    "level": 2,
+    "school": "Conjuration",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjuration",
+      "web"
+    ]
+  },
+  "blink": {
+    "spell_id": "blink",
+    "name": "Blink",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "transmutation",
+      "blink"
+    ]
+  },
+  "counterspell": {
+    "spell_id": "counterspell",
+    "name": "Counterspell",
+    "level": 3,
+    "school": "Abjuration",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "counterspell"
+    ]
+  },
+  "fireball": {
+    "spell_id": "fireball",
+    "name": "Fireball",
+    "level": 3,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "fireball",
+      "evocation"
+    ]
+  },
+  "fly": {
+    "spell_id": "fly",
+    "name": "Fly",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "fly",
+      "transmutation"
+    ]
+  },
+  "gaseous_form": {
+    "spell_id": "gaseous_form",
+    "name": "Gaseous Form",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "form",
+      "gaseous",
+      "transmutation"
+    ]
+  },
+  "haste": {
+    "spell_id": "haste",
+    "name": "Haste",
+    "level": 3,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "haste",
+      "transmutation"
+    ]
+  },
+  "lightning_bolt": {
+    "spell_id": "lightning_bolt",
+    "name": "Lightning Bolt",
+    "level": 3,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "bolt",
+      "lightning"
+    ]
+  },
+  "vampiric_touch": {
+    "spell_id": "vampiric_touch",
+    "name": "Vampiric Touch",
+    "level": 3,
+    "school": "Necromancy",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "vampiric",
+      "touch",
+      "necromancy"
+    ]
+  },
+  "vitriolic_sphere": {
+    "spell_id": "vitriolic_sphere",
+    "name": "Vitriolic Sphere",
+    "level": 4,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "vitriolic",
+      "sphere",
+      "evocation"
+    ]
+  },
+  "bigby’s_hand": {
+    "spell_id": "bigby’s_hand",
+    "name": "Bigby’s Hand",
+    "level": 5,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "hand",
+      "evocation",
+      "bigby"
+    ]
+  },
+  "cloudkill": {
+    "spell_id": "cloudkill",
+    "name": "Cloudkill",
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "cloudkill",
+      "conjuration"
+    ]
+  },
+  "creation": {
+    "spell_id": "creation",
+    "name": "Creation",
+    "level": 5,
+    "school": "Illusion",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "creation"
+    ]
+  },
+  "telekinesis": {
+    "spell_id": "telekinesis",
+    "name": "Telekinesis",
+    "level": 5,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "telekinesis",
+      "transmutation"
+    ]
+  },
+  "arcane_gate": {
+    "spell_id": "arcane_gate",
+    "name": "Arcane Gate",
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "gate",
+      "conjuration",
+      "arcane"
+    ]
+  },
+  "chain_lightning": {
+    "spell_id": "chain_lightning",
+    "name": "Chain Lightning",
+    "level": 6,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "chain",
+      "lightning"
+    ]
+  },
+  "circle_of_death": {
+    "spell_id": "circle_of_death",
+    "name": "Circle of Death",
+    "level": 6,
+    "school": "Necromancy",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "death",
+      "circle",
+      "necromancy"
+    ]
+  },
+  "disintegrate": {
+    "spell_id": "disintegrate",
+    "name": "Disintegrate",
+    "level": 6,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "disintegrate",
+      "transmutation"
+    ]
+  },
+  "globe_of_invulnerability": {
+    "spell_id": "globe_of_invulnerability",
+    "name": "Globe of Invulnerability",
+    "level": 6,
+    "school": "Abjuration",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "globe",
+      "abjuration",
+      "invulnerability"
+    ]
+  },
+  "otiluke’s_freezing_sphere": {
+    "spell_id": "otiluke’s_freezing_sphere",
+    "name": "Otiluke’s Freezing Sphere",
+    "level": 6,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "sphere",
+      "otiluke",
+      "evocation",
+      "freezing"
+    ]
+  },
+  "delayed_blast_fireball": {
+    "spell_id": "delayed_blast_fireball",
+    "name": "Delayed Blast Fireball",
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "blast",
+      "fireball",
+      "delayed",
+      "evocation"
+    ]
+  },
+  "finger_of_death": {
+    "spell_id": "finger_of_death",
+    "name": "Finger of Death",
+    "level": 7,
+    "school": "Necromancy",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "finger",
+      "death",
+      "of",
+      "necromancy"
+    ]
+  },
+  "demiplane": {
+    "spell_id": "demiplane",
+    "name": "Demiplane",
+    "level": 8,
+    "school": "Conjuration",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjuration",
+      "demiplane"
+    ]
+  },
+  "meteor_swarm": {
+    "spell_id": "meteor_swarm",
+    "name": "Meteor Swarm",
+    "level": 9,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "swarm",
+      "evocation",
+      "meteor"
+    ]
+  },
+  "time_stop": {
+    "spell_id": "time_stop",
+    "name": "Time Stop",
+    "level": 9,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "time",
+      "transmutation",
+      "stop"
+    ]
+  },
+  "wish": {
+    "spell_id": "wish",
+    "name": "Wish",
+    "level": 9,
+    "school": "Conjuration",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "wish",
+      "conjuration"
+    ]
+  },
+  "eldritch_blast": {
+    "spell_id": "eldritch_blast",
+    "name": "Eldritch Blast",
+    "level": 0,
+    "school": "Evocation",
+    "classes": [
+      "Warlock"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "evocation",
+      "blast",
+      "eldritch"
+    ]
+  },
+  "armor_of_agathys": {
+    "spell_id": "armor_of_agathys",
+    "name": "Armor of Agathys",
+    "level": 1,
+    "school": "Abjuration",
+    "classes": [
+      "Warlock"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "abjuration",
+      "armor",
+      "agathys"
+    ]
+  },
+  "arms_of_hadar": {
+    "spell_id": "arms_of_hadar",
+    "name": "Arms of Hadar",
+    "level": 1,
+    "school": "Conjuration",
+    "classes": [
+      "Warlock"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "hadar",
+      "arms",
+      "conjuration"
+    ]
+  },
+  "hellish_rebuke": {
+    "spell_id": "hellish_rebuke",
+    "name": "Hellish Rebuke",
+    "level": 1,
+    "school": "Evocation",
+    "classes": [
+      "Warlock"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "rebuke",
+      "hellish",
+      "evocation"
+    ]
+  },
+  "hex": {
+    "spell_id": "hex",
+    "name": "Hex",
+    "level": 1,
+    "school": "Enchantment",
+    "classes": [
+      "Warlock"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "hex",
+      "enchantment"
+    ]
+  },
+  "ray_of_enfeeblement": {
+    "spell_id": "ray_of_enfeeblement",
+    "name": "Ray of Enfeeblement",
+    "level": 2,
+    "school": "Necromancy",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "enfeeblement",
+      "necromancy",
+      "ray"
+    ]
+  },
+  "hunger_of_hadar": {
+    "spell_id": "hunger_of_hadar",
+    "name": "Hunger of Hadar",
+    "level": 3,
+    "school": "Conjuration",
+    "classes": [
+      "Warlock"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "hunger",
+      "hadar",
+      "conjuration"
+    ]
+  },
+  "summon_undead": {
+    "spell_id": "summon_undead",
+    "name": "Summon Undead",
+    "level": 3,
+    "school": "Necromancy",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "necromancy",
+      "summon",
+      "undead"
+    ]
+  },
+  "summon_aberration": {
+    "spell_id": "summon_aberration",
+    "name": "Summon Aberration",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "conjuration",
+      "summon",
+      "aberration"
+    ]
+  },
+  "contact_other_plane": {
+    "spell_id": "contact_other_plane",
+    "name": "Contact Other Plane",
+    "level": 5,
+    "school": "Divination",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "other",
+      "contact",
+      "divination",
+      "plane"
+    ]
+  },
+  "jallarzi’s_storm_of_radiance": {
+    "spell_id": "jallarzi’s_storm_of_radiance",
+    "name": "Jallarzi’s Storm of Radiance",
+    "level": 5,
+    "school": "Evocation",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "jallarzi",
+      "of",
+      "storm",
+      "evocation",
+      "radiance"
+    ]
+  },
+  "summon_fiend": {
+    "spell_id": "summon_fiend",
+    "name": "Summon Fiend",
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "fiend",
+      "summon",
+      "conjuration"
+    ]
+  },
+  "tasha’s_bubbling_cauldron": {
+    "spell_id": "tasha’s_bubbling_cauldron",
+    "name": "Tasha’s Bubbling Cauldron",
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "bubbling",
+      "s",
+      "tasha",
+      "conjuration",
+      "cauldron"
+    ]
+  },
+  "imprisonment": {
+    "spell_id": "imprisonment",
+    "name": "Imprisonment",
+    "level": 9,
+    "school": "Abjuration",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "imprisonment"
+    ]
+  },
+  "weird": {
+    "spell_id": "weird",
+    "name": "Weird",
+    "level": 9,
+    "school": "Illusion",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "weird",
+      "illusion"
+    ]
+  },
+  "find_familiar": {
+    "spell_id": "find_familiar",
+    "name": "Find Familiar",
+    "level": 1,
+    "school": "Conjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "find",
+      "familiar",
+      "conjuration"
+    ]
+  },
+  "tenser’s_floating_disk": {
+    "spell_id": "tenser’s_floating_disk",
+    "name": "Tenser’s Floating Disk",
+    "level": 1,
+    "school": "Conjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "disk",
+      "floating",
+      "tenser",
+      "conjuration"
+    ]
+  },
+  "arcane_lock": {
+    "spell_id": "arcane_lock",
+    "name": "Arcane Lock",
+    "level": 2,
+    "school": "Abjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "abjuration",
+      "lock",
+      "arcane"
+    ]
+  },
+  "melf’s_acid_arrow": {
+    "spell_id": "melf’s_acid_arrow",
+    "name": "Melf’s Acid Arrow",
+    "level": 2,
+    "school": "Evocation",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "acid",
+      "s",
+      "melf",
+      "arrow",
+      "evocation"
+    ]
+  },
+  "nystul’s_magic_aura": {
+    "spell_id": "nystul’s_magic_aura",
+    "name": "Nystul’s Magic Aura",
+    "level": 2,
+    "school": "Illusion",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "magic",
+      "s",
+      "nystul",
+      "illusion",
+      "aura"
+    ]
+  },
+  "rope_trick": {
+    "spell_id": "rope_trick",
+    "name": "Rope Trick",
+    "level": 2,
+    "school": "Transmutation",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "rope",
+      "transmutation",
+      "trick"
+    ]
+  },
+  "phantom_steed": {
+    "spell_id": "phantom_steed",
+    "name": "Phantom Steed",
+    "level": 3,
+    "school": "Illusion",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "phantom",
+      "steed"
+    ]
+  },
+  "arcane_eye": {
+    "spell_id": "arcane_eye",
+    "name": "Arcane Eye",
+    "level": 4,
+    "school": "Divination",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "divination",
+      "eye",
+      "arcane"
+    ]
+  },
+  "evard’s_black_tentacles": {
+    "spell_id": "evard’s_black_tentacles",
+    "name": "Evard’s Black Tentacles",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "black",
+      "s",
+      "tentacles",
+      "evard",
+      "conjuration"
+    ]
+  },
+  "fabricate": {
+    "spell_id": "fabricate",
+    "name": "Fabricate",
+    "level": 4,
+    "school": "Transmutation",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "fabricate",
+      "transmutation"
+    ]
+  },
+  "leomund’s_secret_chest": {
+    "spell_id": "leomund’s_secret_chest",
+    "name": "Leomund’s Secret Chest",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "leomund",
+      "conjuration",
+      "chest",
+      "secret"
+    ]
+  },
+  "mordenkainen’s_faithful_hound": {
+    "spell_id": "mordenkainen’s_faithful_hound",
+    "name": "Mordenkainen’s Faithful Hound",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "faithful",
+      "mordenkainen",
+      "hound",
+      "conjuration"
+    ]
+  },
+  "mordenkainen’s_private_sanctum": {
+    "spell_id": "mordenkainen’s_private_sanctum",
+    "name": "Mordenkainen’s Private Sanctum",
+    "level": 4,
+    "school": "Abjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "private",
+      "sanctum",
+      "mordenkainen",
+      "abjuration"
+    ]
+  },
+  "otiluke’s_resilient_sphere": {
+    "spell_id": "otiluke’s_resilient_sphere",
+    "name": "Otiluke’s Resilient Sphere",
+    "level": 4,
+    "school": "Abjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "sphere",
+      "otiluke",
+      "abjuration",
+      "resilient"
+    ]
+  },
+  "summon_construct": {
+    "spell_id": "summon_construct",
+    "name": "Summon Construct",
+    "level": 4,
+    "school": "Conjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "construct",
+      "summon",
+      "conjuration"
+    ]
+  },
+  "passwall": {
+    "spell_id": "passwall",
+    "name": "Passwall",
+    "level": 5,
+    "school": "Transmutation",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "transmutation",
+      "passwall"
+    ]
+  },
+  "summon_dragon": {
+    "spell_id": "summon_dragon",
+    "name": "Summon Dragon",
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "dragon",
+      "summon",
+      "conjuration"
+    ]
+  },
+  "wall_of_force": {
+    "spell_id": "wall_of_force",
+    "name": "Wall of Force",
+    "level": 5,
+    "school": "Evocation",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "evocation",
+      "force",
+      "wall"
+    ]
+  },
+  "contingency": {
+    "spell_id": "contingency",
+    "name": "Contingency",
+    "level": 6,
+    "school": "Abjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "contingency",
+      "abjuration"
+    ]
+  },
+  "drawmij’s_instant_summons": {
+    "spell_id": "drawmij’s_instant_summons",
+    "name": "Drawmij’s Instant Summons",
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": true,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "s",
+      "instant",
+      "drawmij",
+      "summons",
+      "conjuration"
+    ]
+  },
+  "magic_jar": {
+    "spell_id": "magic_jar",
+    "name": "Magic Jar",
+    "level": 6,
+    "school": "Necromancy",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "magic",
+      "jar",
+      "necromancy"
+    ]
+  },
+  "wall_of_ice": {
+    "spell_id": "wall_of_ice",
+    "name": "Wall of Ice",
+    "level": 6,
+    "school": "Evocation",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "of",
+      "evocation",
+      "ice",
+      "wall"
+    ]
+  },
+  "sequester": {
+    "spell_id": "sequester",
+    "name": "Sequester",
+    "level": 7,
+    "school": "Transmutation",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "sequester",
+      "transmutation"
+    ]
+  },
+  "simulacrum": {
+    "spell_id": "simulacrum",
+    "name": "Simulacrum",
+    "level": 7,
+    "school": "Illusion",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "illusion",
+      "simulacrum"
+    ]
+  },
+  "clone": {
+    "spell_id": "clone",
+    "name": "Clone",
+    "level": 8,
+    "school": "Necromancy",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": true,
+    "source": "PHB 2024",
+    "keywords": [
+      "necromancy",
+      "clone"
+    ]
+  },
+  "maze": {
+    "spell_id": "maze",
+    "name": "Maze",
+    "level": 8,
+    "school": "Conjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": true,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "maze",
+      "conjuration"
+    ]
+  },
+  "telepathy": {
+    "spell_id": "telepathy",
+    "name": "Telepathy",
+    "level": 8,
+    "school": "Divination",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": false,
+    "ritual": false,
+    "material": false,
+    "source": "PHB 2024",
+    "keywords": [
+      "telepathy",
+      "divination"
+    ]
+  }
+}

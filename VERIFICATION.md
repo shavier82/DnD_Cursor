@@ -46,5 +46,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_encounte
 **Verify:**
 - All 4 agent outputs created
 - Validation passes
-- Merge produces 3-block output (NARRATION, ASK, PATCH)
-- If roll requested → PATCH is `[]`
+- Merge produces 3-block output (NARRATION, ASK, ACTIONS)
+- If roll requested → STATE_PATCHER.patches is `[]`
+- Suggested actions displayed when entering locations (if NARRATOR provides them)
+- PATCH is applied to state but not displayed in output

@@ -34,6 +34,8 @@ The D&D engine uses a parallel agents architecture where multiple specialized ag
 - Generates narrative descriptions
 - Handles dialogue and scene-setting
 - Creates immersive text
+- **MUST check gates before revealing information** (same as REFEREE)
+- When entering a location, MUST generate `suggested_actions` array based on the location card's actionable elements (locked chests, gates requiring checks, treasure, items to examine, nearby areas, etc.)
 - Outputs: `dnd_out_NARRATOR.json`
 
 **Output Schema**:
@@ -41,9 +43,26 @@ The D&D engine uses a parallel agents architecture where multiple specialized ag
 {
   "agent_role": "NARRATOR",
   "blocked": false,
-  "narration": "You step cautiously into the dimly lit corridor..."
+  "narration": "You step cautiously into the dimly lit corridor...",
+  "suggested_actions": [
+    "Attempt to pick the lock (Requires thieves' tools and a DC 20 Dexterity check)",
+    "Search the room thoroughly",
+    "Continue exploring (move to W6)"
+  ]
 }
 ```
+
+**Suggested Actions Rules**:
+- `suggested_actions` is an optional field (array of strings)
+- When entering a location, NARRATOR should parse the location card for actionable elements:
+  - Locked containers (chests, doors, strongboxes) - include DC and tool requirements
+  - Gates requiring checks (from card's `mechanics` field) - include DC, ability, skill
+  - Treasure/loot to search for
+  - Items to examine (records, texts, objects)
+  - Nearby areas to explore (if mentioned in card)
+- Actions should include requirements (tools, DCs, skills) when applicable
+- Format: Plain text strings, one action per string
+- Example: "Attempt to pick the lock (Requires thieves' tools and a DC 20 Dexterity check)"
 
 ### STATE_PATCHER
 **Responsibility**: State updates only (PATCH deltas)
@@ -100,6 +119,7 @@ The D&D engine uses a parallel agents architecture where multiple specialized ag
   "final": {
     "NARRATION": "...",
     "ASK": "...",
+    "ACTIONS": ["- Action 1", "- Action 2"],
     "PATCH": []
   }
 }
@@ -126,6 +146,7 @@ The D&D engine uses a parallel agents architecture where multiple specialized ag
    - If any agent has `blocked: true` → output `BLOCKED: Pack missing required data: <what>`
    - If REFEREE says `roll_request.required: true` → ASK must request roll
    - If roll pending → PATCH must be `[]`
+   - Extract suggested actions from NARRATOR.suggested_actions (if present)
    - Compose final 3-block output
 4. Outputs formatted response:
    ```
@@ -135,8 +156,10 @@ The D&D engine uses a parallel agents architecture where multiple specialized ag
    ASK:
    <ask text>
    
-   PATCH:
-   <JSON array or []>
+   ACTIONS:
+   <suggested actions list or "(none)">
+   - Format: One action per line, prefixed with "- "
+   - Actions include requirements (tools, DCs, skills) when applicable
    ```
 
 ## Output Format Rules
@@ -148,11 +171,15 @@ NARRATION:
 <text from NARRATOR>
 
 ASK:
-<text requesting player action or roll if REFEREE.roll_request.required=true>
+<text requesting player action or roll if REFEREE.roll_request.required=true, or "(none)">
 
-PATCH:
-<JSON array from STATE_PATCHER.patches>
+ACTIONS:
+<suggested actions from NARRATOR.suggested_actions, or "(none)">
+- Format: One action per line, prefixed with "- "
+- Actions include requirements (tools, DCs, skills) when applicable
 ```
+
+**Note**: PATCH is applied to state automatically but is NOT displayed in chat output (hidden from player).
 
 ### Blocked Case
 If any agent has `blocked: true`, output ONLY:
@@ -196,9 +223,10 @@ MERGE agent MUST:
 2. Check if any has `blocked: true` → output BLOCKED message
 3. Check QA_COMPLIANCE status → fail if not "ok"
 4. Extract NARRATION from NARRATOR.narration
-5. Build ASK from REFEREE.roll_request if required=true
-6. Extract PATCH from STATE_PATCHER.patches (empty if roll pending)
-7. Output exactly 3 blocks in specified format
+5. Build ASK from REFEREE.roll_request if required=true (or "(none)" if no roll needed)
+6. Extract suggested actions from NARRATOR.suggested_actions (or "(none)" if empty/not present)
+7. Extract PATCH from STATE_PATCHER.patches (empty if roll pending) - **Note: PATCH is applied but NOT displayed**
+8. Output exactly 3 blocks in specified format (NARRATION, ASK, ACTIONS)
 
 
 

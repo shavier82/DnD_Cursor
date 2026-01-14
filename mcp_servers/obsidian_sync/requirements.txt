@@ -1,0 +1,8 @@
+mcp
+pydantic
+python-frontmatter
+watchdog
+
+
+
+

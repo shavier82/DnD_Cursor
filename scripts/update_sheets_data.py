@@ -81,32 +81,72 @@ def find_row_by_character_id(service, spreadsheet_id, sheet_name, character_id, 
     
     return None
 
-def update_character_xp(service, spreadsheet_id, character_id, xp):
-    """Update XP for a character in CSV_Characters"""
+def update_character_xp(service, spreadsheet_id, character_id, xp_to_add):
+    """Update XP for a character in CSV_Characters
+    
+    CRITICAL RULE: This function ALWAYS ADDS to current XP (READ → ADD → UPDATE).
+    It NEVER overwrites. This prevents data loss.
+    
+    Args:
+        service: Google Sheets service object
+        spreadsheet_id: Spreadsheet ID
+        character_id: Character ID
+        xp_to_add: Amount of XP to ADD to current XP
+    """
     # Find the row
     row_index = find_row_by_character_id(service, spreadsheet_id, 'CSV_Characters', character_id)
     if not row_index:
         return False
     
-    # XP is column H (index 7)
-    range_name = f'CSV_Characters!H{row_index}'
-    
+    # Read current XP
     try:
+        result = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f'CSV_Characters!A{row_index}:Z{row_index}'
+        ).execute()
+        
+        values = result.get('values', [])
+        if not values or len(values[0]) < 8:
+            return False
+        
+        # XP is column H (index 7)
+        current_xp_str = values[0][7].strip().replace(',', '') if len(values[0]) > 7 and values[0][7] else '0'
+        try:
+            current_xp = int(current_xp_str)
+        except (ValueError, TypeError):
+            current_xp = 0
+        
+        # Add new XP
+        new_xp = current_xp + xp_to_add
+        
+        # Update XP
+        range_name = f'CSV_Characters!H{row_index}'
         service.spreadsheets().values().update(
             spreadsheetId=spreadsheet_id,
             range=range_name,
             valueInputOption='RAW',
-            body={'values': [[str(xp)]]}
+            body={'values': [[str(new_xp)]]}
         ).execute()
         return True
     except HttpError as error:
         print(f"ERROR: Failed to update XP: {error}")
         return False
+    except Exception as error:
+        print(f"ERROR: Failed to read/update XP: {error}")
+        return False
 
 def update_character_currency(service, spreadsheet_id, character_id, currency_data):
-    """Update currency for a character in CSV_Currency"""
-    # currency_data should be: {'cp': 0, 'sp': 0, 'ep': 0, 'gp': 0, 'pp': 0}
+    """Update currency for a character in CSV_Currency
     
+    CRITICAL RULE: This function ALWAYS ADDS to current currency (READ → ADD → UPDATE).
+    It NEVER overwrites. This prevents data loss (e.g., zeroing out cp, sp, ep, pp).
+    
+    Args:
+        service: Google Sheets service object
+        spreadsheet_id: Spreadsheet ID
+        character_id: Character ID
+        currency_data: Dict with currency values to ADD {'cp': 0, 'sp': 0, 'ep': 0, 'gp': 0, 'pp': 0}
+    """
     # Get headers to find column indices
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheet_id,
@@ -120,18 +160,44 @@ def update_character_currency(service, spreadsheet_id, character_id, currency_da
     if not row_index:
         return False
     
-    # Build updates
-    updates = []
+    # CRITICAL: Always read current values first (READ → ADD → UPDATE)
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheet_id,
+        range=f'CSV_Currency!A{row_index}:Z{row_index}'
+    ).execute()
+    
+    row_values = result.get('values', [[]])[0] if result.get('values') else []
     currency_map = {'cp': 'cp', 'sp': 'sp', 'ep': 'ep', 'gp': 'gp', 'pp': 'pp'}
+    current_values = {}
+    
+    # Read current currency values
+    for key in currency_map.keys():
+        if key in headers:
+            col_index = headers.index(key)
+            if col_index < len(row_values):
+                try:
+                    current_values[key] = int(row_values[col_index]) if row_values[col_index] else 0
+                except (ValueError, TypeError):
+                    current_values[key] = 0
+            else:
+                current_values[key] = 0
+    
+    # Build updates (ALWAYS add to current values, never overwrite)
+    updates = []
     
     for key, value in currency_data.items():
         if key in currency_map and key in headers:
             col_index = headers.index(key)
             col_letter = chr(65 + col_index)  # A=65
             range_name = f'CSV_Currency!{col_letter}{row_index}'
+            
+            # ALWAYS add to current value (never overwrite)
+            current_amount = current_values.get(key, 0)
+            final_value = current_amount + value
+            
             updates.append({
                 'range': range_name,
-                'values': [[str(value)]]
+                'values': [[str(final_value)]]
             })
     
     if not updates:
@@ -347,6 +413,81 @@ def add_inventory_item(service, spreadsheet_id, character_id, item_name, quantit
         print(f"ERROR: Failed to add inventory item: {error}")
         return False
 
+def add_inventory_items_batch(service, spreadsheet_id, character_id, items):
+    """Add multiple inventory items to CSV_Inventory sheet in one batch operation
+    items: list of dicts with keys: item_name, quantity, item_type, equipped, notes, weight_lbs
+    """
+    # Get character name from CSV_Characters (once)
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheet_id,
+        range='CSV_Characters!A:B'
+    ).execute()
+    
+    values = result.get('values', [])
+    character_name = ''
+    for row in values[1:]:
+        if len(row) >= 2 and row[0].strip().lower() == character_id.lower():
+            character_name = row[1].strip()
+            break
+    
+    if not character_name:
+        print(f"ERROR: Character ID '{character_id}' not found")
+        return False
+    
+    # Get headers from CSV_Inventory (once)
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheet_id,
+        range='CSV_Inventory!A1:Z1'
+    ).execute()
+    
+    headers = [h.strip() for h in result.get('values', [[]])[0]]
+    
+    # Find column indices (once)
+    col_map = {}
+    for i, header in enumerate(headers):
+        col_map[header.lower()] = i
+    
+    # Build all row data
+    all_rows = []
+    for item in items:
+        row_data = [''] * len(headers)
+        
+        # Map columns (note: "Now " has trailing space)
+        if 'character_id' in col_map:
+            row_data[col_map['character_id']] = character_id
+        if 'name' in col_map:
+            row_data[col_map['name']] = character_name
+        if 'now ' in col_map:  # Note the trailing space
+            row_data[col_map['now ']] = item.get('item_name', '')
+        elif 'now' in col_map:
+            row_data[col_map['now']] = item.get('item_name', '')
+        if 'quantity' in col_map:
+            row_data[col_map['quantity']] = str(item.get('quantity', 1))
+        if 'type' in col_map:
+            row_data[col_map['type']] = item.get('item_type', '')
+        if 'equipped' in col_map:
+            row_data[col_map['equipped']] = item.get('equipped', 'No')
+        if 'notes' in col_map:
+            row_data[col_map['notes']] = item.get('notes', '')
+        if 'weight_lbs' in col_map:
+            row_data[col_map['weight_lbs']] = str(item.get('weight_lbs', '')) if item.get('weight_lbs') else ''
+        
+        all_rows.append(row_data)
+    
+    # Batch append all rows in one API call
+    try:
+        service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range='CSV_Inventory!A:Z',
+            valueInputOption='RAW',
+            insertDataOption='INSERT_ROWS',
+            body={'values': all_rows}
+        ).execute()
+        return True
+    except HttpError as error:
+        print(f"ERROR: Failed to add inventory items: {error}")
+        return False
+
 def sync_from_json(service, spreadsheet_id, json_file_path):
     """Sync character data from local JSON file to sheets"""
     with open(json_file_path, 'r', encoding='utf-8-sig') as f:
@@ -396,11 +537,11 @@ def main():
     # Currency update
     currency_parser = subparsers.add_parser('currency', help='Update currency')
     currency_parser.add_argument('character', help='Character name')
-    currency_parser.add_argument('--cp', type=int, default=0, help='Copper pieces')
-    currency_parser.add_argument('--sp', type=int, default=0, help='Silver pieces')
-    currency_parser.add_argument('--ep', type=int, default=0, help='Electrum pieces')
-    currency_parser.add_argument('--gp', type=int, default=0, help='Gold pieces')
-    currency_parser.add_argument('--pp', type=int, default=0, help='Platinum pieces')
+    currency_parser.add_argument('--cp', type=int, default=0, help='Copper pieces to ADD (always adds, never overwrites)')
+    currency_parser.add_argument('--sp', type=int, default=0, help='Silver pieces to ADD (always adds, never overwrites)')
+    currency_parser.add_argument('--ep', type=int, default=0, help='Electrum pieces to ADD (always adds, never overwrites)')
+    currency_parser.add_argument('--gp', type=int, default=0, help='Gold pieces to ADD (always adds, never overwrites)')
+    currency_parser.add_argument('--pp', type=int, default=0, help='Platinum pieces to ADD (always adds, never overwrites)')
     
     # Resource update
     resource_parser = subparsers.add_parser('resource', help='Update resource')
@@ -471,8 +612,9 @@ def main():
             'pp': args.pp
         }
         
+        # CRITICAL: update_character_currency ALWAYS adds to current (never overwrites)
         if update_character_currency(service, args.spreadsheet_id, character_id, currency_data):
-            print(f"OK: Updated {args.character} currency")
+            print(f"OK: Added currency to {args.character}")
         else:
             print(f"ERROR: Failed to update currency")
             sys.exit(1)
@@ -542,4 +684,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-

@@ -3,7 +3,10 @@ param(
     [string]$SessionId,
     
     [Parameter(Mandatory = $false)]
-    [switch]$Quiet = $false
+    [switch]$Quiet = $false,
+    
+    [Parameter(Mandatory = $false)]
+    [switch]$FastMode = $false
 )
 
 Set-StrictMode -Version Latest
@@ -32,6 +35,7 @@ $schemas = @{
     "NARRATOR" = @{
         file = "dnd_out_NARRATOR.json"
         requiredTop = @("agent_role","blocked","narration")
+        optionalTop = @("suggested_actions")
     }
     "STATE_PATCHER" = @{
         file = "dnd_out_STATE_PATCHER.json"
@@ -60,19 +64,21 @@ foreach ($agent in $schemas.Keys) {
         continue
     }
 
-    # Location fences (resolved path must start with CoordDir)
-    $resolved = (Resolve-Path $path).Path
-    if ($resolved -notlike ($CoordDir + "\*")) {
-        $errors += ("{0}: wrong location {1}" -f $agent, $resolved)
-        continue
-    }
-    if ($resolved -like ($RepoRoot + "\*")) {
-        $errors += ("{0}: output inside repo (forbidden) {1}" -f $agent, $resolved)
-        continue
-    }
-    if ($resolved -like ($CampaignRoot + "\*")) {
-        $errors += ("{0}: output inside campaigns (forbidden) {1}" -f $agent, $resolved)
-        continue
+    # Location fences (skip in fast mode for speed)
+    if (-not $FastMode) {
+        $resolved = (Resolve-Path $path).Path
+        if ($resolved -notlike ($CoordDir + "\*")) {
+            $errors += ("{0}: wrong location {1}" -f $agent, $resolved)
+            continue
+        }
+        if ($resolved -like ($RepoRoot + "\*")) {
+            $errors += ("{0}: output inside repo (forbidden) {1}" -f $agent, $resolved)
+            continue
+        }
+        if ($resolved -like ($CampaignRoot + "\*")) {
+            $errors += ("{0}: output inside campaigns (forbidden) {1}" -f $agent, $resolved)
+            continue
+        }
     }
 
     # JSON parse
@@ -120,6 +126,13 @@ foreach ($agent in $schemas.Keys) {
     if ($agent -eq "QA_COMPLIANCE") {
         if (-not ($obj.issues -is [System.Collections.IEnumerable])) {
             $errors += "QA_COMPLIANCE: issues must be an array"
+        }
+    }
+
+    if ($agent -eq "NARRATOR") {
+        # Validate optional suggested_actions if present
+        if ($obj.suggested_actions -and -not ($obj.suggested_actions -is [System.Collections.IEnumerable])) {
+            $errors += "NARRATOR: suggested_actions must be an array if present"
         }
     }
 
