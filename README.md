@@ -48,10 +48,10 @@ C:\DnD\
 The system uses 5 specialized agents that work in parallel to process D&D turns:
 
 1. **REFEREE** - Mechanics, rolls, DCs only
-2. **NARRATOR** - Narration only
+2. **NARRATOR** - Narration only (generates suggested actions when entering locations)
 3. **STATE_PATCHER** - State updates (PATCH deltas) only
 4. **QA_COMPLIANCE** - Output format + guardrails validation
-5. **MERGE** - Composes final 3-block response
+5. **MERGE** - Composes final 3-block response (NARRATION, ASK, ACTIONS)
 
 ### Starting a Session
 
@@ -127,11 +127,15 @@ NARRATION:
 <narration text from NARRATOR>
 
 ASK:
-<ask text - requests roll if REFEREE says required=true>
+<ask text - requests roll if REFEREE says required=true, or "(none)">
 
-PATCH:
-<JSON array from STATE_PATCHER - empty [] if roll pending>
+ACTIONS:
+<suggested actions from NARRATOR.suggested_actions, or "(none)">
+- Format: One action per line, prefixed with "- "
+- Actions include requirements (tools, DCs, skills) when applicable
 ```
+
+**Note**: PATCH (state patches) is applied to state automatically but is NOT displayed in chat output (hidden from player).
 
 If any agent is blocked or validation fails, output will be:
 

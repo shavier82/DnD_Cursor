@@ -1,0 +1,42 @@
+# Dice roller server files to ignore
+
+# Audit logs (keep local only)
+dice_rolls_audit.jsonl
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

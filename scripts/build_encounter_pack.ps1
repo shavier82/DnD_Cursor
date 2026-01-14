@@ -21,6 +21,7 @@ if (-not (Test-Path $configPath)) {
 $config = Get-Content $configPath -Raw | ConvertFrom-Json
 $chaptersDir = $config.chapters_dir
 $packsDir = $config.packs_dir
+$sourceName = if ($config.source_name) { $config.source_name } else { $config.default_campaign }
 
 # Ensure packs directory exists
 if (-not (Test-Path $packsDir)) {
@@ -31,7 +32,7 @@ if (-not (Test-Path $packsDir)) {
 $encounterPack = @{
     pack_type = "encounter_pack"
     pack_version = "1.0"
-    source = "Mines of Phandelver and Below"
+    source = $sourceName
     chapter = $null
     scene_id = $SceneId
     keyword = $Keyword

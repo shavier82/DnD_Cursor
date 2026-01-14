@@ -210,10 +210,12 @@ def main():
     
     chapters_dir = Path(config['chapters_dir'])
     packs_dir = Path(config['packs_dir'])
+    source_name = config.get('source_name', config.get('default_campaign', 'Unknown Source'))
     elapsed = (time.time() - start_time) * 1000
     log(f"[build] Config loaded in {elapsed:.0f}ms")
     log(f"[build] Chapters dir: {chapters_dir}")
     log(f"[build] Packs dir: {packs_dir}")
+    log(f"[build] Source name: {source_name}")
     
     # Ensure packs directory and logs subdirectory exist
     packs_dir.mkdir(parents=True, exist_ok=True)
@@ -264,7 +266,7 @@ def main():
     chapter_pack = {
         "pack_type": "chapter_pack",
         "pack_version": "1.0",
-        "source": "Mines of Phandelver and Below",
+        "source": source_name,
         "chapter": args.chapter,
         "cards": cards
     }

@@ -1,0 +1,318 @@
+{
+  "blinded": {
+    "condition_id": "blinded",
+    "name": "Blinded",
+    "source": "PHB 2024",
+    "summary": "You can't see and automatically fail ability checks that require sight.",
+    "effects": [
+      "You can't see",
+      "You automatically fail ability checks that require sight",
+      "Attack rolls against you have Advantage",
+      "Your attack rolls have Disadvantage"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends",
+    "full_text": "While you have the Blinded condition, you experience the following effects: You can't see and automatically fail any ability check that requires sight. Attack rolls against you have Advantage, and your attack rolls have Disadvantage.",
+    "keywords": [
+      "blinded",
+      "sight",
+      "vision",
+      "blind",
+      "darkness"
+    ]
+  },
+  "charmed": {
+    "condition_id": "charmed",
+    "name": "Charmed",
+    "source": "PHB 2024",
+    "summary": "You can't attack the charmer or target them with harmful abilities or magical effects.",
+    "effects": [
+      "You can't attack the charmer",
+      "You can't target the charmer with harmful abilities or magical effects",
+      "The charmer has Advantage on ability checks to interact socially with you"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends",
+    "full_text": "While you have the Charmed condition, you experience the following effects: You can't attack the charmer or target the charmer with harmful abilities or magical effects. The charmer has Advantage on any ability check to interact with you socially.",
+    "keywords": [
+      "charmed",
+      "charm",
+      "mind control",
+      "influence"
+    ]
+  },
+  "deafened": {
+    "condition_id": "deafened",
+    "name": "Deafened",
+    "source": "PHB 2024",
+    "summary": "You can't hear and automatically fail ability checks that require hearing.",
+    "effects": [
+      "You can't hear",
+      "You automatically fail ability checks that require hearing"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends",
+    "full_text": "While you have the Deafened condition, you experience the following effects: You can't hear and automatically fail any ability check that requires hearing.",
+    "keywords": [
+      "deafened",
+      "deaf",
+      "hearing",
+      "sound"
+    ]
+  },
+  "exhaustion": {
+    "condition_id": "exhaustion",
+    "name": "Exhaustion",
+    "source": "PHB 2024",
+    "summary": "You suffer levels of exhaustion, with cumulative effects including disadvantage, reduced speed, and eventually death.",
+    "effects": [
+      "Level 1: Disadvantage on ability checks",
+      "Level 2: Speed halved",
+      "Level 3: Disadvantage on attack rolls and saving throws",
+      "Level 4: Hit point maximum halved",
+      "Level 5: Speed reduced to 0",
+      "Level 6: Death"
+    ],
+    "ends_when": "Finishing a long rest reduces your exhaustion level by 1 (if you have food and drink)",
+    "full_text": "While you have the Exhaustion condition, you experience the following effects based on your exhaustion level. Level 1: Disadvantage on ability checks. Level 2: Speed halved. Level 3: Disadvantage on attack rolls and saving throws. Level 4: Hit point maximum halved. Level 5: Speed reduced to 0. Level 6: Death. Finishing a long rest reduces your exhaustion level by 1, provided you have ingested food and drink.",
+    "keywords": [
+      "exhaustion",
+      "fatigue",
+      "tired",
+      "levels",
+      "rest"
+    ]
+  },
+  "frightened": {
+    "condition_id": "frightened",
+    "name": "Frightened",
+    "source": "PHB 2024",
+    "summary": "You have Disadvantage on ability checks and attack rolls while the source of fear is within line of sight.",
+    "effects": [
+      "You have Disadvantage on ability checks and attack rolls while the source of fear is within line of sight",
+      "You can't willingly move closer to the source of fear"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends",
+    "full_text": "While you have the Frightened condition, you experience the following effects: You have Disadvantage on ability checks and attack rolls while the source of your fear is within line of sight. You can't willingly move closer to the source of your fear.",
+    "keywords": [
+      "frightened",
+      "fear",
+      "scared",
+      "afraid",
+      "terror"
+    ]
+  },
+  "grappled": {
+    "condition_id": "grappled",
+    "name": "Grappled",
+    "source": "PHB 2024",
+    "summary": "Your speed is 0, and you can't benefit from bonuses to speed.",
+    "effects": [
+      "Your speed is 0",
+      "You can't benefit from any bonus to your speed"
+    ],
+    "ends_when": "The grappler is incapacitated, you are moved out of the grappler's reach, or you use an Action to escape (Athletics or Acrobatics check vs grappler's save DC)",
+    "full_text": "While you have the Grappled condition, you experience the following effects: Your speed is 0 and can't benefit from any bonus to your speed. The condition ends if your grappler is incapacitated or if an effect removes you from the reach of your grappler. You can also use your Action to try to escape. To do so, make an Athletics or Acrobatics check against the save DC of the effect that grappled you.",
+    "keywords": [
+      "grappled",
+      "grabbed",
+      "restrained",
+      "held",
+      "escape"
+    ]
+  },
+  "incapacitated": {
+    "condition_id": "incapacitated",
+    "name": "Incapacitated",
+    "source": "PHB 2024",
+    "summary": "You can't take any action, Bonus Action, or Reaction.",
+    "effects": [
+      "You can't take any action",
+      "You can't take any Bonus Action",
+      "You can't take any Reaction"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends",
+    "full_text": "While you have the Incapacitated condition, you experience the following effects: You can't take any action, Bonus Action, or Reaction.",
+    "keywords": [
+      "incapacitated",
+      "disabled",
+      "helpless",
+      "unable to act"
+    ]
+  },
+  "invisible": {
+    "condition_id": "invisible",
+    "name": "Invisible",
+    "source": "PHB 2024",
+    "summary": "You can't be seen without the aid of magic or a special sense, and you are heavily obscured for the purpose of hiding.",
+    "effects": [
+      "You can't be seen without the aid of magic or a special sense",
+      "You are heavily obscured for the purpose of hiding",
+      "Attack rolls against you have Disadvantage",
+      "Your attack rolls have Advantage"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends",
+    "full_text": "While you have the Invisible condition, you experience the following effects: You can't be seen without the aid of magic or a special sense. For the purpose of hiding, you are Heavily Obscured. Attack rolls against you have Disadvantage, and your attack rolls have Advantage.",
+    "keywords": [
+      "invisible",
+      "invisibility",
+      "unseen",
+      "hidden",
+      "stealth"
+    ]
+  },
+  "paralyzed": {
+    "condition_id": "paralyzed",
+    "name": "Paralyzed",
+    "source": "PHB 2024",
+    "summary": "You are incapacitated, can't move or speak, and automatically fail Strength and Dexterity saving throws.",
+    "effects": [
+      "You are Incapacitated",
+      "You can't move or speak",
+      "You automatically fail Strength and Dexterity saving throws",
+      "Attack rolls against you have Advantage",
+      "Any attack that hits you is a critical hit if the attacker is within 5 feet of you"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends",
+    "full_text": "While you have the Paralyzed condition, you experience the following effects: You are Incapacitated. You can't move or speak. You automatically fail Strength and Dexterity saving throws. Attack rolls against you have Advantage. Any attack that hits you is a critical hit if the attacker is within 5 feet of you.",
+    "keywords": [
+      "paralyzed",
+      "paralysis",
+      "immobile",
+      "frozen",
+      "critical hit"
+    ]
+  },
+  "petrified": {
+    "condition_id": "petrified",
+    "name": "Petrified",
+    "source": "PHB 2024",
+    "summary": "You are transformed into a solid inanimate substance (usually stone), along with any objects you are wearing or carrying.",
+    "effects": [
+      "You are transformed into a solid inanimate substance (usually stone)",
+      "Your weight increases by a factor of ten",
+      "You are Incapacitated",
+      "You can't move or speak",
+      "You are unaware of your surroundings",
+      "You automatically fail Strength and Dexterity saving throws",
+      "You have Resistance to all damage",
+      "You are immune to poison and disease"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends",
+    "full_text": "While you have the Petrified condition, you experience the following effects: You are transformed, along with any nonmagical objects you are wearing or carrying, into a solid inanimate substance (usually stone). Your weight increases by a factor of ten, and you cease aging. You are Incapacitated, can't move or speak, and are unaware of your surroundings. You automatically fail Strength and Dexterity saving throws. You have Resistance to all damage. You are immune to poison and disease.",
+    "keywords": [
+      "petrified",
+      "stone",
+      "statue",
+      "transformed",
+      "basilisk"
+    ]
+  },
+  "poisoned": {
+    "condition_id": "poisoned",
+    "name": "Poisoned",
+    "source": "PHB 2024",
+    "summary": "You have Disadvantage on attack rolls and ability checks.",
+    "effects": [
+      "You have Disadvantage on attack rolls",
+      "You have Disadvantage on ability checks"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends",
+    "full_text": "While you have the Poisoned condition, you experience the following effects: You have Disadvantage on attack rolls and ability checks.",
+    "keywords": [
+      "poisoned",
+      "poison",
+      "venom",
+      "toxin",
+      "disadvantage"
+    ]
+  },
+  "prone": {
+    "condition_id": "prone",
+    "name": "Prone",
+    "source": "PHB 2024",
+    "summary": "You are lying on the ground. Attack rolls against you have Advantage if the attacker is within 5 feet, otherwise Disadvantage.",
+    "effects": [
+      "Your only movement option is to crawl (costs 1 extra foot per foot moved)",
+      "You have Disadvantage on attack rolls",
+      "Attack rolls against you have Advantage if the attacker is within 5 feet",
+      "Attack rolls against you have Disadvantage if the attacker is more than 5 feet away"
+    ],
+    "ends_when": "You stand up (costs half your movement speed)",
+    "full_text": "While you have the Prone condition, you experience the following effects: Your only movement option is to crawl, unless you stand up. Each foot of movement while crawling costs 1 extra foot. You have Disadvantage on attack rolls. An attack roll against you has Advantage if the attacker is within 5 feet of you. Otherwise, the attack roll has Disadvantage. You can end the condition by standing up, which costs an amount of movement equal to half your speed.",
+    "keywords": [
+      "prone",
+      "knocked down",
+      "lying",
+      "ground",
+      "crawl",
+      "stand"
+    ]
+  },
+  "restrained": {
+    "condition_id": "restrained",
+    "name": "Restrained",
+    "source": "PHB 2024",
+    "summary": "Your speed is 0, and you have Disadvantage on attack rolls and Dexterity saving throws.",
+    "effects": [
+      "Your speed is 0",
+      "You can't benefit from any bonus to your speed",
+      "Attack rolls against you have Advantage",
+      "Your attack rolls have Disadvantage",
+      "You have Disadvantage on Dexterity saving throws"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends",
+    "full_text": "While you have the Restrained condition, you experience the following effects: Your speed is 0, and you can't benefit from any bonus to your speed. Attack rolls against you have Advantage. Your attack rolls have Disadvantage. You have Disadvantage on Dexterity saving throws.",
+    "keywords": [
+      "restrained",
+      "bound",
+      "tied",
+      "trapped",
+      "entangled"
+    ]
+  },
+  "stunned": {
+    "condition_id": "stunned",
+    "name": "Stunned",
+    "source": "PHB 2024",
+    "summary": "You are incapacitated, can't move, speak only falteringly, and automatically fail Strength and Dexterity saving throws.",
+    "effects": [
+      "You are Incapacitated",
+      "You can't move",
+      "You can speak only falteringly",
+      "You automatically fail Strength and Dexterity saving throws",
+      "Attack rolls against you have Advantage"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends",
+    "full_text": "While you have the Stunned condition, you experience the following effects: You are Incapacitated. You can't move, and you can speak only falteringly. You automatically fail Strength and Dexterity saving throws. Attack rolls against you have Advantage.",
+    "keywords": [
+      "stunned",
+      "dazed",
+      "staggered",
+      "shocked",
+      "incapacitated"
+    ]
+  },
+  "unconscious": {
+    "condition_id": "unconscious",
+    "name": "Unconscious",
+    "source": "PHB 2024",
+    "summary": "You are incapacitated, can't move or speak, are unaware of your surroundings, and drop whatever you're holding.",
+    "effects": [
+      "You are Incapacitated",
+      "You can't move or speak",
+      "You are unaware of your surroundings",
+      "You drop whatever you're holding and fall Prone",
+      "You automatically fail Strength and Dexterity saving throws",
+      "Attack rolls against you have Advantage",
+      "Any attack that hits you is a critical hit if the attacker is within 5 feet of you"
+    ],
+    "ends_when": "The effect that caused the condition specifies how it ends (or you regain hit points)",
+    "full_text": "While you have the Unconscious condition, you experience the following effects: You are Incapacitated. You can't move or speak and are unaware of your surroundings. You drop whatever you're holding and fall Prone. You automatically fail Strength and Dexterity saving throws. Attack rolls against you have Advantage. Any attack that hits you is a critical hit if the attacker is within 5 feet of you.",
+    "keywords": [
+      "unconscious",
+      "knocked out",
+      "sleeping",
+      "coma",
+      "dying",
+      "critical hit"
+    ]
+  }
+}

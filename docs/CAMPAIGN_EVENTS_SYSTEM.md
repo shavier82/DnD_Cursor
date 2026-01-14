@@ -4,6 +4,8 @@
 
 The Campaign Events System tracks story events, choices, NPC relationships, and consequences across the campaign. This ensures continuity and that past decisions impact future events.
 
+**This is the static JSON file that keeps track of things that happen, choices that are made, and their long-lasting effects on the campaign and beyond.** Every significant choice is logged, and consequences are tracked separately to ensure that decisions made early in the campaign continue to influence events throughout the entire campaign and even into future campaigns.
+
 ## File Location
 
 **Campaign Events File:**
@@ -76,10 +78,29 @@ The Campaign Events System tracks story events, choices, NPC relationships, and 
   ],
   "consequences": {
     "consequence_key": {
-      "status": "current status",
-      "level": "severity or level",
+      "id": "consequence_unique_id",
+      "status": "active|resolved|ongoing|escalated",
+      "severity": "minor|moderate|major|critical",
+      "origin_choice": "choice_id_that_caused_this",
+      "origin_event": "event_id_that_caused_this",
+      "manifestation": "How this consequence appears in the world",
       "factors": ["list of contributing factors"],
-      "future_impact": "How this affects future events"
+      "affected_entities": {
+        "npcs": ["NPC names"],
+        "locations": ["location names"],
+        "factions": ["faction names"],
+        "quests": ["quest_ids"]
+      },
+      "future_impact": "How this affects future events",
+      "resolution_conditions": "What would resolve or change this consequence",
+      "cross_campaign": false,
+      "timeline": [
+        {
+          "timestamp": "ISO timestamp",
+          "event": "What happened related to this consequence",
+          "severity_change": "increased|decreased|unchanged"
+        }
+      ]
     }
   }
 }
@@ -94,12 +115,29 @@ The Campaign Events System tracks story events, choices, NPC relationships, and 
 - Character deaths or significant changes
 - Location discoveries
 
-### Choices
-- Player decisions that affect NPCs
-- Moral choices
-- Quest acceptance/completion
-- Resource allocation decisions
-- Relationship-building actions
+### Choices (CRITICAL - Long-Lasting Effects)
+- **Every significant player choice MUST be logged** in `choices_log` with:
+  - What was chosen
+  - What alternatives existed
+  - Immediate impact
+  - Long-term consequences (if any)
+  - Affected entities (NPCs, locations, factions)
+  - Severity level (minor, moderate, major, critical)
+  - Cross-campaign impact flag (if applicable)
+- **When to log a choice:**
+  - Affects NPC relationships
+  - Changes world state
+  - Has moral implications
+  - Allocates resources (time, money, items)
+  - Affects quest progression
+  - Creates or resolves consequences
+  - Has potential long-term impact
+- **Player decisions that affect NPCs**
+- **Moral choices**
+- **Quest acceptance/completion**
+- **Resource allocation decisions**
+- **Relationship-building actions**
+- **Tactical decisions with long-term implications**
 
 ### NPC Relationships
 - First meeting
@@ -119,11 +157,14 @@ The Campaign Events System tracks story events, choices, NPC relationships, and 
 ### REFEREE / NARRATOR / STATE_PATCHER
 
 All agents should:
-1. **Load CAMPAIGN_EVENTS.json** at session start
+1. **Load CAMPAIGN_EVENTS.json** at session start (MANDATORY)
 2. **Check NPC relationships** before interactions
-3. **Reference past choices** when making decisions
-4. **Update events** when significant story moments occur
-5. **Track consequences** of player actions
+3. **Reference past choices** when making decisions (MANDATORY - check choices_log)
+4. **Check active consequences** before determining outcomes (MANDATORY - check consequences)
+5. **Update events** when significant story moments occur
+6. **Track consequences** of player actions (MANDATORY - create consequences for significant choices)
+7. **Log significant choices** in choices_log (MANDATORY - every significant choice must be logged)
+8. **Ensure choices have long-lasting effects** (MANDATORY - consequences must manifest appropriately)
 
 ### Example: NPC Interaction
 
@@ -202,6 +243,48 @@ The system automatically tracks many events from state changes without manual in
 **Integration:** Runs automatically after each turn merge (`merge_outputs.ps1`)
 
 **Reference:** See `C:\DnD\DnD_Cursor\docs\AUTO_EVENT_TRACKING.md` for detailed documentation on what gets tracked automatically and how it works.
+
+## Choices and Consequences Tracking (CRITICAL)
+
+### Purpose
+**This system ensures that choices made by players have long-lasting effects on the campaign and beyond.** Every significant choice is logged, and consequences are tracked separately to ensure continuity and that past decisions impact future events.
+
+### Key Principles
+1. **Every significant choice MUST be logged** - Don't skip logging important decisions
+2. **Consequences MUST be created** - When a choice has delayed effects, create a consequence entry
+3. **NPCs remember** - Relationship history tracks how choices affected NPCs
+4. **World state changes** - Locations and factions are affected by choices
+5. **Consequences manifest** - Effects appear at appropriate times (immediate, short-term, long-term, future campaign)
+6. **Cross-campaign effects** - Some choices affect future campaigns
+
+### Choice Logging Format
+When logging a choice, include:
+- **What was chosen** - Clear description of the decision
+- **Alternatives** - What other options existed
+- **Immediate impact** - What happened right away
+- **Long-term consequences** - How this affects future events
+- **Affected entities** - NPCs, locations, factions affected
+- **Severity** - minor, moderate, major, or critical
+- **Cross-campaign flag** - Whether this affects other campaigns
+
+### Consequence Creation Format
+When creating a consequence, include:
+- **Status** - active, resolved, ongoing, or escalated
+- **Severity** - minor, moderate, major, or critical
+- **Origin** - Which choice/event caused it
+- **Manifestation** - How it appears in the world
+- **Affected entities** - NPCs, locations, factions, quests
+- **Future impact** - How this affects future events
+- **Timeline** - Track how the consequence develops over time
+
+### Ensuring Long-Lasting Effects
+To ensure choices have long-lasting effects:
+1. **Always log significant choices** - Don't skip logging important decisions
+2. **Create consequences** - When a choice has delayed effects, create a consequence entry
+3. **Update NPC relationships** - Track how choices affect how NPCs view the party
+4. **Reference past choices** - Check past choices before presenting options
+5. **Manifest consequences** - Have consequences appear later in the campaign
+6. **Cross-reference** - Link related choices and consequences together
 
 ## Manual Updates
 

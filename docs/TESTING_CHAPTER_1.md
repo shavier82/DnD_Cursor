@@ -105,7 +105,7 @@ Or in Cursor Chat:
 - [ ] Bootstrap script creates coordination directory
 - [ ] /dnd_turn_parallel runs without errors
 - [ ] All 4 agent outputs are created
-- [ ] Merge produces valid 3-block output (NARRATION/ASK/PATCH)
+- [ ] Merge produces valid 3-block output (NARRATION/ASK/ACTIONS)
 
 
 

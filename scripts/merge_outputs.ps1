@@ -3,7 +3,10 @@ param(
     [string]$SessionId,
     
     [Parameter(Mandatory=$false)]
-    [switch]$ShowPatch = $false
+    [switch]$ShowPatch = $false,
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$FastMode = $false
 )
 
 Set-StrictMode -Version Latest
@@ -127,10 +130,16 @@ $mergePath = Join-Path $CoordDir "dnd_out_MERGE.json"
 Set-Content -Path $mergePath -Value $mergeJson -Encoding UTF8
 
 # Save game state after merge (if patches indicate scene/encounter/gates completion)
-if ($patcher.patches -and $patcher.patches.Count -gt 0) {
+# Ensure patches is an array before checking count
+$patchesToCheck = if ($patcher.patches -is [System.Array]) { $patcher.patches } else { @($patcher.patches) }
+$patchesCount = if ($patchesToCheck) { if ($patchesToCheck -is [System.Array]) { $patchesToCheck.Length } else { 1 } } else { 0 }
+if ($patchesCount -gt 0) {
+    # Convert patches to array to avoid PSObject indexing issues
+    $patchesArray = @($patchesToCheck | ForEach-Object { $_ })
+    
     # Check if patches indicate scene transition, encounter end, or gate/discovery updates
     $shouldSave = $false
-    foreach ($patch in $patcher.patches) {
+    foreach ($patch in $patchesArray) {
         $pathStr = $patch.path
         if ($pathStr -match "/scene/|/encounter/|/combat/ended|/chapter/|/gates/|/discoveries/") {
             $shouldSave = $true
@@ -168,33 +177,99 @@ if ($patcher.patches -and $patcher.patches.Count -gt 0) {
                 }
             }
             
-            # Apply patches to state
-            foreach ($patch in $patcher.patches) {
-                $path = $patch.path
-                $op = $patch.op
-                $value = $patch.value
+            # Apply patches to state using JSON conversion to avoid PSObject issues
+            # OPTIMIZATION: Convert state ONCE before loop, apply all patches, convert once after
+            try {
+                # Convert state to hashtable once before applying patches
+                $stateJson = $currentState | ConvertTo-Json -Depth 20 -Compress
+                $stateHash = $stateJson | ConvertFrom-Json -AsHashtable
+                if (-not $stateHash) {
+                    $stateHash = $stateJson | ConvertFrom-Json
+                    # Convert PSObject to hashtable
+                    $tempHash = @{}
+                    $stateHash.PSObject.Properties | ForEach-Object {
+                        $tempHash[$_.Name] = $_.Value
+                    }
+                    $stateHash = $tempHash
+                }
                 
-                # Simple patch application (basic paths only)
-                if ($path -match "^/scene/") {
-                    $key = $path -replace "^/scene/", ""
-                    if ($op -eq "add" -or $op -eq "replace") {
-                        $currentState.scene[$key] = $value
-                    } elseif ($op -eq "remove") {
-                        $currentState.scene.Remove($key)
-                    }
-                } elseif ($path -match "^/combat/") {
-                    $key = $path -replace "^/combat/", ""
-                    if ($op -eq "add" -or $op -eq "replace") {
-                        $currentState.combat[$key] = $value
-                    } elseif ($op -eq "remove") {
-                        $currentState.combat.Remove($key)
-                    }
-                } elseif ($path -match "^/encounter/") {
-                    $key = $path -replace "^/encounter/", ""
-                    if ($op -eq "add" -or $op -eq "replace") {
-                        if (-not $currentState.encounters) { $currentState.encounters = @() }
+                # Ensure required sections exist
+                if (-not $stateHash.scene) { $stateHash.scene = @{} }
+                if (-not $stateHash.combat) { $stateHash.combat = @{} }
+                if (-not $stateHash.combat.combatants) { $stateHash.combat.combatants = @{} }
+                if (-not $stateHash.combat.turn_narratives) { $stateHash.combat.turn_narratives = @() }
+                if (-not $stateHash.encounters) { $stateHash.encounters = @() }
+                if (-not $stateHash.gates) { $stateHash.gates = @{} }
+                if (-not $stateHash.discoveries) { $stateHash.discoveries = @{} }
+                
+                # Apply all patches to hashtable
+                foreach ($patch in $patchesArray) {
+                    $path = $patch.path
+                    $op = $patch.op
+                    $value = $patch.value
+                    
+                    # Handle nested paths properly using hashtable
+                    if ($path -match "^/scene/") {
+                        $key = $path -replace "^/scene/", ""
+                        if (-not $stateHash.scene) { $stateHash.scene = @{} }
+                        if ($op -eq "add" -or $op -eq "replace") {
+                            $stateHash.scene[$key] = $value
+                        } elseif ($op -eq "remove") {
+                            $stateHash.scene.Remove($key)
+                        }
+                    } elseif ($path -match "^/combat/") {
+                        $key = $path -replace "^/combat/", ""
+                        if (-not $stateHash.combat) { $stateHash.combat = @{} }
+                        # Handle nested paths like /combat/combatants/Ogre Zombie 2/status
+                        if ($key -match "^combatants/") {
+                            $combatantPath = $key -replace "^combatants/", ""
+                            $parts = @($combatantPath -split "/")
+                            $combatantName = $parts[0]
+                            if (-not $stateHash.combat.combatants) { 
+                                $stateHash.combat.combatants = @{} 
+                            }
+                            if ($parts.Length -eq 1) {
+                                # Direct combatant property
+                                if ($op -eq "add" -or $op -eq "replace") {
+                                    $stateHash.combat.combatants[$combatantName] = $value
+                                } elseif ($op -eq "remove") {
+                                    $stateHash.combat.combatants.Remove($combatantName)
+                                }
+                            } else {
+                                # Nested property like /combat/combatants/Ogre Zombie 2/status
+                                if (-not $stateHash.combat.combatants[$combatantName]) {
+                                    $stateHash.combat.combatants[$combatantName] = @{}
+                                }
+                                $nestedKey = $parts[1]
+                                if ($op -eq "add" -or $op -eq "replace") {
+                                    $stateHash.combat.combatants[$combatantName][$nestedKey] = $value
+                                } elseif ($op -eq "remove") {
+                                    $stateHash.combat.combatants[$combatantName].Remove($nestedKey)
+                                }
+                            }
+                        } elseif ($key -match "^turn_narratives/") {
+                            # Handle array append with /- syntax
+                            if (-not $stateHash.combat.turn_narratives) { $stateHash.combat.turn_narratives = @() }
+                            # Ensure turn_narratives is an array
+                            if ($stateHash.combat.turn_narratives -isnot [System.Array]) {
+                                $stateHash.combat.turn_narratives = @($stateHash.combat.turn_narratives)
+                            }
+                            if ($op -eq "add" -and $key -match "/-$") {
+                                $stateHash.combat.turn_narratives += $value
+                            }
+                        } else {
+                            # Simple combat property
+                            if ($op -eq "add" -or $op -eq "replace") {
+                                $stateHash.combat[$key] = $value
+                            } elseif ($op -eq "remove") {
+                                $stateHash.combat.Remove($key)
+                            }
+                        }
+                    } elseif ($path -match "^/encounter/") {
+                        $key = $path -replace "^/encounter/", ""
+                        if (-not $stateHash.encounters) { $stateHash.encounters = @() }
                         $encounterExists = $false
-                        foreach ($enc in $currentState.encounters) {
+                        foreach ($enc in $stateHash.encounters) {
                             if ($enc.name -eq $key) {
                                 $encounterExists = $true
                                 $enc.completed = $true
@@ -203,86 +278,131 @@ if ($patcher.patches -and $patcher.patches.Count -gt 0) {
                             }
                         }
                         if (-not $encounterExists) {
-                            $currentState.encounters += @{
+                            $stateHash.encounters += @{
                                 name = $key
                                 completed = $true
                                 timestamp = (Get-Date).ToString("o")
                             }
                         }
-                    }
-                } elseif ($path -match "^/gates/") {
-                    # CRITICAL: Gates tracking for mandatory information control system
-                    $gateName = $path -replace "^/gates/", ""
-                    if (-not $currentState.gates) { $currentState.gates = @{} }
-                    if ($op -eq "add" -or $op -eq "replace") {
-                        $currentState.gates[$gateName] = $value
-                    } elseif ($op -eq "remove") {
-                        $currentState.gates.Remove($gateName)
-                    }
-                } elseif ($path -match "^/discoveries/") {
-                    # CRITICAL: Discoveries tracking for mandatory information control system
-                    $discoveryName = $path -replace "^/discoveries/", ""
-                    if (-not $currentState.discoveries) { $currentState.discoveries = @{} }
-                    if ($op -eq "add" -or $op -eq "replace") {
-                        $currentState.discoveries[$discoveryName] = $value
-                    } elseif ($op -eq "remove") {
-                        $currentState.discoveries.Remove($discoveryName)
+                    } elseif ($path -match "^/gates/") {
+                        # CRITICAL: Gates tracking for mandatory information control system
+                        $gateName = $path -replace "^/gates/", ""
+                        if (-not $stateHash.gates) { $stateHash.gates = @{} }
+                        if ($op -eq "add" -or $op -eq "replace") {
+                            $stateHash.gates[$gateName] = $value
+                        } elseif ($op -eq "remove") {
+                            $stateHash.gates.Remove($gateName)
+                        }
+                    } elseif ($path -match "^/discoveries/") {
+                        # CRITICAL: Discoveries tracking for mandatory information control system
+                        $discoveryName = $path -replace "^/discoveries/", ""
+                        if ($op -eq "add" -or $op -eq "replace") {
+                            $stateHash.discoveries[$discoveryName] = $value
+                        } elseif ($op -eq "remove") {
+                            $stateHash.discoveries.Remove($discoveryName)
+                        }
                     }
                 }
+                
+                # Convert back to object once after all patches applied
+                $currentState = $stateHash | ConvertTo-Json -Depth 20 | ConvertFrom-Json
+            } catch {
+                # If patch application fails, continue without updating state
+                # Fail silently - patch application failures are not critical
             }
             
             # Save state
+            # OPTIMIZATION: Use Compress for faster JSON serialization
             try {
                 $stateDir = Split-Path $stateFile -Parent
                 if (-not (Test-Path $stateDir)) {
                     New-Item -ItemType Directory -Force -Path $stateDir | Out-Null
                 }
-                ($currentState | ConvertTo-Json -Depth 10) | Set-Content -Path $stateFile -Encoding UTF8
+                # Use -Compress for faster serialization (smaller file, faster write)
+                ($currentState | ConvertTo-Json -Depth 10 -Compress) | Set-Content -Path $stateFile -Encoding UTF8 -NoNewline
             } catch {
                 # Fail silently - state save is not critical
             }
             
-            # Auto-track events and quests
-            try {
-                $autoTrackerScript = Join-Path $PSScriptRoot "auto_event_tracker.ps1"
-                if (Test-Path $autoTrackerScript) {
-                    $campaignName = if ($currentState.campaign) { $currentState.campaign } else { "Phandelver" }
-                    if ($patcher.patches -and $patcher.patches.Count -gt 0) {
-                        & $autoTrackerScript -Campaign $campaignName -StateFile $stateFile -Patches $patcher.patches
+            # Auto-track events and quests (skip in fast mode)
+            # OPTIMIZATION: Only spawn job if patches contain event-related paths
+            if (-not $FastMode) {
+                try {
+                    # Check if patches contain event-related paths (avoid unnecessary job spawn)
+                    $hasEventPatches = $patchesArray | Where-Object { 
+                        $_.path -match "^/encounter/|^/discoveries/|^/scene/location" 
+                    } | Select-Object -First 1
+                    
+                    if ($hasEventPatches) {
+                        $autoTrackerScript = Join-Path $PSScriptRoot "auto_event_tracker.ps1"
+                        if (Test-Path $autoTrackerScript) {
+                            $campaignName = if ($currentState.campaign) { $currentState.campaign } else { "Phandelver" }
+                            $patchesForTracker = if ($patcher.patches -is [System.Array]) { $patcher.patches } else { @($patcher.patches) }
+                            if ($patchesForTracker -and $patchesForTracker.Count -gt 0) {
+                                # Run in background job to avoid blocking
+                                Start-Job -ScriptBlock {
+                                    param($script, $campaign, $stateFile, $patches)
+                                    & $script -Campaign $campaign -StateFile $stateFile -Patches $patches
+                                } -ArgumentList $autoTrackerScript, $campaignName, $stateFile, ($patchesForTracker | ConvertTo-Json -Depth 10) | Out-Null
+                            }
+                        }
                     }
+                } catch {
+                    # Fail silently - auto-tracking is not critical
                 }
-            } catch {
-                # Fail silently - auto-tracking is not critical
             }
             
-            # Combine combat narratives when combat ends
-            try {
-                if ($currentState.combat -and $currentState.combat.ended -and $currentState.combat.turn_narratives) {
-                    $combineScript = Join-Path $PSScriptRoot "combine_combat_narrative.ps1"
-                    if (Test-Path $combineScript) {
-                        $campaignName = if ($currentState.campaign) { $currentState.campaign } else { "Phandelver" }
-                        & $combineScript -Campaign $campaignName -StateFile $stateFile
+            # Combine combat narratives when combat ends (skip in fast mode)
+            # OPTIMIZATION: Only spawn job if combat actually ended (check patches for /combat/ended)
+            if (-not $FastMode) {
+                try {
+                    # Check if combat ended patch exists (avoid unnecessary job spawn if combat already ended)
+                    $combatEndedPatch = $patchesArray | Where-Object { 
+                        $_.path -eq "/combat/ended" -and $_.value -eq $true 
+                    } | Select-Object -First 1
+                    
+                    if ($combatEndedPatch -or ($currentState.combat -and $currentState.combat.ended -and $currentState.combat.turn_narratives)) {
+                        $combineScript = Join-Path $PSScriptRoot "combine_combat_narrative.ps1"
+                        if (Test-Path $combineScript) {
+                            $campaignName = if ($currentState.campaign) { $currentState.campaign } else { "Phandelver" }
+                            # Run in background job to avoid blocking
+                            Start-Job -ScriptBlock {
+                                param($script, $campaign, $stateFile)
+                                & $script -Campaign $campaign -StateFile $stateFile
+                            } -ArgumentList $combineScript, $campaignName, $stateFile | Out-Null
+                        }
                     }
+                } catch {
+                    # Fail silently - narrative combination is not critical
                 }
-            } catch {
-                # Fail silently - narrative combination is not critical
             }
         }
     }
 }
 
-# Emit final user-facing output (EXACTLY three blocks per .cursorrules contract)
+# Suggested actions from NARRATOR (if provided)
+$suggestedActions = @()
+if ($narrator.suggested_actions) {
+    if ($narrator.suggested_actions -is [System.Array]) {
+        $suggestedActions = $narrator.suggested_actions
+    } else {
+        $suggestedActions = @($narrator.suggested_actions)
+    }
+}
+
+# Emit final user-facing output (NARRATION, ASK, and ACTIONS - PATCH is applied but not displayed)
 Write-Output "NARRATION:"
 Write-Output $narrationText
 Write-Output ""
 Write-Output "ASK:"
 Write-Output $askText
-    Write-Output ""
-    Write-Output "PATCH:"
-    # Print JSON for PATCH on one line to be deterministic
-# Always output PATCH block (empty array [] if no patches, per contract requirement)
-    if ($patchOut.Count -eq 0) {
-        Write-Output "[]"
-    } else {
-        Write-Output ($patchOut | ConvertTo-Json -Depth 20 -Compress)
+Write-Output ""
+Write-Output "ACTIONS:"
+if ($suggestedActions.Count -gt 0) {
+    foreach ($action in $suggestedActions) {
+        Write-Output "- $action"
+    }
+} else {
+    Write-Output "(none)"
 }
+# PATCH is applied to state but not displayed to user (hidden from chat output)

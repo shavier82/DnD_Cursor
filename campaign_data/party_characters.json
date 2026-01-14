@@ -1,0 +1,448 @@
+{
+  "characters": [
+    {
+      "character_id": "vandross_ephrates",
+      "name": "Vandross Ephrates",
+      "player": "Player Name",
+      "race": "Human",
+      "class": "Fighter",
+      "level": 5,
+      "xp": 7260,
+      "xp_to_next": 14000,
+      "hp_current": 55,
+      "hp_max": 55,
+      "ac": 19,
+      "initiative_bonus": 3,
+      "proficiency_bonus": 3,
+      "speed": 30,
+      "stats": {
+        "str": 15,
+        "dex": 16,
+        "con": 15,
+        "int": 11,
+        "wis": 13,
+        "cha": 9
+      },
+      "saving_throws": {
+        "str": 5,
+        "dex": 3,
+        "con": 5,
+        "int": 0,
+        "wis": 1,
+        "cha": -1
+      },
+      "skills": {
+        "acrobatics": 3,
+        "animal_handling": 4
+      },
+      "resources": [],
+      "spell_slots": [],
+      "weapons": [
+        {
+          "name": "Longsword",
+          "attack_bonus": 5,
+          "damage_dice": "1d8+2",
+          "damage_type": "slashing",
+          "properties": ["Versatile (1d10)"]
+        },
+        {
+          "name": "Longsword (Two-Handed)",
+          "attack_bonus": 5,
+          "damage_dice": "1d10+2",
+          "damage_type": "slashing",
+          "properties": []
+        },
+        {
+          "name": "Handaxe",
+          "attack_bonus": 5,
+          "damage_dice": "1d6+2",
+          "damage_type": "slashing",
+          "properties": ["Light", "Thrown (20/60)"]
+        }
+      ],
+      "inventory": [],
+      "currency": {
+        "cp": 0,
+        "sp": 0,
+        "ep": 0,
+        "gp": 0,
+        "pp": 0
+      },
+      "conditions": [],
+      "features": [
+        "Fighting Style",
+        "Second Wind",
+        "Action Surge",
+        "Martial Archetype",
+        "Extra Attack"
+      ]
+    },
+    {
+      "character_id": "brevin",
+      "name": "Brevin",
+      "player": "Player Name",
+      "race": "Halfling",
+      "class": "Rogue",
+      "level": 5,
+      "xp": 7260,
+      "xp_to_next": 14000,
+      "hp_current": 35,
+      "hp_max": 35,
+      "ac": 15,
+      "initiative_bonus": 6,
+      "proficiency_bonus": 3,
+      "speed": 30,
+      "stats": {
+        "str": 8,
+        "dex": 17,
+        "con": 12,
+        "int": 15,
+        "wis": 10,
+        "cha": 15
+      },
+      "saving_throws": {
+        "str": -1,
+        "dex": 6,
+        "con": 1,
+        "int": 5,
+        "wis": 0,
+        "cha": 2
+      },
+      "skills": {
+        "acrobatics": 6,
+        "animal_handling": 0,
+        "arcana": 2,
+        "athletics": 1
+      },
+      "resources": [],
+      "spell_slots": [],
+      "weapons": [
+        {
+          "name": "Rapier",
+          "attack_bonus": 6,
+          "damage_dice": "1d8+3",
+          "damage_type": "piercing",
+          "properties": ["Finesse"]
+        },
+        {
+          "name": "Shortsword",
+          "attack_bonus": 6,
+          "damage_dice": "1d6+3",
+          "damage_type": "piercing",
+          "properties": ["Finesse", "Light"]
+        },
+        {
+          "name": "Shortbow",
+          "attack_bonus": 6,
+          "damage_dice": "1d6+3",
+          "damage_type": "piercing",
+          "properties": ["Ammunition (80/320)", "Two-Handed"]
+        },
+        {
+          "name": "Sneak Attack",
+          "attack_bonus": 0,
+          "damage_dice": "+3d6",
+          "damage_type": "as weapon",
+          "properties": ["Once per turn", "Advantage or ally adjacent"]
+        }
+      ],
+      "inventory": [],
+      "currency": {
+        "cp": 0,
+        "sp": 0,
+        "ep": 0,
+        "gp": 0,
+        "pp": 0
+      },
+      "conditions": [],
+      "features": [
+        "Expertise",
+        "Sneak Attack (3d6)",
+        "Thieves' Cant",
+        "Cunning Action",
+        "Roguish Archetype",
+        "Uncanny Dodge"
+      ]
+    },
+    {
+      "character_id": "torgga_brawnanvil",
+      "name": "Torgga Brawnanvil",
+      "player": "Player Name",
+      "race": "Hill Dwarf",
+      "class": "Cleric",
+      "level": 5,
+      "xp": 7260,
+      "xp_to_next": 14000,
+      "hp_current": 45,
+      "hp_max": 45,
+      "ac": 20,
+      "initiative_bonus": -1,
+      "proficiency_bonus": 3,
+      "speed": 25,
+      "stats": {
+        "str": 14,
+        "dex": 8,
+        "con": 16,
+        "int": 10,
+        "wis": 17,
+        "cha": 12
+      },
+      "saving_throws": {
+        "str": 2,
+        "dex": -1,
+        "con": 3,
+        "int": 0,
+        "wis": 6,
+        "cha": 4
+      },
+      "skills": {
+        "acrobatics": -1,
+        "animal_handling": -3,
+        "arcana": 0,
+        "athletics": 5
+      },
+      "resources": [
+        {
+          "name": "Channel Divinity",
+          "current": 1,
+          "max": 1,
+          "resets_on": "short_rest"
+        }
+      ],
+      "spell_slots": [
+        {"level": 1, "current": 4, "max": 4},
+        {"level": 2, "current": 3, "max": 3},
+        {"level": 3, "current": 2, "max": 2}
+      ],
+      "weapons": [
+        {
+          "name": "Warhammer",
+          "attack_bonus": 5,
+          "damage_dice": "1d8+2",
+          "damage_type": "bludgeoning",
+          "properties": ["Versatile (1d10)"]
+        },
+        {
+          "name": "Sacred Flame (Cantrip)",
+          "attack_bonus": 0,
+          "damage_dice": "2d8",
+          "damage_type": "radiant",
+          "properties": ["Spell Save DC 14 DEX", "60 ft range", "Ignores cover"]
+        },
+        {
+          "name": "Spiritual Weapon (2nd level)",
+          "attack_bonus": 6,
+          "damage_dice": "1d8+3",
+          "damage_type": "force",
+          "properties": ["Bonus action", "60 ft range", "Lasts 1 min"]
+        }
+      ],
+      "inventory": [],
+      "currency": {
+        "cp": 0,
+        "sp": 0,
+        "ep": 0,
+        "gp": 0,
+        "pp": 0
+      },
+      "conditions": [],
+      "features": [
+        "Spellcasting",
+        "Divine Domain",
+        "Channel Divinity",
+        "Destroy Undead (CR 1/2)"
+      ]
+    },
+    {
+      "character_id": "eglath_bearkiller",
+      "name": "Eglath Bearkiller",
+      "player": "Player Name",
+      "race": "Goliath",
+      "class": "Barbarian",
+      "level": 5,
+      "xp": 7260,
+      "xp_to_next": 14000,
+      "hp_current": 65,
+      "hp_max": 65,
+      "ac": 20,
+      "initiative_bonus": 3,
+      "proficiency_bonus": 3,
+      "speed": 40,
+      "stats": {
+        "str": 19,
+        "dex": 16,
+        "con": 15,
+        "int": 12,
+        "wis": 10,
+        "cha": 8
+      },
+      "saving_throws": {
+        "str": 7,
+        "dex": 6,
+        "con": 5,
+        "int": 1,
+        "wis": 0,
+        "cha": -1
+      },
+      "skills": {
+        "acrobatics": 6,
+        "animal_handling": 3,
+        "arcana": 1,
+        "athletics": 4
+      },
+      "resources": [
+        {
+          "name": "Rage",
+          "current": 3,
+          "max": 3,
+          "resets_on": "long_rest"
+        }
+      ],
+      "spell_slots": [],
+      "weapons": [
+        {
+          "name": "Greataxe",
+          "attack_bonus": 7,
+          "damage_dice": "1d12+4",
+          "damage_type": "slashing",
+          "properties": ["Two-Handed", "Heavy"]
+        },
+        {
+          "name": "Greataxe (Raging)",
+          "attack_bonus": 7,
+          "damage_dice": "1d12+6",
+          "damage_type": "slashing",
+          "properties": ["Two-Handed", "Heavy", "+2 rage damage"]
+        },
+        {
+          "name": "Handaxe",
+          "attack_bonus": 7,
+          "damage_dice": "1d6+4",
+          "damage_type": "slashing",
+          "properties": ["Light", "Thrown (20/60)"]
+        },
+        {
+          "name": "Handaxe (Raging)",
+          "attack_bonus": 7,
+          "damage_dice": "1d6+6",
+          "damage_type": "slashing",
+          "properties": ["Light", "Thrown", "+2 rage damage"]
+        }
+      ],
+      "inventory": [],
+      "currency": {
+        "cp": 0,
+        "sp": 0,
+        "ep": 0,
+        "gp": 0,
+        "pp": 0
+      },
+      "conditions": [],
+      "features": [
+        "Rage (3/day)",
+        "Unarmored Defense",
+        "Reckless Attack",
+        "Danger Sense",
+        "Primal Path",
+        "Extra Attack",
+        "Fast Movement"
+      ]
+    },
+    {
+      "character_id": "zephyr_sparkwhistle",
+      "name": "Zephyr Sparkwhistle",
+      "player": "Player Name",
+      "race": "Gnome",
+      "class": "Wizard",
+      "level": 5,
+      "xp": 7260,
+      "xp_to_next": 14000,
+      "hp_current": 30,
+      "hp_max": 30,
+      "ac": 13,
+      "initiative_bonus": 2,
+      "proficiency_bonus": 3,
+      "speed": 30,
+      "stats": {
+        "str": 9,
+        "dex": 15,
+        "con": 14,
+        "int": 16,
+        "wis": 12,
+        "cha": 10
+      },
+      "saving_throws": {
+        "str": -1,
+        "dex": 2,
+        "con": 2,
+        "int": 6,
+        "wis": 4,
+        "cha": 0
+      },
+      "skills": {
+        "acrobatics": 2,
+        "animal_handling": 1,
+        "arcana": 6,
+        "athletics": -1
+      },
+      "resources": [
+        {
+          "name": "Arcane Recovery",
+          "current": 1,
+          "max": 1,
+          "resets_on": "long_rest"
+        }
+      ],
+      "spell_slots": [
+        {"level": 1, "current": 4, "max": 4},
+        {"level": 2, "current": 3, "max": 3},
+        {"level": 3, "current": 2, "max": 2}
+      ],
+      "weapons": [
+        {
+          "name": "Dagger",
+          "attack_bonus": 5,
+          "damage_dice": "1d4+2",
+          "damage_type": "piercing",
+          "properties": ["Finesse", "Light", "Thrown (20/60)"]
+        },
+        {
+          "name": "Fire Bolt (Cantrip)",
+          "attack_bonus": 6,
+          "damage_dice": "2d10",
+          "damage_type": "fire",
+          "properties": ["Spell Attack", "120 ft range"]
+        },
+        {
+          "name": "Magic Missile (1st level)",
+          "attack_bonus": 0,
+          "damage_dice": "3×(1d4+1)",
+          "damage_type": "force",
+          "properties": ["Auto-hit", "120 ft range", "3 darts"]
+        },
+        {
+          "name": "Fireball (3rd level)",
+          "attack_bonus": 0,
+          "damage_dice": "8d6",
+          "damage_type": "fire",
+          "properties": ["Spell Save DC 14 DEX", "150 ft range", "20 ft radius"]
+        }
+      ],
+      "inventory": [],
+      "currency": {
+        "cp": 0,
+        "sp": 0,
+        "ep": 0,
+        "gp": 0,
+        "pp": 0
+      },
+      "conditions": [],
+      "features": [
+        "Spellcasting",
+        "Arcane Recovery",
+        "Arcane Tradition"
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,137 @@
+{
+  "_comment": "D&D Rules Database Schema - Defines the structure for parsed content",
+  "version": "1.0.0",
+  "last_updated": "2026-01-13",
+  
+  "rules": {
+    "_description": "Core game rules (grapple, conditions, actions, etc.)",
+    "_schema": {
+      "rule_id": "string (unique identifier, lowercase with underscores)",
+      "name": "string (display name)",
+      "type": "string (combat_action, condition, mechanic, movement, etc.)",
+      "source": "string (PHB 2024, DMG 2024, MM 2024)",
+      "category": "string (Combat, Social, Exploration, etc.)",
+      "summary": "string (one-sentence summary)",
+      "mechanics": {
+        "action_type": "string (if applicable)",
+        "save_dc": "string (if applicable)",
+        "target_restriction": "string (size/type restrictions)",
+        "duration": "string",
+        "effect": "string"
+      },
+      "full_text": "string (complete rule text)",
+      "related_rules": ["array of related rule_ids"],
+      "keywords": ["array of searchable keywords"]
+    }
+  },
+  
+  "conditions": {
+    "_description": "Status conditions (Grappled, Prone, Stunned, etc.)",
+    "_schema": {
+      "condition_id": "string (unique identifier)",
+      "name": "string",
+      "source": "string",
+      "summary": "string",
+      "effects": ["array of mechanical effects"],
+      "ends_when": "string (how condition ends)",
+      "full_text": "string",
+      "keywords": ["array"]
+    }
+  },
+  
+  "monsters": {
+    "_description": "Monster stat blocks from MM 2024",
+    "_schema": {
+      "monster_id": "string (unique identifier)",
+      "name": "string",
+      "source": "string",
+      "type": "string (creature type)",
+      "size": "string (Tiny, Small, Medium, Large, Huge, Gargantuan)",
+      "alignment": "string",
+      "ac": "integer",
+      "hp": "string (dice formula)",
+      "speed": "object {walk, fly, swim, etc.}",
+      "abilities": {
+        "str": "integer",
+        "dex": "integer",
+        "con": "integer",
+        "int": "integer",
+        "wis": "integer",
+        "cha": "integer"
+      },
+      "saves": "object (ability: modifier)",
+      "skills": "string",
+      "senses": "string",
+      "languages": "string",
+      "cr": "string",
+      "traits": ["array of trait objects {name, description}"],
+      "actions": ["array of action objects {name, description}"],
+      "reactions": ["array of reaction objects"],
+      "legendary_actions": ["array of legendary action objects"],
+      "habitat": "string",
+      "treasure": "string",
+      "lore": "string (flavor text)",
+      "keywords": ["array"]
+    }
+  },
+  
+  "spells": {
+    "_description": "Spell descriptions from PHB 2024",
+    "_schema": {
+      "spell_id": "string",
+      "name": "string",
+      "source": "string",
+      "level": "integer (0-9)",
+      "school": "string (Abjuration, Conjuration, etc.)",
+      "casting_time": "string",
+      "range": "string",
+      "components": "string (V, S, M)",
+      "duration": "string",
+      "classes": ["array of class names"],
+      "description": "string (full spell text)",
+      "at_higher_levels": "string (if applicable)",
+      "keywords": ["array"]
+    }
+  },
+  
+  "magic_items": {
+    "_description": "Magic items from DMG 2024",
+    "_schema": {
+      "item_id": "string",
+      "name": "string",
+      "source": "string",
+      "type": "string (Weapon, Armor, Wondrous Item, etc.)",
+      "rarity": "string (Common, Uncommon, Rare, Very Rare, Legendary)",
+      "requires_attunement": "boolean",
+      "description": "string",
+      "properties": ["array of special properties"],
+      "keywords": ["array"]
+    }
+  },
+  
+  "actions": {
+    "_description": "Standard actions (Attack, Dash, Dodge, Help, etc.)",
+    "_schema": {
+      "action_id": "string",
+      "name": "string",
+      "source": "string",
+      "action_type": "string (Action, Bonus Action, Reaction, Free Action)",
+      "summary": "string",
+      "full_text": "string",
+      "keywords": ["array"]
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

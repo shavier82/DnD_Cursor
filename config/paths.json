@@ -5,5 +5,6 @@
   "default_campaign_dir": "C:\\DnD\\Campaigns\\Phandelver",
   "chapters_dir": "C:\\DnD\\Campaigns\\Phandelver\\chapters",
   "packs_dir": "C:\\DnD\\Campaigns\\Phandelver\\packs",
-  "state_file": "C:\\DnD\\Campaigns\\Phandelver\\saves\\CURRENT_STATE.json"
+  "state_file": "C:\\DnD\\Campaigns\\Phandelver\\saves\\CURRENT_STATE.json",
+  "source_name": "Mines of Phandelver and Below"
 }

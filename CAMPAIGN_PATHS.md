@@ -1,4 +1,35 @@
-# Campaign Paths Reference
+# Campaign Paths
+
+## Party Persistent Data (Cross-Campaign)
+- **File:** `C:\DnD\PARTY_PERSISTENT_DATA.json`
+- **Purpose:** Tracks benefits, rewards, and advantages that persist across ALL campaigns
+- **Contains:**
+  - Recurring income (e.g., mine profit shares)
+  - Boons (permanent benefits from quests or events)
+  - Permanent benefits (items, titles, relationships that carry over)
+  - Cross-campaign relationships (NPCs who know the party from previous campaigns)
+- **Usage:** This file is read and updated when the party earns rewards or benefits that should persist beyond a single campaign
+
+## Campaign-Specific Data Reference
+
+### Campaign Events (Choices and Consequences)
+- **File:** `C:\DnD\Campaigns\<campaign>\saves\CAMPAIGN_EVENTS.json`
+- **Purpose:** Static JSON file that tracks everything that happens, choices made, and their long-lasting effects on the campaign and beyond
+- **Contains:**
+  - Events (story events, encounters, quests)
+  - Choices log (all significant player decisions with alternatives, impact, and consequences)
+  - Consequences (active and resolved long-term effects from choices)
+  - NPC relationships (history, interactions, how choices affected them)
+  - Quest status and progress
+  - Faction relationships
+  - Cross-campaign effects (choices that affect future campaigns)
+- **Usage:** 
+  - Read at session start to understand story context
+  - Check before NPC interactions to reference past choices
+  - Update when significant choices are made
+  - Create consequences when choices have long-term effects
+  - Reference when determining outcomes to ensure past choices matter
+- **Critical:** This file ensures choices have long-lasting effects and that past decisions impact future events
 
 ## Critical Path Information
 
@@ -29,7 +60,8 @@ C:\DnD\Campaigns\Phandelver\
 │   └── chapter_pack_1.json
 ├── players\            ← Original character text dumps
 └── saves\              ← Game state saves
-    └── CURRENT_STATE.json
+    ├── CURRENT_STATE.json      ← Current game state (location, combat, gates)
+    └── CAMPAIGN_EVENTS.json    ← Choices, consequences, NPC relationships, story continuity
 ```
 
 ## Configuration File
@@ -80,6 +112,102 @@ Get-Content "C:\DnD\Campaigns\Phandelver\saves\CURRENT_STATE.json" | ConvertFrom
 
 3. **"Character files not found"**
    - Location: `C:\DnD\Campaigns\Phandelver\characters\*.json`
+   - Verify files exist: `Get-ChildItem "C:\DnD\Campaigns\Phandelver\characters\*.json"`
+
+## Current Session Status
+
+**Last Saved**: 2026-01-02 21:55:17
+**Location**: Goblin trail, scouting for goblin guards
+**Party**: Brevin, Ergath, Torgga, Vandross
+**Next Action**: Awaiting Stealth/Perception rolls for scouting
+
+
+
+
+   - Verify files exist: `Get-ChildItem "C:\DnD\Campaigns\Phandelver\characters\*.json"`
+
+## Current Session Status
+
+**Last Saved**: 2026-01-02 21:55:17
+**Location**: Goblin trail, scouting for goblin guards
+**Party**: Brevin, Ergath, Torgga, Vandross
+**Next Action**: Awaiting Stealth/Perception rolls for scouting
+
+
+
+
+   - Verify files exist: `Get-ChildItem "C:\DnD\Campaigns\Phandelver\characters\*.json"`
+
+## Current Session Status
+
+**Last Saved**: 2026-01-02 21:55:17
+**Location**: Goblin trail, scouting for goblin guards
+**Party**: Brevin, Ergath, Torgga, Vandross
+**Next Action**: Awaiting Stealth/Perception rolls for scouting
+
+
+
+
+   - Verify files exist: `Get-ChildItem "C:\DnD\Campaigns\Phandelver\characters\*.json"`
+
+## Current Session Status
+
+**Last Saved**: 2026-01-02 21:55:17
+**Location**: Goblin trail, scouting for goblin guards
+**Party**: Brevin, Ergath, Torgga, Vandross
+**Next Action**: Awaiting Stealth/Perception rolls for scouting
+
+
+
+
+   - Verify files exist: `Get-ChildItem "C:\DnD\Campaigns\Phandelver\characters\*.json"`
+
+## Current Session Status
+
+**Last Saved**: 2026-01-02 21:55:17
+**Location**: Goblin trail, scouting for goblin guards
+**Party**: Brevin, Ergath, Torgga, Vandross
+**Next Action**: Awaiting Stealth/Perception rolls for scouting
+
+
+
+
+   - Verify files exist: `Get-ChildItem "C:\DnD\Campaigns\Phandelver\characters\*.json"`
+
+## Current Session Status
+
+**Last Saved**: 2026-01-02 21:55:17
+**Location**: Goblin trail, scouting for goblin guards
+**Party**: Brevin, Ergath, Torgga, Vandross
+**Next Action**: Awaiting Stealth/Perception rolls for scouting
+
+
+
+
+   - Verify files exist: `Get-ChildItem "C:\DnD\Campaigns\Phandelver\characters\*.json"`
+
+## Current Session Status
+
+**Last Saved**: 2026-01-02 21:55:17
+**Location**: Goblin trail, scouting for goblin guards
+**Party**: Brevin, Ergath, Torgga, Vandross
+**Next Action**: Awaiting Stealth/Perception rolls for scouting
+
+
+
+
+   - Verify files exist: `Get-ChildItem "C:\DnD\Campaigns\Phandelver\characters\*.json"`
+
+## Current Session Status
+
+**Last Saved**: 2026-01-02 21:55:17
+**Location**: Goblin trail, scouting for goblin guards
+**Party**: Brevin, Ergath, Torgga, Vandross
+**Next Action**: Awaiting Stealth/Perception rolls for scouting
+
+
+
+
    - Verify files exist: `Get-ChildItem "C:\DnD\Campaigns\Phandelver\characters\*.json"`
 
 ## Current Session Status

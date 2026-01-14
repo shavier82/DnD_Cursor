@@ -1,0 +1,180 @@
+{
+  "attack": {
+    "action_id": "attack",
+    "name": "Attack",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "Attack with a weapon or an Unarmed Strike.",
+    "full_text": "When you take the Attack action, you can make one attack with a weapon or an Unarmed Strike. Various features (such as Extra Attack) can let you make more than one attack with this action.",
+    "keywords": [
+      "attack",
+      "weapon",
+      "unarmed strike",
+      "combat"
+    ]
+  },
+  "dash": {
+    "action_id": "dash",
+    "name": "Dash",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "For the rest of the turn, give yourself extra movement equal to your Speed.",
+    "full_text": "When you take the Dash action, you gain extra movement for the current turn. The increase equals your speed, after applying any modifiers.",
+    "keywords": [
+      "dash",
+      "movement",
+      "speed",
+      "run"
+    ]
+  },
+  "disengage": {
+    "action_id": "disengage",
+    "name": "Disengage",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "Your movement doesn't provoke Opportunity Attacks for the rest of the turn.",
+    "full_text": "When you take the Disengage action, your movement doesn't provoke Opportunity Attacks for the rest of the turn.",
+    "keywords": [
+      "disengage",
+      "opportunity attack",
+      "movement",
+      "retreat"
+    ]
+  },
+  "dodge": {
+    "action_id": "dodge",
+    "name": "Dodge",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "Until the start of your next turn, attack rolls against you have Disadvantage, and you make Dexterity saving throws with Advantage.",
+    "full_text": "When you take the Dodge action, until the start of your next turn, attack rolls against you have Disadvantage, and you make Dexterity saving throws with Advantage. You lose this benefit if you have the Incapacitated condition or if your speed is 0.",
+    "keywords": [
+      "dodge",
+      "avoid",
+      "defense",
+      "disadvantage",
+      "advantage"
+    ]
+  },
+  "help": {
+    "action_id": "help",
+    "name": "Help",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "Help another creature's ability check or attack roll, or administer first aid.",
+    "full_text": "When you take the Help action, you can help another creature complete a task or aid a friendly creature in attacking. If you help with an ability check, the creature gains Advantage on the next ability check it makes to perform the task. If you help in combat, the creature gains Advantage on the next attack roll against a target within 5 feet of you.",
+    "keywords": [
+      "help",
+      "aid",
+      "assist",
+      "advantage",
+      "support"
+    ]
+  },
+  "hide": {
+    "action_id": "hide",
+    "name": "Hide",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "Make a Dexterity (Stealth) check.",
+    "full_text": "When you take the Hide action, you make a Dexterity (Stealth) check to hide, following the rules for hiding. If you succeed, you gain certain benefits, as described in the Unseen Attackers and Targets section.",
+    "keywords": [
+      "hide",
+      "stealth",
+      "sneak",
+      "concealment",
+      "dexterity"
+    ]
+  },
+  "ready": {
+    "action_id": "ready",
+    "name": "Ready",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "Prepare to take an action in response to a trigger you define.",
+    "full_text": "When you take the Ready action, you prepare to take an action in response to a specified trigger. You decide what perceivable circumstance will trigger your reaction. When the trigger occurs, you can either take your reaction right after the trigger finishes or ignore the trigger.",
+    "keywords": [
+      "ready",
+      "reaction",
+      "trigger",
+      "prepare",
+      "delay"
+    ]
+  },
+  "search": {
+    "action_id": "search",
+    "name": "Search",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "Make a Wisdom (Insight, Medicine, Perception, or Survival) check.",
+    "full_text": "When you take the Search action, you make a Wisdom check to discern something that isn't obvious. The DM might have you make a Wisdom (Insight), Wisdom (Medicine), Wisdom (Perception), or Wisdom (Survival) check.",
+    "keywords": [
+      "search",
+      "perception",
+      "investigate",
+      "find",
+      "wisdom"
+    ]
+  },
+  "study": {
+    "action_id": "study",
+    "name": "Study",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "Make an Intelligence (Arcana, History, Investigation, Nature, or Religion) check.",
+    "full_text": "When you take the Study action, you make an Intelligence check to study your memory, a book, a clue, or another source of knowledge and call to mind an important piece of information about it.",
+    "keywords": [
+      "study",
+      "intelligence",
+      "investigate",
+      "research",
+      "knowledge"
+    ]
+  },
+  "utilize": {
+    "action_id": "utilize",
+    "name": "Utilize",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "Use a nonmagical object.",
+    "full_text": "When you take the Utilize action, you use a nonmagical object. This includes using a special ability of an object, activating a magic item that isn't a spell scroll, or using other objects in the environment.",
+    "keywords": [
+      "utilize",
+      "use",
+      "object",
+      "item",
+      "interact"
+    ]
+  },
+  "influence": {
+    "action_id": "influence",
+    "name": "Influence",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "Make a Charisma (Deception, Intimidation, Performance, or Persuasion) or Wisdom (Animal Handling) check to alter a creature's attitude.",
+    "full_text": "When you take the Influence action, you attempt to influence a creature's behavior or attitude. The DM might have you make a Charisma (Deception), Charisma (Intimidation), Charisma (Performance), Charisma (Persuasion), or Wisdom (Animal Handling) check.",
+    "keywords": [
+      "influence",
+      "persuasion",
+      "deception",
+      "intimidation",
+      "charisma",
+      "social"
+    ]
+  },
+  "magic": {
+    "action_id": "magic",
+    "name": "Magic",
+    "source": "PHB 2024",
+    "action_type": "Action",
+    "summary": "Cast a spell, use a magic item, or use a magical feature.",
+    "full_text": "When you take the Magic action, you cast a spell that has a casting time of an Action, use a magic item that requires the Magic action for its activation, or use a feature that requires the Magic action to be activated.",
+    "keywords": [
+      "magic",
+      "spell",
+      "cast",
+      "spellcasting",
+      "magic item"
+    ]
+  }
+}
