@@ -234,3 +234,12 @@ config/sheets_config.json
 
 # Campaign Wiki MCP - Config with API keys
 # World Anvil removed - using Obsidian instead
+
+# =============================================================================
+# LOCAL SCRATCH / TESTS
+# =============================================================================
+test_*.py
+test_*.ps1
+combat_map_*.txt
+cursor_mcp_complete_config.json
+check_mcp_dependencies.py
