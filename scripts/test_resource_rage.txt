@@ -1,0 +1,16 @@
+NARRATION:
+Eglath roars with primal fury, his eyes flashing with rage as he charges into battle, muscles bulging with untamed strength.
+
+[SPEND eglath_bearkiller rage 1]
+
+ASK:
+What do you do next?
+
+ACTIONS:
+1. Attack recklessly
+2. Move and attack
+3. Dash to engage
+
+STATE-DELTA
+- eglath_bearkiller: rage -= 1
+END STATE-DELTA
