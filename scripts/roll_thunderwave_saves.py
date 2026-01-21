@@ -31,3 +31,17 @@ print(f"Brawler 2 CON save: {brawler2_roll} + 1 = {brawler2_total} (DC {dc}) = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

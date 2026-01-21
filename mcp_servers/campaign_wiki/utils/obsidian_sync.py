@@ -49,6 +49,8 @@ class ObsidianSync:
             content += f"**Location:** [[{location_name}]]\n"
         if role:
             content += f"**Role:** {role}\n"
+        if status:
+            content += f"**Status:** {status}\n"
         content += "\n"
         
         if npc_data.get('description'):
@@ -60,24 +62,55 @@ class ObsidianSync:
         if npc_data.get('background'):
             content += f"## Background\n{npc_data['background']}\n\n"
         
+        # Add Status section if NPC is dead or has a status
+        if not npc_data.get('alive', True) or status:
+            content += "## Status\n\n"
+            if status:
+                content += f"**Status:** {status}\n\n"
+            if not npc_data.get('alive', True):
+                content += "**DECEASED** - This NPC is dead.\n\n"
+            if npc_data.get('last_seen'):
+                content += f"**Last Seen:** {npc_data['last_seen']}\n\n"
+        
         # Add relationships section with wiki links
         if wiki_data and wiki_data.get('relationships'):
             npc_id = npc_data.get('npc_id')
-            related_rels = [r for r in wiki_data['relationships'] if r.get('from_entity') == npc_id or r.get('to_entity') == npc_id]
+            npc_name = npc_data.get('name')
+            # Find relationships where this NPC is involved (by ID or name)
+            related_rels = []
+            for r in wiki_data['relationships']:
+                from_entity = r.get('from_entity', '')
+                to_entity = r.get('to_entity', '')
+                if (from_entity == npc_id or from_entity == npc_name or 
+                    to_entity == npc_id or to_entity == npc_name):
+                    related_rels.append(r)
             
             if related_rels:
                 content += "## Relationships\n"
                 for rel in related_rels:
-                    # Find the other entity
-                    other_id = rel['to_entity'] if rel['from_entity'] == npc_id else rel['from_entity']
-                    other_npc = wiki_data['npcs'].get(other_id)
+                    # Find the other entity (by ID or name)
+                    other_entity = rel['to_entity'] if (rel['from_entity'] == npc_id or rel['from_entity'] == npc_name) else rel['from_entity']
+                    
+                    # Try to find NPC by ID first, then by name
+                    other_npc = None
+                    for npc in wiki_data.get('npcs', {}).values():
+                        if isinstance(npc, dict):
+                            if npc.get('npc_id') == other_entity or npc.get('name') == other_entity:
+                                other_npc = npc
+                                break
+                        else:
+                            # Pydantic model
+                            if npc.npc_id == other_entity or npc.name == other_entity:
+                                other_npc = npc.model_dump() if hasattr(npc, 'model_dump') else dict(npc)
+                                break
                     
                     if other_npc:
                         rel_type = rel.get('relationship_type')
                         if hasattr(rel_type, 'value'):
                             rel_type = rel_type.value
                         description = rel.get('description', '')
-                        content += f"- **[[{other_npc['name']}]]** - {rel_type}"
+                        other_name = other_npc.get('name') if isinstance(other_npc, dict) else getattr(other_npc, 'name', other_entity)
+                        content += f"- **[[{other_name}]]** - {rel_type}"
                         if description:
                             content += f": {description}"
                         content += "\n"
@@ -170,8 +203,24 @@ class ObsidianSync:
         }
         
         content = f"# {quest_data['name']}\n\n"
-        content += f"**Status:** {quest_data.get('status', 'unknown')}\n\n"
-        content += f"{quest_data['description']}\n\n"
+        content += f"**Status:** {quest_data.get('status', 'unknown')}\n"
+        content += f"**Type:** {quest_type}\n\n"
+        
+        if quest_data.get('quest_giver'):
+            # Try to find quest giver name from wiki data if available
+            quest_giver = quest_data['quest_giver']
+            content += f"**Quest Giver:** [[{quest_giver}]]\n"
+        
+        if quest_data.get('date_accepted'):
+            content += f"**Accepted:** {quest_data['date_accepted']}\n"
+        if quest_data.get('date_completed'):
+            content += f"**Completed:** {quest_data['date_completed']}\n"
+        
+        content += "\n"
+        content += f"## Description\n{quest_data.get('description', 'No description')}\n\n"
+        
+        if quest_data.get('background'):
+            content += f"## Background\n{quest_data['background']}\n\n"
         
         if quest_data.get('objectives'):
             content += "## Objectives\n"
@@ -181,15 +230,67 @@ class ObsidianSync:
                 content += f"- {checkbox} {obj}\n"
             content += "\n"
         
+        # Rewards
+        if quest_data.get('reward_gold', 0) > 0 or quest_data.get('reward_xp', 0) > 0 or quest_data.get('reward_items') or quest_data.get('reward_reputation'):
+            content += "## Rewards\n"
+            if quest_data.get('reward_gold', 0) > 0:
+                content += f"- **Gold:** {quest_data['reward_gold']}\n"
+            if quest_data.get('reward_xp', 0) > 0:
+                content += f"- **XP:** {quest_data['reward_xp']}\n"
+            if quest_data.get('reward_items'):
+                content += f"- **Items:** {', '.join(quest_data['reward_items'])}\n"
+            if quest_data.get('reward_reputation'):
+                for faction, rep in quest_data['reward_reputation'].items():
+                    content += f"- **Reputation ({faction}):** {rep:+d}\n"
+            content += "\n"
+        
+        # Related content
+        if quest_data.get('related_npcs') or quest_data.get('related_locations'):
+            content += "## Related Content\n"
+            if quest_data.get('related_npcs'):
+                content += "**NPCs:**\n"
+                for npc_id in quest_data['related_npcs']:
+                    content += f"- [[{npc_id}]]\n"
+            if quest_data.get('related_locations'):
+                content += "**Locations:**\n"
+                for loc_id in quest_data['related_locations']:
+                    content += f"- [[{loc_id}]]\n"
+            content += "\n"
+        
+        # Consequences
+        if quest_data.get('consequences'):
+            content += "## Consequences\n"
+            for consequence in quest_data['consequences']:
+                content += f"- {consequence}\n"
+            content += "\n"
+        
+        # Notes
+        if quest_data.get('notes'):
+            content += "## Notes\n"
+            for note in quest_data['notes']:
+                content += f"- {note}\n"
+            content += "\n"
+        
         post = frontmatter.Post(content, **metadata)
         file_path = quest_folder / f"{quest_data['name'].replace(' ', '_')}.md"
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(frontmatter.dumps(post))
     
     def export_player_character(self, pc_data: Dict[str, Any]):
-        """Export player character to Obsidian note with full character sheet"""
+        """Export player character to Obsidian note with full character sheet
+        
+        NOTE: This function will NOT overwrite existing character files to prevent
+        data loss. Use obsidian-sync MCP tools to update character data instead.
+        """
         pc_folder = self.vault_path / "Player Characters"
         pc_folder.mkdir(exist_ok=True)
+        
+        # Check if file already exists - if so, skip to prevent overwriting detailed sheets
+        char_name = pc_data.get('name', '').replace(' ', '_')
+        char_file = pc_folder / f"{char_name}.md"
+        if char_file.exists():
+            # File exists - don't overwrite it to preserve detailed character data
+            return
         
         # Calculate modifiers
         def calc_mod(score):
@@ -424,6 +525,184 @@ class ObsidianSync:
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(frontmatter.dumps(post))
     
+    def export_faction(self, faction_data: Dict[str, Any], wiki_data: Dict[str, Any] = None):
+        """Export faction to Obsidian note with reputation and rank tracking"""
+        faction_folder = self.vault_path / "Factions"
+        faction_folder.mkdir(exist_ok=True)
+        
+        # Convert enum values to strings for YAML compatibility
+        faction_type = faction_data.get('faction_type')
+        if hasattr(faction_type, 'value'):
+            faction_type = faction_type.value
+        
+        metadata = {
+            'type': 'faction',
+            'faction_type': faction_type,
+            'active': faction_data.get('active', True),
+            'size': faction_data.get('size'),
+            'tags': ['faction'],
+        }
+        
+        content = f"# {faction_data['name']}\n\n"
+        
+        # Basic Info
+        if faction_data.get('description'):
+            content += f"## Description\n{faction_data['description']}\n\n"
+        
+        content += f"**Type:** {faction_type}\n"
+        if faction_data.get('size'):
+            content += f"**Size:** {faction_data['size']}\n"
+        content += f"**Status:** {'Active' if faction_data.get('active', True) else 'Inactive'}\n\n"
+        
+        # Leadership
+        if faction_data.get('leader'):
+            leader_name = faction_data['leader']
+            # Try to find NPC by ID or name
+            if wiki_data:
+                for npc in wiki_data.get('npcs', {}).values():
+                    npc_dict = npc if isinstance(npc, dict) else (npc.model_dump() if hasattr(npc, 'model_dump') else dict(npc))
+                    if npc_dict.get('npc_id') == leader_name or npc_dict.get('name') == leader_name:
+                        leader_name = npc_dict.get('name', leader_name)
+                        break
+            content += f"**Leader:** [[{leader_name}]]\n"
+        if faction_data.get('headquarters'):
+            hq_name = faction_data['headquarters']
+            content += f"**Headquarters:** [[{hq_name}]]\n"
+        content += "\n"
+        
+        # Goals and Values
+        if faction_data.get('goals'):
+            content += "## Goals\n"
+            for goal in faction_data['goals']:
+                content += f"- {goal}\n"
+            content += "\n"
+        
+        if faction_data.get('values'):
+            content += "## Values\n"
+            for value in faction_data['values']:
+                content += f"- {value}\n"
+            content += "\n"
+        
+        # Territory
+        if faction_data.get('territory'):
+            content += "## Territory\n"
+            for territory in faction_data['territory']:
+                content += f"- {territory}\n"
+            content += "\n"
+        
+        # Rank Structure
+        rank_structure = faction_data.get('rank_structure', [])
+        if rank_structure:
+            content += "## Rank Structure\n"
+            content += "*(From lowest to highest)*\n\n"
+            for i, rank in enumerate(rank_structure):
+                content += f"{i+1}. **{rank}**"
+                req = faction_data.get('requirements', {}).get(rank)
+                if req:
+                    content += f" - *Requires: {req}*"
+                content += "\n"
+            content += "\n"
+        
+        # Benefits by Rank
+        benefits = faction_data.get('benefits', {})
+        if benefits:
+            content += "## Benefits by Rank\n\n"
+            for rank, rank_benefits in benefits.items():
+                if rank_benefits:
+                    content += f"### {rank}\n"
+                    for benefit in rank_benefits:
+                        content += f"- {benefit}\n"
+                    content += "\n"
+        
+        # Reputation Tracking (always show section)
+        content += "## Reputation\n\n"
+        reputation = faction_data.get('reputation', {})
+        if reputation:
+            content += "| Character/Party | Reputation | Level | Rank |\n"
+            content += "|----------------|------------|-------|------|\n"
+            
+            for char_name, rep_value in sorted(reputation.items(), key=lambda x: x[1], reverse=True):
+                # Determine reputation level
+                if rep_value <= -50:
+                    level = "Hated"
+                elif rep_value <= -25:
+                    level = "Hostile"
+                elif rep_value <= -10:
+                    level = "Unfriendly"
+                elif rep_value < 10:
+                    level = "Neutral"
+                elif rep_value < 25:
+                    level = "Friendly"
+                elif rep_value < 50:
+                    level = "Honored"
+                else:
+                    level = "Exalted"
+                
+                rank_title = faction_data.get('rank', {}).get(char_name, "None")
+                content += f"| {char_name} | {rep_value:+d} | {level} | {rank_title} |\n"
+        else:
+            content += "*No reputation tracked yet.*\n"
+        content += "\n"
+        
+        # Relationships
+        allied = faction_data.get('allied_factions', [])
+        enemies = faction_data.get('enemy_factions', [])
+        if allied or enemies:
+            content += "## Faction Relationships\n\n"
+            if allied:
+                content += "### Allies\n"
+                for ally_id in allied:
+                    # Try to find faction name
+                    ally_name = ally_id
+                    if wiki_data:
+                        for fac in wiki_data.get('factions', {}).values():
+                            fac_dict = fac if isinstance(fac, dict) else (fac.model_dump() if hasattr(fac, 'model_dump') else dict(fac))
+                            if fac_dict.get('faction_id') == ally_id:
+                                ally_name = fac_dict.get('name', ally_id)
+                                break
+                    content += f"- [[{ally_name}]]\n"
+                content += "\n"
+            if enemies:
+                content += "### Enemies\n"
+                for enemy_id in enemies:
+                    # Try to find faction name
+                    enemy_name = enemy_id
+                    if wiki_data:
+                        for fac in wiki_data.get('factions', {}).values():
+                            fac_dict = fac if isinstance(fac, dict) else (fac.model_dump() if hasattr(fac, 'model_dump') else dict(fac))
+                            if fac_dict.get('faction_id') == enemy_id:
+                                enemy_name = fac_dict.get('name', enemy_id)
+                                break
+                    content += f"- [[{enemy_name}]]\n"
+                content += "\n"
+        
+        # Members
+        member_npcs = faction_data.get('member_npcs', [])
+        if member_npcs:
+            content += "## Members\n"
+            for npc_id in member_npcs:
+                # Try to find NPC name
+                npc_name = npc_id
+                if wiki_data:
+                    for npc in wiki_data.get('npcs', {}).values():
+                        npc_dict = npc if isinstance(npc, dict) else (npc.model_dump() if hasattr(npc, 'model_dump') else dict(npc))
+                        if npc_dict.get('npc_id') == npc_id:
+                            npc_name = npc_dict.get('name', npc_id)
+                            break
+                content += f"- [[{npc_name}]]\n"
+            content += "\n"
+        
+        # Notes
+        if faction_data.get('notes'):
+            content += "## Notes\n\n"
+            content += f"{faction_data['notes']}\n\n"
+        
+        # Create note
+        post = frontmatter.Post(content, **metadata)
+        file_path = faction_folder / f"{faction_data['name'].replace(' ', '_')}.md"
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(frontmatter.dumps(post))
+    
     def sync_all(self, wiki_data: Dict[str, Any]):
         """Sync entire wiki to Obsidian with cross-references"""
         # Export player characters
@@ -439,4 +718,9 @@ class ObsidianSync:
         
         for quest in wiki_data.get('quests', {}).values():
             self.export_quest(quest)
+        
+        # Export factions with wiki links
+        for faction in wiki_data.get('factions', {}).values():
+            faction_dict = faction if isinstance(faction, dict) else (faction.model_dump() if hasattr(faction, 'model_dump') else dict(faction))
+            self.export_faction(faction_dict, wiki_data)
 

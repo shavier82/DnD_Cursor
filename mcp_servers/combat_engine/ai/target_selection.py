@@ -1,8 +1,8 @@
 """AI target selection logic"""
 
 from typing import List, Optional, Callable
-from ..models.combat_state import CombatState
-from ..models.creature import Combatant
+from models.combat_state import CombatState
+from models.creature import Combatant
 
 
 def select_target(

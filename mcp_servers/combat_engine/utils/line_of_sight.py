@@ -2,7 +2,7 @@
 
 from typing import Optional, Tuple
 from shapely.geometry import LineString, Point
-from ..models.battlefield import Battlefield, Position, TerrainType
+from models.battlefield import Battlefield, Position, TerrainType
 
 
 def check_line_of_sight(
