@@ -1,0 +1,65 @@
+{
+  "brevin": {
+    "spell_slots": {},
+    "rage": 0,
+    "superiority_die": 0,
+    "ki": 0,
+    "channel_divinity": 0,
+    "bardic_inspiration": 0,
+    "sorcery_point": 0,
+    "wild_shape": 0,
+    "maneuver": 0
+  },
+  "eglath_bearkiller": {
+    "spell_slots": {},
+    "rage": 0,
+    "superiority_die": 0,
+    "ki": 0,
+    "channel_divinity": 0,
+    "bardic_inspiration": 0,
+    "sorcery_point": 0,
+    "wild_shape": 0,
+    "maneuver": 0
+  },
+  "torgga_brawnanvil": {
+    "spell_slots": {
+      "1": 0,
+      "2": 3,
+      "3": 2
+    },
+    "rage": 0,
+    "superiority_die": 0,
+    "ki": 0,
+    "channel_divinity": 1,
+    "bardic_inspiration": 0,
+    "sorcery_point": 0,
+    "wild_shape": 0,
+    "maneuver": 0
+  },
+  "zephyr_sparkwhistle": {
+    "spell_slots": {
+      "1": 2,
+      "2": 3,
+      "3": 2
+    },
+    "rage": 0,
+    "superiority_die": 0,
+    "ki": 0,
+    "channel_divinity": 0,
+    "bardic_inspiration": 0,
+    "sorcery_point": 0,
+    "wild_shape": 0,
+    "maneuver": 0
+  },
+  "vandross_ephrates": {
+    "spell_slots": {},
+    "rage": 0,
+    "superiority_die": 0,
+    "ki": 0,
+    "channel_divinity": 0,
+    "bardic_inspiration": 0,
+    "sorcery_point": 0,
+    "wild_shape": 0,
+    "maneuver": 0
+  }
+}

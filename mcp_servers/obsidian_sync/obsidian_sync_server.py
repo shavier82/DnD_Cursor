@@ -1,1030 +1,1695 @@
 #!/usr/bin/env python3
 """
-Obsidian Sync MCP Server
-Real-time sync service for D&D campaign data in Obsidian vault.
-
-Features:
-- File system watcher for real-time changes
-- Character data CRUD operations
-- Combat state synchronization
-- Session log integration
-- Health status conversion for enemies
+Obsidian Sync MCP Server for D&D Campaigns
+Manages character sheets, NPCs, and campaign data in Obsidian vault.
 """
 
+import sys
 import json
-import logging
+import re
 import asyncio
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-from datetime import datetime
-import frontmatter
+from typing import Dict, Any, Optional, List
 
 # MCP SDK imports
-from mcp.server import Server
-from mcp.types import Tool, TextContent
-import mcp.server.stdio
-from mcp import types
-
-# File watcher
 try:
-    from watchdog.observers import Observer
-    from watchdog.events import FileSystemEventHandler
-    WATCHDOG_AVAILABLE = True
+    from mcp.server import Server
+    from mcp.types import Tool, TextContent
+    from mcp.server.stdio import stdio_server
 except ImportError:
-    WATCHDOG_AVAILABLE = False
+    print("ERROR: mcp package not found. Install with: pip install mcp", file=sys.stderr)
+    sys.exit(1)
 
-# Configure logging
-logging.basicConfig(level=logging.WARNING)
-logger = logging.getLogger(__name__)
-
-# Suppress verbose MCP library logs
-logging.getLogger("mcp.server.session").setLevel(logging.ERROR)
-logging.getLogger("mcp.server.stdio").setLevel(logging.ERROR)
-
-# Global configuration
-OBSIDIAN_VAULT_PATH = Path("C:/Users/ksist/Documents/Obsidian/DnD")
-WATCH_ACTIVE = False
-observer = None
-
-app = Server("obsidian-sync")
-
-# ============================================================================
-# HEALTH STATUS CONVERTER
-# ============================================================================
-
-def hp_to_status(current_hp: int, max_hp: int) -> str:
-    """Convert HP to descriptive status for players
-    
-    Args:
-        current_hp: Current HP
-        max_hp: Maximum HP
+class ObsidianSyncServer:
+    def __init__(self):
+        self.vault_path = Path("C:/Users/ksist/Documents/Obsidian")
         
-    Returns:
-        Status string: Healthy, Hurt, Bloodied, Critical, Unconscious, Dead
-    """
-    if current_hp <= 0:
-        return "Dead" if current_hp < 0 else "Unconscious"
+    def read_character_file(self, character_name: str) -> Optional[str]:
+        """Read a character's markdown file."""
+        char_file = self.vault_path / "DnD" / "Player Characters" / f"{character_name}.md"
+        if char_file.exists():
+            return char_file.read_text(encoding="utf-8")
+        return None
     
-    percentage = (current_hp / max_hp) * 100
+    def write_character_file(self, character_name: str, content: str):
+        """Write to a character's markdown file."""
+        char_file = self.vault_path / "DnD" / "Player Characters" / f"{character_name}.md"
+        char_file.parent.mkdir(parents=True, exist_ok=True)
+        char_file.write_text(content, encoding="utf-8")
     
-    if percentage >= 90:
-        return "Healthy"
-    elif percentage >= 70:
-        return "Hurt"
-    elif percentage >= 50:
-        return "Bloodied"
-    elif percentage >= 25:
-        return "Critical"
-    else:
-        return "Near Death"
-
-
-# ============================================================================
-# MARKDOWN PARSER/WRITER
-# ============================================================================
-
-class ObsidianMarkdown:
-    """Parse and write Obsidian markdown with frontmatter"""
-    
-    @staticmethod
-    def read_note(file_path: Path) -> Dict[str, Any]:
-        """Read Obsidian note with frontmatter"""
-        if not file_path.exists():
-            return None
+    def update_character_hp(self, character_name: str, new_hp: int, max_hp: int) -> dict:
+        """Update character's HP in their sheet."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
         
-        with open(file_path, 'r', encoding='utf-8') as f:
-            post = frontmatter.load(f)
+        # Update HP line
+        content = re.sub(
+            r'HP:.*',
+            f'HP: {new_hp}/{max_hp}',
+            content
+        )
+        
+        self.write_character_file(character_name, content)
+        return {
+            "success": True,
+            "character": character_name,
+            "hp": f"{new_hp}/{max_hp}"
+        }
+    
+    def update_character_xp(self, character_name: str, xp_to_add: int) -> dict:
+        """Add XP to a character."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        # Find current XP
+        xp_match = re.search(r'XP:\s*(\d+)', content)
+        if xp_match:
+            current_xp = int(xp_match.group(1))
+            new_xp = current_xp + xp_to_add
+            content = re.sub(r'XP:\s*\d+', f'XP: {new_xp}', content)
+        else:
+            # Add XP line if not found
+            content += f"\nXP: {xp_to_add}\n"
+            new_xp = xp_to_add
+        
+        self.write_character_file(character_name, content)
+        return {
+            "success": True,
+            "character": character_name,
+            "xp_added": xp_to_add,
+            "total_xp": new_xp
+        }
+    
+    def update_character_currency(self, character_name: str, cp: int = 0, sp: int = 0, 
+                                   gp: int = 0, pp: int = 0) -> dict:
+        """Add currency to a character (accumulates, doesn't replace).
+        
+        Supports all currency types: Platinum (pp), Gold (gp), Silver (sp), Copper (cp).
+        Looks for format: - **Platinum:** X pp, - **Gold:** X gp, etc.
+        """
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        # Try multi-line format first (format: "- **Gold:** 6,074 gp" etc.)
+        platinum_pattern = r'-\s*\*\*Platinum:\*\*\s*([0-9,]+)\s*pp'
+        gold_pattern = r'-\s*\*\*Gold:\*\*\s*([0-9,]+)\s*gp'
+        silver_pattern = r'-\s*\*\*Silver:\*\*\s*(\d+)\s*sp'
+        copper_pattern = r'-\s*\*\*Copper:\*\*\s*(\d+)\s*cp'
+        
+        platinum_match = re.search(platinum_pattern, content)
+        gold_match = re.search(gold_pattern, content)
+        silver_match = re.search(silver_pattern, content)
+        copper_match = re.search(copper_pattern, content)
+        
+        if platinum_match or gold_match or silver_match or copper_match:
+            # Multi-line format found - parse and update each line
+            current_pp = int(platinum_match.group(1).replace(',', '')) if platinum_match else 0
+            current_gp = int(gold_match.group(1).replace(',', '')) if gold_match else 0
+            current_sp = int(silver_match.group(1)) if silver_match else 0
+            current_cp = int(copper_match.group(1)) if copper_match else 0
+            
+            # Add new currency
+            new_pp = current_pp + pp
+            new_gp = current_gp + gp
+            new_sp = current_sp + sp
+            new_cp = current_cp + cp
+            
+            # Format with commas for readability
+            new_pp_str = f"{new_pp:,}"
+            new_gp_str = f"{new_gp:,}"
+            
+            # Update each currency line (in order: Platinum, Gold, Silver, Copper)
+            if platinum_match:
+                content = re.sub(platinum_pattern, f'- **Platinum:** {new_pp_str} pp', content)
+            elif pp > 0 or new_pp > 0:
+                # Platinum line doesn't exist but we're adding platinum - insert it before Gold
+                if "### Currency" in content:
+                    currency_section = content.find("### Currency")
+                    # Find where to insert (before first currency line or after header)
+                    gold_line = content.find("- **Gold:", currency_section)
+                    silver_line = content.find("- **Silver:", currency_section)
+                    copper_line = content.find("- **Copper:", currency_section)
+                    
+                    # Find the earliest currency line to insert before it
+                    insert_pos = -1
+                    for line_pos in [gold_line, silver_line, copper_line]:
+                        if line_pos != -1:
+                            if insert_pos == -1 or line_pos < insert_pos:
+                                insert_pos = line_pos
+                    
+                    if insert_pos != -1:
+                        # Insert before the first existing currency line
+                        content = content[:insert_pos] + f"- **Platinum:** {new_pp_str} pp\n" + content[insert_pos:]
+                    else:
+                        # No currency lines found, add after Currency header (skip blank line if present)
+                        header_end = content.find("\n", currency_section)
+                        if header_end != -1:
+                            # Check if next line is blank
+                            next_char = content[header_end + 1] if header_end + 1 < len(content) else ''
+                            if next_char == '\n':
+                                # Skip the blank line
+                                content = content[:header_end + 2] + f"- **Platinum:** {new_pp_str} pp\n" + content[header_end + 2:]
+                            else:
+                                content = content[:header_end + 1] + f"\n- **Platinum:** {new_pp_str} pp" + content[header_end + 1:]
+                        else:
+                            # Fallback: append after Currency header
+                            content = content[:currency_section] + f"### Currency\n\n- **Platinum:** {new_pp_str} pp\n" + content[currency_section + len("### Currency"):]
+            
+            if gold_match:
+                content = re.sub(gold_pattern, f'- **Gold:** {new_gp_str} gp', content)
+            elif gp > 0:
+                # Gold line doesn't exist but we're adding gold - add it
+                if "### Currency" in content:
+                    currency_section = content.find("### Currency")
+                    next_section = content.find("##", currency_section + 1)
+                    if next_section == -1:
+                        next_section = len(content)
+                    content = content[:next_section] + f"\n- **Gold:** {new_gp_str} gp" + content[next_section:]
+            
+            if silver_match:
+                content = re.sub(silver_pattern, f'- **Silver:** {new_sp} sp', content)
+            elif sp > 0:
+                # Silver line doesn't exist but we're adding silver - add it
+                if "### Currency" in content:
+                    currency_section = content.find("### Currency")
+                    next_section = content.find("##", currency_section + 1)
+                    if next_section == -1:
+                        next_section = len(content)
+                    content = content[:next_section] + f"\n- **Silver:** {new_sp} sp" + content[next_section:]
+            
+            if copper_match:
+                content = re.sub(copper_pattern, f'- **Copper:** {new_cp} cp', content)
+            elif cp > 0:
+                # Copper line doesn't exist but we're adding copper - add it
+                if "### Currency" in content:
+                    currency_section = content.find("### Currency")
+                    next_section = content.find("##", currency_section + 1)
+                    if next_section == -1:
+                        next_section = len(content)
+                    content = content[:next_section] + f"\n- **Copper:** {new_cp} cp" + content[next_section:]
+        else:
+            # Try single-line format (format: "- **4,807 gp, 7 sp, 5 cp**")
+            currency_pattern = r'-\s*\*\*([0-9,]+)\s*gp,\s*(\d+)\s*sp,\s*(\d+)\s*cp'
+        match = re.search(currency_pattern, content)
+        
+        if match:
+            # Parse current currency
+            current_gp = int(match.group(1).replace(',', ''))
+            current_sp = int(match.group(2))
+            current_cp = int(match.group(3))
+            
+            # Add new currency (single-line format doesn't track platinum, so start from 0)
+            new_pp = pp  # New platinum (wasn't in old format)
+            new_gp = current_gp + gp
+            new_sp = current_sp + sp
+            new_cp = current_cp + cp
+            
+            # Format with commas for readability
+            new_gp_str = f"{new_gp:,}"
+            
+            # Update content (keep single-line format, but we'll track pp separately)
+            content = re.sub(
+                currency_pattern,
+                f'- **{new_gp_str} gp, {new_sp} sp, {new_cp} cp**',
+                content
+            )
+            
+            # If we're adding platinum, add it as a new line
+            if pp > 0:
+                if "### Currency" in content:
+                    currency_section = content.find("### Currency")
+                    next_section = content.find("##", currency_section + 1)
+                    if next_section == -1:
+                        next_section = len(content)
+                    content = content[:next_section] + f"\n- **Platinum:** {pp:,} pp" + content[next_section:]
+        else:
+            # Currency not found, add new lines in Currency section (in order: Platinum, Gold, Silver, Copper)
+            currency_lines = []
+            if pp > 0:
+                currency_lines.append(f"- **Platinum:** {pp:,} pp")
+            if gp > 0:
+                currency_lines.append(f"- **Gold:** {gp:,} gp")
+            if sp > 0:
+                currency_lines.append(f"- **Silver:** {sp} sp")
+            if cp > 0:
+                currency_lines.append(f"- **Copper:** {cp} cp")
+            
+            if "### Currency" in content:
+                currency_section = content.find("### Currency")
+                next_section = content.find("##", currency_section + 1)
+                if next_section == -1:
+                    next_section = len(content)
+                content = content[:next_section] + "\n" + "\n".join(currency_lines) + content[next_section:]
+            else:
+                content += f"\n### Currency\n" + "\n".join(currency_lines) + "\n"
+            new_pp, new_gp, new_sp, new_cp = pp, gp, sp, cp
+        
+        # Ensure new_pp is defined if we didn't set it above
+        if 'new_pp' not in locals():
+            new_pp = pp
+        
+        self.write_character_file(character_name, content)
+        
+        # Build return message with all currency types
+        currency_parts = []
+        if new_pp > 0:
+            currency_parts.append(f"{new_pp:,} pp")
+        if new_gp > 0:
+            currency_parts.append(f"{new_gp:,} gp")
+        if new_sp > 0:
+            currency_parts.append(f"{new_sp} sp")
+        if new_cp > 0:
+            currency_parts.append(f"{new_cp} cp")
         
         return {
-            'metadata': dict(post.metadata),
-            'content': post.content,
-            'file_path': str(file_path)
+            "success": True,
+            "character": character_name,
+            "new_total": ", ".join(currency_parts) if currency_parts else "0"
         }
     
-    @staticmethod
-    def write_note(file_path: Path, metadata: Dict[str, Any], content: str):
-        """Write Obsidian note with frontmatter"""
-        file_path.parent.mkdir(parents=True, exist_ok=True)
+    def add_inventory_item(self, character_name: str, item_name: str, quantity: int = 1, weight: float = 0) -> dict:
+        """Add an item to character's General Inventory table (with quantity and weight).
         
-        post = frontmatter.Post(content, **metadata)
+        Uses line-by-line parsing for reliability (no regex bugs).
+        """
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
         
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(frontmatter.dumps(post))
-    
-    @staticmethod
-    def update_note(file_path: Path, metadata_updates: Dict[str, Any] = None, 
-                    content_append: str = None, content_replace: str = None):
-        """Update existing note (merge metadata, append/replace content)"""
-        note = ObsidianMarkdown.read_note(file_path)
-        if not note:
-            raise FileNotFoundError(f"Note not found: {file_path}")
+        lines = content.split('\n')
+        modified = False
         
-        # Update metadata
-        if metadata_updates:
-            note['metadata'].update(metadata_updates)
-        
-        # Update content
-        if content_replace is not None:
-            note['content'] = content_replace
-        elif content_append:
-            note['content'] += "\n\n" + content_append
-        
-        ObsidianMarkdown.write_note(file_path, note['metadata'], note['content'])
-
-
-# ============================================================================
-# CHARACTER DATA OPERATIONS
-# ============================================================================
-
-class CharacterDataManager:
-    """CRUD operations for character data in Obsidian"""
-    
-    def __init__(self, vault_path: Path):
-        self.vault_path = vault_path
-        self.characters_folder = vault_path / "Player Characters"
-    
-    def get_character(self, character_name: str) -> Optional[Dict[str, Any]]:
-        """Read character data from Obsidian"""
-        file_path = self.characters_folder / f"{character_name}.md"
-        return ObsidianMarkdown.read_note(file_path)
-    
-    def get_all_characters(self) -> List[Dict[str, Any]]:
-        """Get all player characters"""
-        if not self.characters_folder.exists():
-            return []
-        
-        characters = []
-        for file_path in self.characters_folder.glob("*.md"):
-            note = ObsidianMarkdown.read_note(file_path)
-            if note and note['metadata'].get('type') == 'player_character':
-                characters.append(note)
-        
-        return characters
-    
-    def update_character_hp(self, character_name: str, current_hp: int, 
-                           max_hp: int = None, temp_hp: int = 0):
-        """Update character HP in Obsidian"""
-        file_path = self.characters_folder / f"{character_name}.md"
-        note = ObsidianMarkdown.read_note(file_path)
-        
-        if not note:
-            raise FileNotFoundError(f"Character not found: {character_name}")
-        
-        # Update metadata
-        note['metadata']['hp_current'] = current_hp
-        if max_hp is not None:
-            note['metadata']['hp_max'] = max_hp
-        if temp_hp > 0:
-            note['metadata']['hp_temp'] = temp_hp
-        note['metadata']['last_updated'] = datetime.now().isoformat()
-        
-        # Update content (HP line in markdown)
-        content_lines = note['content'].split('\n')
-        for i, line in enumerate(content_lines):
-            if line.startswith('**HP:**'):
-                temp_str = f" (+{temp_hp} temp)" if temp_hp > 0 else ""
-                content_lines[i] = f"**HP:** {current_hp}/{note['metadata'].get('hp_max', max_hp)}{temp_str}"
+        # Find "### General Inventory" section
+        general_inv_idx = -1
+        for i, line in enumerate(lines):
+            if line.strip() == "### General Inventory":
+                general_inv_idx = i
                 break
         
-        ObsidianMarkdown.write_note(file_path, note['metadata'], '\n'.join(content_lines))
-    
-    def update_character_resources(self, character_name: str, 
-                                   resources: Dict[str, Dict[str, int]]):
-        """Update character resources (spell slots, rage, etc.)"""
-        file_path = self.characters_folder / f"{character_name}.md"
-        note = ObsidianMarkdown.read_note(file_path)
-        
-        if not note:
-            raise FileNotFoundError(f"Character not found: {character_name}")
-        
-        # Update metadata
-        if 'resources' not in note['metadata']:
-            note['metadata']['resources'] = {}
-        
-        note['metadata']['resources'].update(resources)
-        note['metadata']['last_updated'] = datetime.now().isoformat()
-        
-        # TODO: Update content (resource lines in markdown)
-        
-        ObsidianMarkdown.write_note(file_path, note['metadata'], note['content'])
-    
-    def add_condition(self, character_name: str, condition: str):
-        """Add condition to character"""
-        file_path = self.characters_folder / f"{character_name}.md"
-        note = ObsidianMarkdown.read_note(file_path)
-        
-        if not note:
-            raise FileNotFoundError(f"Character not found: {character_name}")
-        
-        conditions = note['metadata'].get('conditions', [])
-        if condition not in conditions:
-            conditions.append(condition)
-            note['metadata']['conditions'] = conditions
-            note['metadata']['last_updated'] = datetime.now().isoformat()
+        if general_inv_idx == -1:
+            # No General Inventory section - create one at the end
+            if not lines[-1].strip():
+                lines = lines[:-1]  # Remove trailing blank line
             
-            ObsidianMarkdown.write_note(file_path, note['metadata'], note['content'])
-    
-    def remove_condition(self, character_name: str, condition: str):
-        """Remove condition from character"""
-        file_path = self.characters_folder / f"{character_name}.md"
-        note = ObsidianMarkdown.read_note(file_path)
-        
-        if not note:
-            raise FileNotFoundError(f"Character not found: {character_name}")
-        
-        conditions = note['metadata'].get('conditions', [])
-        if condition in conditions:
-            conditions.remove(condition)
-            note['metadata']['conditions'] = conditions
-            note['metadata']['last_updated'] = datetime.now().isoformat()
-            
-            ObsidianMarkdown.write_note(file_path, note['metadata'], note['content'])
-    
-    def update_character_xp(self, character_name: str, xp: int):
-        """Update character XP in Obsidian"""
-        file_path = self.characters_folder / f"{character_name}.md"
-        note = ObsidianMarkdown.read_note(file_path)
-        
-        if not note:
-            raise FileNotFoundError(f"Character not found: {character_name}")
-        
-        # Update metadata
-        note['metadata']['xp'] = xp
-        note['metadata']['last_updated'] = datetime.now().isoformat()
-        
-        # Update content (XP line in markdown)
-        content_lines = note['content'].split('\n')
-        level = note['metadata'].get('level', 1)
-        
-        # XP thresholds
-        xp_thresholds = {
-            1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500, 6: 14000, 7: 23000,
-            8: 34000, 9: 48000, 10: 64000, 11: 85000, 12: 100000,
-            13: 120000, 14: 140000, 15: 165000, 16: 195000, 17: 225000,
-            18: 265000, 19: 305000, 20: 355000
-        }
-        
-        next_level_xp = xp_thresholds.get(level + 1, 999999)
-        xp_needed = next_level_xp - xp
-        
-        for i, line in enumerate(content_lines):
-            if line.startswith('**XP:**'):
-                content_lines[i] = f"**XP:** {xp:,} / {next_level_xp:,}"
-                break
-        
-        for i, line in enumerate(content_lines):
-            if line.startswith('**Next Level:**'):
-                content_lines[i] = f"**Next Level:** {xp_needed:,} XP needed"
-                break
-        
-        ObsidianMarkdown.write_note(file_path, note['metadata'], '\n'.join(content_lines))
-    
-    def update_character_currency(self, character_name: str, gp: int = None, 
-                                  sp: int = None, cp: int = None, ep: int = None, pp: int = None):
-        """Update character currency in Obsidian"""
-        file_path = self.characters_folder / f"{character_name}.md"
-        note = ObsidianMarkdown.read_note(file_path)
-        
-        if not note:
-            raise FileNotFoundError(f"Character not found: {character_name}")
-        
-        # Update metadata
-        note['metadata']['last_updated'] = datetime.now().isoformat()
-        
-        # Update content (Currency line in markdown)
-        content_lines = note['content'].split('\n')
-        
-        for i, line in enumerate(content_lines):
-            if line.startswith('- **') and 'gp' in line.lower() and '### Currency' in '\n'.join(content_lines[max(0,i-10):i]):
-                # Build new currency string
-                currency_parts = []
-                if gp is not None:
-                    currency_parts.append(f"{gp:,} gp")
-                if sp is not None:
-                    currency_parts.append(f"{sp} sp")
-                if ep is not None:
-                    currency_parts.append(f"{ep} ep")
-                if cp is not None:
-                    currency_parts.append(f"{cp} cp")
-                if pp is not None:
-                    currency_parts.append(f"{pp} pp")
-                
-                if currency_parts:
-                    content_lines[i] = f"- **{', '.join(currency_parts)}**"
-                break
-        
-        ObsidianMarkdown.write_note(file_path, note['metadata'], '\n'.join(content_lines))
-    
-    def update_character_ac(self, character_name: str, ac: int, ac_note: str = None):
-        """Update character AC in Obsidian"""
-        file_path = self.characters_folder / f"{character_name}.md"
-        note = ObsidianMarkdown.read_note(file_path)
-        
-        if not note:
-            raise FileNotFoundError(f"Character not found: {character_name}")
-        
-        # Update metadata
-        note['metadata']['ac'] = ac
-        note['metadata']['last_updated'] = datetime.now().isoformat()
-        
-        # Update content (AC line in markdown)
-        content_lines = note['content'].split('\n')
-        
-        for i, line in enumerate(content_lines):
-            if line.startswith('**AC:**'):
-                ac_str = str(ac)
-                if ac_note:
-                    ac_str += f" ({ac_note})"
-                content_lines[i] = f"**AC:** {ac_str}"
-                break
-        
-        ObsidianMarkdown.write_note(file_path, note['metadata'], '\n'.join(content_lines))
-    
-    def add_inventory_item(self, character_name: str, item_name: str, 
-                          quantity: int = 1, item_type: str = None, notes: str = None):
-        """Add item to character inventory in Obsidian"""
-        file_path = self.characters_folder / f"{character_name}.md"
-        note = ObsidianMarkdown.read_note(file_path)
-        
-        if not note:
-            raise FileNotFoundError(f"Character not found: {character_name}")
-        
-        # Format item line
-        item_line = f"- **{item_name}**"
-        if quantity > 1:
-            item_line += f" (×{quantity})"
-        if item_type:
-            item_line += f" - {item_type}"
-        if notes:
-            item_line += f" - {notes}"
-        
-        # Find or create inventory section
-        content_lines = note['content'].split('\n')
-        inventory_idx = None
-        
-        for i, line in enumerate(content_lines):
-            if '## Equipment & Inventory' in line or '### Special Items' in line:
-                inventory_idx = i
-                break
-        
-        if inventory_idx is None:
-            # Create inventory section at end
-            content_lines.append("\n## Equipment & Inventory\n")
-            content_lines.append(item_line)
+            lines.extend([
+                "",
+                "### General Inventory",
+                "",
+                "| Item | Quantity | Weight (lb) | Notes |",
+                "|------|----------|-------------|-------|",
+                f"| {item_name} | {quantity} | {weight} |  |",
+                ""
+            ])
+            modified = True
         else:
-            # Add after inventory header
-            content_lines.insert(inventory_idx + 1, item_line)
+            # Find the table header (should be right after section header)
+            table_start_idx = -1
+            for i in range(general_inv_idx + 1, len(lines)):
+                if "| Item | Quantity | Weight" in lines[i]:
+                    table_start_idx = i
+                    break
+            
+            if table_start_idx == -1:
+                return {"error": "General Inventory section exists but no table found"}
+            
+            # Find the separator line (should be right after header)
+            separator_idx = table_start_idx + 1
+            if separator_idx >= len(lines) or not lines[separator_idx].strip().startswith('|---'):
+                return {"error": "Invalid table format - missing separator"}
+            
+            # Find all table rows (lines starting with | that aren't header/separator)
+            table_end_idx = separator_idx + 1
+            existing_item_idx = -1
+            
+            for i in range(separator_idx + 1, len(lines)):
+                line = lines[i].strip()
+                if not line or not line.startswith('|'):
+                    # End of table
+                    table_end_idx = i
+                    break
+                
+                # Check if this row contains our item
+                if f"| {item_name} |" in line:
+                    existing_item_idx = i
+                    # Don't break - keep finding table end
+            else:
+                # Reached end of file
+                table_end_idx = len(lines)
+            
+            if existing_item_idx != -1:
+                # Item exists - update quantity and weight
+                parts = lines[existing_item_idx].split('|')
+                if len(parts) >= 5:
+                    # Parse existing values
+                    try:
+                        existing_qty = int(parts[2].strip())
+                        existing_weight = float(parts[3].strip())
+                        existing_notes = parts[4].strip()
+                        
+                        new_qty = existing_qty + quantity
+                        new_weight = existing_weight + weight
+                        
+                        # Update the line
+                        lines[existing_item_idx] = f"| {item_name} | {new_qty} | {new_weight} | {existing_notes} |"
+                        modified = True
+                    except (ValueError, IndexError):
+                        return {"error": f"Could not parse existing item row: {lines[existing_item_idx]}"}
+            else:
+                # Item doesn't exist - insert new row at table_end_idx
+                new_row = f"| {item_name} | {quantity} | {weight} |  |"
+                lines.insert(table_end_idx, new_row)
+                modified = True
         
-        note['metadata']['last_updated'] = datetime.now().isoformat()
-        ObsidianMarkdown.write_note(file_path, note['metadata'], '\n'.join(content_lines))
+        if modified:
+            new_content = '\n'.join(lines)
+            self.write_character_file(character_name, new_content)
+            # Automatically recalculate total weight
+            self.calculate_and_update_weight(character_name)
+        
+        return {
+            "success": True,
+            "character": character_name,
+            "item": item_name,
+            "quantity": quantity,
+            "weight": weight
+        }
     
-    def remove_inventory_item(self, character_name: str, item_name: str):
-        """Remove item from character inventory in Obsidian"""
-        file_path = self.characters_folder / f"{character_name}.md"
-        note = ObsidianMarkdown.read_note(file_path)
+    def remove_inventory_item(self, character_name: str, item_name: str, quantity: int = 1) -> dict:
+        """Remove an item from character's General Inventory (or reduce quantity)."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
         
-        if not note:
-            raise FileNotFoundError(f"Character not found: {character_name}")
+        lines = content.split('\n')
         
-        # Find and remove item line
-        content_lines = note['content'].split('\n')
-        removed = False
-        
-        for i, line in enumerate(content_lines):
-            if f"**{item_name}**" in line and line.strip().startswith('- **'):
-                content_lines.pop(i)
-                removed = True
+        # Find "### General Inventory" section
+        general_inv_idx = -1
+        for i, line in enumerate(lines):
+            if line.strip() == "### General Inventory":
+                general_inv_idx = i
                 break
         
-        if not removed:
-            raise ValueError(f"Item '{item_name}' not found in {character_name}'s inventory")
+        if general_inv_idx == -1:
+            return {"error": "General Inventory section not found"}
         
-        note['metadata']['last_updated'] = datetime.now().isoformat()
-        ObsidianMarkdown.write_note(file_path, note['metadata'], '\n'.join(content_lines))
-
-
-# ============================================================================
-# FILE WATCHER (Real-time sync)
-# ============================================================================
-
-class ObsidianWatcher(FileSystemEventHandler):
-    """Watch Obsidian vault for changes"""
+        # Find table
+        table_start_idx = -1
+        for i in range(general_inv_idx + 1, len(lines)):
+            if "| Item | Quantity | Weight" in lines[i]:
+                table_start_idx = i
+                break
+        
+        if table_start_idx == -1:
+            return {"error": "General Inventory table not found"}
+        
+        separator_idx = table_start_idx + 1
+        
+        # Find the item
+        item_idx = -1
+        for i in range(separator_idx + 1, len(lines)):
+            line = lines[i].strip()
+            if not line or not line.startswith('|'):
+                break
+            if f"| {item_name} |" in line:
+                item_idx = i
+                break
+        
+        if item_idx == -1:
+            return {"error": f"Item '{item_name}' not found in inventory"}
+        
+        # Parse current quantity
+        parts = lines[item_idx].split('|')
+        if len(parts) >= 5:
+            try:
+                current_qty = int(parts[2].strip())
+                current_weight = float(parts[3].strip())
+                
+                if current_qty <= quantity:
+                    # Remove item completely
+                    lines.pop(item_idx)
+                    message = f"Removed {item_name} (all {current_qty})"
+                else:
+                    # Reduce quantity
+                    new_qty = current_qty - quantity
+                    # Adjust weight proportionally
+                    weight_per_item = current_weight / current_qty
+                    new_weight = weight_per_item * new_qty
+                    notes = parts[4].strip()
+                    lines[item_idx] = f"| {item_name} | {new_qty} | {new_weight:.1f} | {notes} |"
+                    message = f"Removed {quantity}x {item_name} ({new_qty} remaining)"
+                
+                new_content = '\n'.join(lines)
+                self.write_character_file(character_name, new_content)
+                # Automatically recalculate total weight
+                self.calculate_and_update_weight(character_name)
+                
+                return {
+                    "success": True,
+                    "character": character_name,
+                    "item": item_name,
+                    "quantity_removed": quantity,
+                    "message": message
+                }
+            except (ValueError, IndexError) as e:
+                return {"error": f"Could not parse item row: {str(e)}"}
+        
+        return {"error": "Invalid item row format"}
     
-    def __init__(self, vault_path: Path):
-        self.vault_path = vault_path
-        self.last_modified = {}
-        self.debounce_time = 2  # seconds
+    def add_weapon(self, character_name: str, weapon_name: str, attack_bonus: int, 
+                   damage: str, properties: str = "-", special_effects: str = "-",
+                   equipped: bool = False) -> dict:
+        """Add a weapon to character's Weapons table."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        lines = content.split('\n')
+        
+        # Find "### Weapons" section
+        weapons_idx = -1
+        for i, line in enumerate(lines):
+            if line.strip() == "### Weapons":
+                weapons_idx = i
+                break
+        
+        if weapons_idx == -1:
+            return {"error": "Weapons section not found"}
+        
+        # Find table
+        table_start_idx = -1
+        for i in range(weapons_idx + 1, len(lines)):
+            if "| Weapon | Equipped | Attack | Damage" in lines[i]:
+                table_start_idx = i
+                break
+        
+        if table_start_idx == -1:
+            return {"error": "Weapons table not found"}
+        
+        separator_idx = table_start_idx + 1
+        
+        # Find end of table
+        table_end_idx = separator_idx + 1
+        for i in range(separator_idx + 1, len(lines)):
+            line = lines[i].strip()
+            if not line or not line.startswith('|'):
+                table_end_idx = i
+                break
+        
+        # Add new weapon row
+        equipped_str = "Yes" if equipped else "No"
+        new_row = f"| {weapon_name} | {equipped_str} | +{attack_bonus} | {damage} | {properties} | {special_effects} |"
+        lines.insert(table_end_idx, new_row)
+        
+        new_content = '\n'.join(lines)
+        self.write_character_file(character_name, new_content)
+        
+        return {
+            "success": True,
+            "character": character_name,
+            "weapon": weapon_name,
+            "equipped": equipped
+        }
     
-    def on_modified(self, event):
-        if event.is_directory:
-            return
+    def remove_weapon(self, character_name: str, weapon_name: str) -> dict:
+        """Remove a weapon from character's Weapons table."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
         
-        file_path = Path(event.src_path)
+        lines = content.split('\n')
         
-        # Debounce: ignore rapid repeated events
-        now = datetime.now().timestamp()
-        last_time = self.last_modified.get(str(file_path), 0)
+        # Find "### Weapons" section
+        weapons_idx = -1
+        for i, line in enumerate(lines):
+            if line.strip() == "### Weapons":
+                weapons_idx = i
+                break
         
-        if now - last_time < self.debounce_time:
-            return
+        if weapons_idx == -1:
+            return {"error": "Weapons section not found"}
         
-        self.last_modified[str(file_path)] = now
+        # Find the weapon
+        weapon_idx = -1
+        for i in range(weapons_idx, len(lines)):
+            if f"| {weapon_name} |" in lines[i]:
+                weapon_idx = i
+                break
         
-        logger.info(f"Obsidian file modified: {file_path.name}")
-        # TODO: Trigger sync to other systems
+        if weapon_idx == -1:
+            return {"error": f"Weapon '{weapon_name}' not found"}
+        
+        lines.pop(weapon_idx)
+        
+        new_content = '\n'.join(lines)
+        self.write_character_file(character_name, new_content)
+        
+        return {
+            "success": True,
+            "character": character_name,
+            "weapon": weapon_name,
+            "message": f"Removed {weapon_name}"
+        }
+    
+    def equip_weapon(self, character_name: str, weapon_name: str, equipped: bool = True) -> dict:
+        """Toggle equipped status for a weapon."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        lines = content.split('\n')
+        
+        # Find the weapon
+        weapon_idx = -1
+        for i, line in enumerate(lines):
+            if "### Weapons" in line:
+                # Start searching from weapons section
+                for j in range(i, len(lines)):
+                    if f"| {weapon_name} |" in lines[j]:
+                        weapon_idx = j
+                        break
+                break
+        
+        if weapon_idx == -1:
+            return {"error": f"Weapon '{weapon_name}' not found"}
+        
+        # Toggle equipped status
+        parts = lines[weapon_idx].split('|')
+        if len(parts) >= 3:
+            equipped_str = "Yes" if equipped else "No"
+            parts[2] = f" {equipped_str} "
+            lines[weapon_idx] = '|'.join(parts)
+            
+            new_content = '\n'.join(lines)
+            self.write_character_file(character_name, new_content)
+            
+            return {
+                "success": True,
+                "character": character_name,
+                "weapon": weapon_name,
+                "equipped": equipped
+            }
+        
+        return {"error": "Invalid weapon row format"}
+    
+    def add_armor(self, character_name: str, armor_name: str, ac_bonus: int,
+                  armor_type: str, properties: str = "-", special_effects: str = "-",
+                  equipped: bool = False) -> dict:
+        """Add armor to character's Armor & Shields table."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        lines = content.split('\n')
+        
+        # Find "### Armor & Shields" section
+        armor_idx = -1
+        for i, line in enumerate(lines):
+            if line.strip() == "### Armor & Shields":
+                armor_idx = i
+                break
+        
+        if armor_idx == -1:
+            return {"error": "Armor & Shields section not found"}
+        
+        # Find table
+        table_start_idx = -1
+        for i in range(armor_idx + 1, len(lines)):
+            if "| Armor/Shield | Equipped | AC Bonus" in lines[i]:
+                table_start_idx = i
+                break
+        
+        if table_start_idx == -1:
+            return {"error": "Armor & Shields table not found"}
+        
+        separator_idx = table_start_idx + 1
+        
+        # Find end of table
+        table_end_idx = separator_idx + 1
+        for i in range(separator_idx + 1, len(lines)):
+            line = lines[i].strip()
+            if not line or not line.startswith('|'):
+                table_end_idx = i
+                break
+        
+        # Add new armor row
+        equipped_str = "Yes" if equipped else "No"
+        ac_display = f"+{ac_bonus}" if ac_bonus > 0 else str(ac_bonus)
+        new_row = f"| {armor_name} | {equipped_str} | {ac_display} | {armor_type} | {properties} | {special_effects} |"
+        lines.insert(table_end_idx, new_row)
+        
+        new_content = '\n'.join(lines)
+        self.write_character_file(character_name, new_content)
+        
+        return {
+            "success": True,
+            "character": character_name,
+            "armor": armor_name,
+            "equipped": equipped
+        }
+    
+    def remove_armor(self, character_name: str, armor_name: str) -> dict:
+        """Remove armor from character's Armor & Shields table."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        lines = content.split('\n')
+        
+        # Find the armor
+        armor_idx = -1
+        for i, line in enumerate(lines):
+            if "### Armor & Shields" in line:
+                for j in range(i, len(lines)):
+                    if f"| {armor_name} |" in lines[j]:
+                        armor_idx = j
+                        break
+                break
+        
+        if armor_idx == -1:
+            return {"error": f"Armor '{armor_name}' not found"}
+        
+        lines.pop(armor_idx)
+        
+        new_content = '\n'.join(lines)
+        self.write_character_file(character_name, new_content)
+        
+        return {
+            "success": True,
+            "character": character_name,
+            "armor": armor_name,
+            "message": f"Removed {armor_name}"
+        }
+    
+    def equip_armor(self, character_name: str, armor_name: str, equipped: bool = True) -> dict:
+        """Toggle equipped status for armor."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        lines = content.split('\n')
+        
+        # Find the armor
+        armor_idx = -1
+        for i, line in enumerate(lines):
+            if "### Armor & Shields" in line:
+                for j in range(i, len(lines)):
+                    if f"| {armor_name} |" in lines[j]:
+                        armor_idx = j
+                        break
+                break
+        
+        if armor_idx == -1:
+            return {"error": f"Armor '{armor_name}' not found"}
+        
+        # Toggle equipped status
+        parts = lines[armor_idx].split('|')
+        if len(parts) >= 3:
+            equipped_str = "Yes" if equipped else "No"
+            parts[2] = f" {equipped_str} "
+            lines[armor_idx] = '|'.join(parts)
+            
+            new_content = '\n'.join(lines)
+            self.write_character_file(character_name, new_content)
+            
+            return {
+                "success": True,
+                "character": character_name,
+                "armor": armor_name,
+                "equipped": equipped
+            }
+        
+        return {"error": "Invalid armor row format"}
+    
+    def add_magic_item(self, character_name: str, item_name: str, properties: str,
+                       charges: str = "-", notes: str = "-", attuned: bool = False) -> dict:
+        """Add a magic item to character's Magic Items table."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        lines = content.split('\n')
+        
+        # Find "### Magic Items" section
+        magic_idx = -1
+        for i, line in enumerate(lines):
+            if line.strip() == "### Magic Items":
+                magic_idx = i
+                break
+        
+        if magic_idx == -1:
+            return {"error": "Magic Items section not found"}
+        
+        # Find table
+        table_start_idx = -1
+        for i in range(magic_idx + 1, len(lines)):
+            if "| Item | Equipped/Attuned | Properties" in lines[i]:
+                table_start_idx = i
+                break
+        
+        if table_start_idx == -1:
+            return {"error": "Magic Items table not found"}
+        
+        separator_idx = table_start_idx + 1
+        
+        # Find end of table
+        table_end_idx = separator_idx + 1
+        for i in range(separator_idx + 1, len(lines)):
+            line = lines[i].strip()
+            if not line or not line.startswith('|'):
+                table_end_idx = i
+                break
+        
+        # Add new magic item row
+        attuned_str = "Yes" if attuned else "No"
+        new_row = f"| {item_name} | {attuned_str} | {properties} | {charges} | {notes} |"
+        lines.insert(table_end_idx, new_row)
+        
+        new_content = '\n'.join(lines)
+        self.write_character_file(character_name, new_content)
+        
+        return {
+            "success": True,
+            "character": character_name,
+            "item": item_name,
+            "attuned": attuned
+        }
+    
+    def remove_magic_item(self, character_name: str, item_name: str) -> dict:
+        """Remove a magic item from character's Magic Items table."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        lines = content.split('\n')
+        
+        # Find the magic item
+        item_idx = -1
+        for i, line in enumerate(lines):
+            if "### Magic Items" in line:
+                for j in range(i, len(lines)):
+                    if f"| {item_name} |" in lines[j]:
+                        item_idx = j
+                        break
+                break
+        
+        if item_idx == -1:
+            return {"error": f"Magic item '{item_name}' not found"}
+        
+        lines.pop(item_idx)
+        
+        new_content = '\n'.join(lines)
+        self.write_character_file(character_name, new_content)
+        
+        return {
+            "success": True,
+            "character": character_name,
+            "item": item_name,
+            "message": f"Removed {item_name}"
+        }
+    
+    def attune_item(self, character_name: str, item_name: str, attuned: bool = True) -> dict:
+        """Toggle attuned status for a magic item."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        lines = content.split('\n')
+        
+        # Find the magic item
+        item_idx = -1
+        for i, line in enumerate(lines):
+            if "### Magic Items" in line:
+                for j in range(i, len(lines)):
+                    if f"| {item_name} |" in lines[j]:
+                        item_idx = j
+                        break
+                break
+        
+        if item_idx == -1:
+            return {"error": f"Magic item '{item_name}' not found"}
+        
+        # Toggle attuned status
+        parts = lines[item_idx].split('|')
+        if len(parts) >= 3:
+            attuned_str = "Yes" if attuned else "No"
+            parts[2] = f" {attuned_str} "
+            lines[item_idx] = '|'.join(parts)
+            
+            new_content = '\n'.join(lines)
+            self.write_character_file(character_name, new_content)
+            
+            return {
+                "success": True,
+                "character": character_name,
+                "item": item_name,
+                "attuned": attuned
+            }
+        
+        return {"error": "Invalid magic item row format"}
+    
+    def create_npc(self, npc_name: str, race: str, role: str, location: str, 
+                   description: str, disposition: str = "neutral") -> dict:
+        """Create a new NPC in the Obsidian vault."""
+        npc_file = self.vault_path / "NPCs" / f"{npc_name}.md"
+        npc_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        content = f"""---
+name: {npc_name}
+race: {race}
+role: {role}
+location: {location}
+disposition: {disposition}
+first_met: {self._get_current_date()}
+---
+
+# {npc_name}
+
+## Basic Information
+- **Race:** {race}
+- **Role:** {role}
+- **Location:** {location}
+- **Disposition:** {disposition}
+
+## Description
+{description}
+
+## Interactions
+- First met on {self._get_current_date()}
+
+## Knowledge
+(No knowledge tracked yet)
+
+## Relationships
+(None yet)
+"""
+        
+        npc_file.write_text(content, encoding="utf-8")
+        return {
+            "success": True,
+            "npc": npc_name,
+            "file": str(npc_file)
+        }
+    
+    def _get_current_date(self) -> str:
+        """Get current campaign date (placeholder)."""
+        from datetime import datetime
+        return datetime.now().strftime("%Y-%m-%d")
+    
+    def get_character_combat_stats(self, character_name: str) -> dict:
+        """Extract combat stats from character sheet for combat-engine."""
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        stats = {
+            "name": character_name,
+            "creature_type": "player"
+        }
+        
+        # Extract speed
+        speed_match = re.search(r'\*\*Speed:\*\*\s*(\d+)', content)
+        if speed_match:
+            stats["speed"] = int(speed_match.group(1))
+        
+        # Extract initiative bonus
+        init_match = re.search(r'\*\*Initiative:\*\*\s*([+-]?\d+)', content)
+        if init_match:
+            stats["initiative_bonus"] = int(init_match.group(1))
+        
+        # Extract AC
+        ac_match = re.search(r'\*\*AC:\*\*\s*(\d+)', content)
+        if ac_match:
+            stats["ac"] = int(ac_match.group(1))
+        
+        # Extract HP
+        hp_match = re.search(r'\*\*HP:\s*(\d+)/(\d+)', content)
+        if hp_match:
+            stats["current_hp"] = int(hp_match.group(1))
+            stats["max_hp"] = int(hp_match.group(2))
+        
+        # Extract ability scores from table
+        ability_pattern = r'\|\s*(\w{3})\s*\|\s*(\d+)\s*\|\s*([+-]?\d+)\s*\|'
+        for match in re.finditer(ability_pattern, content):
+            ability = match.group(1).lower()
+            score = int(match.group(2))
+            if ability == 'str':
+                stats["strength"] = score
+            elif ability == 'dex':
+                stats["dexterity"] = score
+            elif ability == 'con':
+                stats["constitution"] = score
+            elif ability == 'int':
+                stats["intelligence"] = score
+            elif ability == 'wis':
+                stats["wisdom"] = score
+            elif ability == 'cha':
+                stats["charisma"] = score
+        
+        return stats
+    
+    def calculate_and_update_weight(self, character_name: str, capacity: Optional[int] = None) -> dict:
+        """
+        Calculate total weight from inventory table and update the Total Weight line.
+        For characters, calculates capacity from STR if not provided.
+        For wagons/storage, uses provided capacity.
+        """
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character/storage '{character_name}' not found"}
+        
+        lines = content.split('\n')
+        total_weight = 0.0
+        in_inventory = False
+        header_passed = False
+        
+        # Find and parse inventory table
+        for i, line in enumerate(lines):
+            # Look for inventory section
+            if "### General Inventory" in line or "## Inventory" in line:
+                in_inventory = True
+                header_passed = False
+                continue
+            
+            # Check if we've left the inventory section
+            if in_inventory and line.startswith("##") and "Inventory" not in line:
+                break
+            
+            # Skip header row and separator row
+            if in_inventory and line.strip().startswith("|"):
+                if "Item" in line and "Quantity" in line:
+                    header_passed = True
+                    continue
+                if line.strip().startswith("|---"):
+                    continue
+                
+                # Parse inventory rows (after header)
+                if header_passed:
+                    parts = [p.strip() for p in line.split('|')]
+                    # Remove empty first and last elements
+                    if parts and not parts[0]:
+                        parts = parts[1:]
+                    if parts and not parts[-1]:
+                        parts = parts[:-1]
+                    
+                    if len(parts) >= 3:
+                        try:
+                            # Column structure: Item | Quantity | Weight (lb) | Notes
+                            qty_str = parts[1].strip()
+                            weight_str = parts[2].strip()
+                            
+                            # Extract quantity (handle formats like "5" or "5 (100.0)")
+                            qty_match = re.search(r'(\d+)', qty_str)
+                            qty = int(qty_match.group(1)) if qty_match else 1
+                            
+                            # Extract weight (handle formats like "100.0" or "100")
+                            weight_match = re.search(r'(\d+\.?\d*)', weight_str)
+                            if weight_match:
+                                weight = float(weight_match.group(1))
+                                # Weight in table is total weight for that item
+                                total_weight += weight
+                        except (ValueError, IndexError, AttributeError):
+                            pass  # Skip malformed rows
+        
+        # Get capacity if not provided
+        if capacity is None:
+            # Try to get STR from ability scores for characters
+            str_match = re.search(r'STR\s*\|\s*(\d+)', content)
+            if str_match:
+                str_score = int(str_match.group(1))
+                capacity = str_score * 15  # Carrying capacity = STR * 15
+            else:
+                # Try to get capacity from frontmatter (for wagons)
+                capacity_match = re.search(r'capacity_lbs:\s*(\d+)', content)
+                if capacity_match:
+                    capacity = int(capacity_match.group(1))
+                else:
+                    # Fallback: try to parse from existing Total Weight line
+                    existing_match = re.search(r'Total Weight.*?/\s*(\d+)', content)
+                    if existing_match:
+                        capacity = int(existing_match.group(1))
+                    else:
+                        capacity = 0  # Unknown capacity
+        
+        # Find and update Total Weight line
+        total_weight_line_idx = -1
+        for i, line in enumerate(lines):
+            if "Total Weight" in line or "Current Weight" in line:
+                total_weight_line_idx = i
+                break
+        
+        # Format total weight (1 decimal place)
+        total_weight_str = f"{total_weight:.1f}"
+        available_space = max(0, capacity - total_weight)
+        
+        if total_weight_line_idx != -1:
+            # Update existing line
+            if capacity > 0:
+                lines[total_weight_line_idx] = f"**Total Weight:** {total_weight_str} / {capacity} lbs"
+            else:
+                lines[total_weight_line_idx] = f"**Total Weight:** {total_weight_str} lbs"
+        else:
+            # Add new line after inventory section
+            # Find end of inventory section
+            inv_end_idx = -1
+            for i, line in enumerate(lines):
+                if "### General Inventory" in line or "## Inventory" in line:
+                    # Find the end of the table
+                    for j in range(i + 1, len(lines)):
+                        if lines[j].strip() and not lines[j].strip().startswith('|'):
+                            inv_end_idx = j
+                            break
+                    break
+            
+            if inv_end_idx != -1:
+                if capacity > 0:
+                    lines.insert(inv_end_idx, f"**Total Weight:** {total_weight_str} / {capacity} lbs")
+                else:
+                    lines.insert(inv_end_idx, f"**Total Weight:** {total_weight_str} lbs")
+        
+        # Also update "Available Space" if it exists (for wagons)
+        available_space_idx = -1
+        for i, line in enumerate(lines):
+            if "Available Space" in line:
+                available_space_idx = i
+                break
+        
+        if available_space_idx != -1:
+            lines[available_space_idx] = f"**Available Space:** {available_space:.1f} lbs"
+        
+        # Write updated content
+        new_content = '\n'.join(lines)
+        self.write_character_file(character_name, new_content)
+        
+        return {
+            "success": True,
+            "character": character_name,
+            "total_weight": total_weight,
+            "capacity": capacity,
+            "available_space": available_space,
+            "message": f"Updated total weight: {total_weight_str} / {capacity} lbs"
+        }
+    
+    def use_spell_slot(self, character_name: str, spell_level: int) -> dict:
+        """
+        Automatically deduct a spell slot when a spell is cast.
+        Updates the spell slot display in Obsidian.
+        """
+        content = self.read_character_file(character_name)
+        if not content:
+            return {"error": f"Character '{character_name}' not found"}
+        
+        # Find the spell slot line for this level
+        # Format: **Level X:** ●●● (3/4)
+        pattern = rf'\*\*Level {spell_level}:\*\*\s*([●○]+)\s*\((\d+)/(\d+)\)'
+        match = re.search(pattern, content)
+        
+        if not match:
+            return {"error": f"Level {spell_level} spell slots not found for {character_name}"}
+        
+        dots = match.group(1)
+        current_slots = int(match.group(2))
+        max_slots = int(match.group(3))
+        
+        if current_slots <= 0:
+            return {
+                "success": False,
+                "error": f"No level {spell_level} spell slots remaining",
+                "character": character_name,
+                "spell_level": spell_level,
+                "slots_remaining": 0
+            }
+        
+        # Deduct one slot
+        new_slots = current_slots - 1
+        
+        # Update dots: ● for remaining, ○ for used
+        new_dots = "●" * new_slots + "○" * (max_slots - new_slots)
+        replacement = f'**Level {spell_level}:** {new_dots} ({new_slots}/{max_slots})'
+        
+        content = re.sub(pattern, replacement, content)
+        self.write_character_file(character_name, content)
+        
+        return {
+            "success": True,
+            "character": character_name,
+            "spell_level": spell_level,
+            "slots_remaining": new_slots,
+            "slots_max": max_slots,
+            "message": f"Used 1 level {spell_level} spell slot. {new_slots}/{max_slots} remaining."
+        }
+    
+    def read_vault_file(self, file_path: str) -> dict:
+        """Read a file from the Obsidian vault (hardened, allowlist-only).
+        
+        SECURITY: Only allows reading files in the allowlist
+        Blocks path traversal, absolute paths, and non-allowlisted files.
+        
+        Args:
+            file_path: Path relative to vault root (must match allowlist exactly)
+        
+        Returns:
+            dict with 'success', 'content', and optionally 'error'
+        """
+        # Hard allowlist - only these files are allowed
+        # Pattern matching for battlemap files: combat_positions_<location_code>.json
+        # Must match exact resources files OR battlemap pattern
+        import re
+        
+        # Normalize path (remove leading/trailing slashes, normalize separators)
+        file_path = file_path.strip().replace('\\', '/')
+        if file_path.startswith('/'):
+            file_path = file_path[1:]
+        
+        # Exact matches
+        ALLOWED_EXACT = {
+            "DnD/state/resources_state.json",
+            "DnD/state/resources_state.sync_meta.json"
+        }
+        
+        # Pattern matches (battlemap files)
+        BATTLEMAP_PATTERN = re.compile(r"^DnD/state/combat_positions_[a-z0-9_]+\.json$")
+        BATTLEMAP_META_PATTERN = re.compile(r"^DnD/state/combat_positions_[a-z0-9_]+\.sync_meta\.json$")
+        
+        # Security checks
+        if file_path not in ALLOWED_EXACT:
+            if not BATTLEMAP_PATTERN.match(file_path) and not BATTLEMAP_META_PATTERN.match(file_path):
+                return {"success": False, "error": f"BLOCKED: File not in allowlist: {file_path}"}
+        
+        # Block path traversal attempts
+        if '..' in file_path or ':' in file_path or file_path.startswith('~'):
+            return {"success": False, "error": "BLOCKED: Path traversal detected"}
+        
+        # Ensure .json extension
+        if not file_path.endswith('.json'):
+            return {"success": False, "error": "BLOCKED: Only .json files allowed"}
+        
+        try:
+            full_path = self.vault_path / file_path
+            if not full_path.exists():
+                return {"success": False, "error": f"File not found: {file_path}"}
+            
+            # Size limit: 256 KB
+            MAX_SIZE = 256 * 1024
+            if full_path.stat().st_size > MAX_SIZE:
+                return {"success": False, "error": f"BLOCKED: File too large (> {MAX_SIZE} bytes)"}
+            
+            content = full_path.read_text(encoding="utf-8")
+            return {"success": True, "content": content}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def write_vault_file(self, file_path: str, content: str) -> dict:
+        """Write a file to the Obsidian vault (hardened, allowlist-only with provenance).
+        
+        SECURITY: Only allows writing DnD/state/resources_state.json
+        Blocks path traversal, absolute paths, and non-allowlisted files.
+        Writes a provenance marker file to prove sync went through MCP.
+        
+        Args:
+            file_path: Path relative to vault root (must match allowlist exactly)
+            content: File content to write
+        
+        Returns:
+            dict with 'success' and optionally 'error'
+        """
+        # Hard allowlist - only specific files are allowed
+        # Pattern matching for battlemap files: combat_positions_<location_code>.json
+        import re
+        
+        MAX_SIZE = 256 * 1024  # 256 KB limit
+        
+        # Normalize path (remove leading/trailing slashes, normalize separators)
+        file_path = file_path.strip().replace('\\', '/')
+        if file_path.startswith('/'):
+            file_path = file_path[1:]
+        
+        # Exact matches
+        ALLOWED_EXACT = {"DnD/state/resources_state.json"}
+        
+        # Pattern matches (battlemap files)
+        BATTLEMAP_PATTERN = re.compile(r"^DnD/state/combat_positions_[a-z0-9_]+\.json$")
+        
+        # Security checks
+        if file_path not in ALLOWED_EXACT:
+            if not BATTLEMAP_PATTERN.match(file_path):
+                return {"success": False, "error": f"BLOCKED: File not in allowlist: {file_path}"}
+        
+        # Block path traversal attempts
+        if '..' in file_path or ':' in file_path or file_path.startswith('~'):
+            return {"success": False, "error": "BLOCKED: Path traversal detected"}
+        
+        # Ensure .json extension
+        if not file_path.endswith('.json'):
+            return {"success": False, "error": "BLOCKED: Only .json files allowed"}
+        
+        # Size limit check
+        if len(content.encode('utf-8')) > MAX_SIZE:
+            return {"success": False, "error": f"BLOCKED: Content too large (> {MAX_SIZE} bytes)"}
+        
+        try:
+            full_path = self.vault_path / file_path
+            full_path.parent.mkdir(parents=True, exist_ok=True)
+            full_path.write_text(content, encoding="utf-8")
+            
+            # Write provenance marker to prove sync went through MCP
+            # This is a separate file that proves the write happened via MCP
+            import datetime
+            import re
+            
+            # Determine provenance marker path based on file_path
+            if file_path == "DnD/state/resources_state.json":
+                provenance_path = self.vault_path / "DnD/state/resources_state.sync_meta.json"
+            elif re.match(r"^DnD/state/combat_positions_[a-z0-9_]+\.json$", file_path):
+                # Extract location code from battlemap file path
+                match = re.match(r"^DnD/state/combat_positions_([a-z0-9_]+)\.json$", file_path)
+                if match:
+                    location_code = match.group(1)
+                    provenance_path = self.vault_path / f"DnD/state/combat_positions_{location_code}.sync_meta.json"
+                else:
+                    provenance_path = None
+            else:
+                provenance_path = None
+            
+            if provenance_path:
+                provenance_data = {
+                    "_synced_via": "mcp",
+                    "_last_sync": datetime.datetime.now().isoformat(),
+                    "_tool": "write_vault_file"
+                }
+                provenance_path.parent.mkdir(parents=True, exist_ok=True)
+                provenance_path.write_text(json.dumps(provenance_data, indent=2), encoding="utf-8")
+            
+            return {"success": True}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
 
-# ============================================================================
-# MCP TOOLS
-# ============================================================================
+# Initialize MCP server
+app = Server("obsidian-sync")
+server = ObsidianSyncServer()
+
 
 @app.list_tools()
-async def list_tools() -> list[Tool]:
-    """List available Obsidian sync tools"""
+async def list_tools() -> List[Tool]:
+    """List available tools."""
     return [
         Tool(
-            name="get_character_data",
-            description="Read character data from Obsidian vault",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "character_name": {
-                        "type": "string",
-                        "description": "Character name (e.g., 'Eglath Bearkiller')"
-                    }
-                },
-                "required": ["character_name"]
-            }
-        ),
-        Tool(
-            name="get_all_characters",
-            description="Get all player characters from Obsidian vault",
-            inputSchema={
-                "type": "object",
-                "properties": {}
-            }
-        ),
-        Tool(
             name="update_character_hp",
-            description="Update character HP in Obsidian (real-time combat sync)",
+            description="Update a character's HP",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "character_name": {"type": "string"},
-                    "current_hp": {"type": "integer"},
-                    "max_hp": {"type": "integer"},
-                    "temp_hp": {"type": "integer", "default": 0}
-                },
-                "required": ["character_name", "current_hp"]
-            }
-        ),
-        Tool(
-            name="update_character_resources",
-            description="Update character resources (spell slots, rage, ki, etc.)",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "character_name": {"type": "string"},
-                    "resources": {
-                        "type": "object",
-                        "description": "Resource updates as {resource_name: {current: X, max: Y}}"
-                    }
-                },
-                "required": ["character_name", "resources"]
-            }
-        ),
-        Tool(
-            name="add_condition",
-            description="Add condition to character (Poisoned, Stunned, etc.)",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "character_name": {"type": "string"},
-                    "condition": {"type": "string"}
-                },
-                "required": ["character_name", "condition"]
-            }
-        ),
-        Tool(
-            name="remove_condition",
-            description="Remove condition from character",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "character_name": {"type": "string"},
-                    "condition": {"type": "string"}
-                },
-                "required": ["character_name", "condition"]
-            }
-        ),
-        Tool(
-            name="convert_hp_to_status",
-            description="Convert enemy HP to descriptive status (for players to see)",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "current_hp": {"type": "integer"},
+                    "new_hp": {"type": "integer"},
                     "max_hp": {"type": "integer"}
                 },
-                "required": ["current_hp", "max_hp"]
-            }
-        ),
-        Tool(
-            name="start_vault_watch",
-            description="Start watching Obsidian vault for real-time changes",
-            inputSchema={
-                "type": "object",
-                "properties": {}
-            }
-        ),
-        Tool(
-            name="stop_vault_watch",
-            description="Stop watching Obsidian vault",
-            inputSchema={
-                "type": "object",
-                "properties": {}
-            }
-        ),
-        Tool(
-            name="toggle_rage",
-            description="Toggle Barbarian rage on/off (automatically manages rage count)",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "character_name": {"type": "string"},
-                    "activate": {"type": "boolean", "description": "true to activate rage, false to end rage"}
-                },
-                "required": ["character_name", "activate"]
-            }
-        ),
-        Tool(
-            name="use_spell_slot",
-            description="Use a spell slot (checks a box) or recover all slots (long rest)",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "character_name": {"type": "string"},
-                    "spell_level": {"type": "integer", "description": "Spell level (1-9)"},
-                    "long_rest": {"type": "boolean", "default": False, "description": "true to recover all spell slots"}
-                },
-                "required": ["character_name"]
+                "required": ["character_name", "new_hp", "max_hp"]
             }
         ),
         Tool(
             name="update_character_xp",
-            description="Update character XP (automatically calculates XP to next level)",
+            description="Add XP to a character",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "character_name": {"type": "string"},
-                    "xp": {"type": "integer", "description": "New total XP value"}
+                    "xp_to_add": {"type": "integer"}
                 },
-                "required": ["character_name", "xp"]
+                "required": ["character_name", "xp_to_add"]
             }
         ),
         Tool(
             name="update_character_currency",
-            description="Update character currency (gp, sp, cp, ep, pp)",
+            description="Update character's currency",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "character_name": {"type": "string"},
-                    "gp": {"type": "integer"},
-                    "sp": {"type": "integer"},
                     "cp": {"type": "integer"},
-                    "ep": {"type": "integer"},
+                    "sp": {"type": "integer"},
+                    "gp": {"type": "integer"},
                     "pp": {"type": "integer"}
                 },
                 "required": ["character_name"]
             }
         ),
         Tool(
-            name="update_character_ac",
-            description="Update character AC (armor class)",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "character_name": {"type": "string"},
-                    "ac": {"type": "integer", "description": "New AC value"},
-                    "ac_note": {"type": "string", "description": "Optional note (e.g., 'Studded Leather +1')"}
-                },
-                "required": ["character_name", "ac"]
-            }
-        ),
-        Tool(
             name="add_inventory_item",
-            description="Add item to character inventory",
+            description="Add an item to character inventory table (with quantity and weight)",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "character_name": {"type": "string"},
-                    "item_name": {"type": "string", "description": "Name of the item"},
-                    "quantity": {"type": "integer", "default": 1},
-                    "item_type": {"type": "string", "description": "Type of item (weapon, armor, potion, etc.)"},
-                    "notes": {"type": "string", "description": "Additional notes about the item"}
+                    "character_name": {"type": "string", "description": "Character name (e.g., 'Torgga_Brawnanvil')"},
+                    "item_name": {"type": "string", "description": "Item name"},
+                    "quantity": {"type": "integer", "description": "Quantity to add (default: 1)"},
+                    "weight": {"type": "number", "description": "Weight in pounds (default: 0)"}
                 },
                 "required": ["character_name", "item_name"]
             }
         ),
         Tool(
             name="remove_inventory_item",
-            description="Remove item from character inventory",
+            description="Remove an item from character inventory (or reduce quantity)",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "character_name": {"type": "string"},
-                    "item_name": {"type": "string", "description": "Name of the item to remove"}
+                    "item_name": {"type": "string"},
+                    "quantity": {"type": "integer", "description": "Quantity to remove (default: 1)"}
                 },
                 "required": ["character_name", "item_name"]
+            }
+        ),
+        Tool(
+            name="add_weapon",
+            description="Add a weapon to character's Weapons table",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "character_name": {"type": "string"},
+                    "weapon_name": {"type": "string"},
+                    "attack_bonus": {"type": "integer"},
+                    "damage": {"type": "string", "description": "e.g., '1d8+3 slashing'"},
+                    "properties": {"type": "string", "description": "e.g., 'Versatile, Two-Handed'"},
+                    "special_effects": {"type": "string"},
+                    "equipped": {"type": "boolean", "description": "Is weapon equipped?"}
+                },
+                "required": ["character_name", "weapon_name", "attack_bonus", "damage"]
+            }
+        ),
+        Tool(
+            name="remove_weapon",
+            description="Remove a weapon from character's Weapons table",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "character_name": {"type": "string"},
+                    "weapon_name": {"type": "string"}
+                },
+                "required": ["character_name", "weapon_name"]
+            }
+        ),
+        Tool(
+            name="equip_weapon",
+            description="Toggle equipped status for a weapon",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "character_name": {"type": "string"},
+                    "weapon_name": {"type": "string"},
+                    "equipped": {"type": "boolean"}
+                },
+                "required": ["character_name", "weapon_name", "equipped"]
+            }
+        ),
+        Tool(
+            name="add_armor",
+            description="Add armor to character's Armor & Shields table",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "character_name": {"type": "string"},
+                    "armor_name": {"type": "string"},
+                    "ac_bonus": {"type": "integer"},
+                    "armor_type": {"type": "string", "description": "e.g., 'Heavy', 'Light', 'Shield'"},
+                    "properties": {"type": "string"},
+                    "special_effects": {"type": "string"},
+                    "equipped": {"type": "boolean"}
+                },
+                "required": ["character_name", "armor_name", "ac_bonus", "armor_type"]
+            }
+        ),
+        Tool(
+            name="remove_armor",
+            description="Remove armor from character's Armor & Shields table",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "character_name": {"type": "string"},
+                    "armor_name": {"type": "string"}
+                },
+                "required": ["character_name", "armor_name"]
+            }
+        ),
+        Tool(
+            name="equip_armor",
+            description="Toggle equipped status for armor",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "character_name": {"type": "string"},
+                    "armor_name": {"type": "string"},
+                    "equipped": {"type": "boolean"}
+                },
+                "required": ["character_name", "armor_name", "equipped"]
+            }
+        ),
+        Tool(
+            name="add_magic_item",
+            description="Add a magic item to character's Magic Items table",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "character_name": {"type": "string"},
+                    "item_name": {"type": "string"},
+                    "properties": {"type": "string"},
+                    "charges": {"type": "string", "description": "e.g., '3/3' or 'N/A'"},
+                    "notes": {"type": "string"},
+                    "attuned": {"type": "boolean"}
+                },
+                "required": ["character_name", "item_name", "properties"]
+            }
+        ),
+        Tool(
+            name="remove_magic_item",
+            description="Remove a magic item from character's Magic Items table",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "character_name": {"type": "string"},
+                    "item_name": {"type": "string"}
+                },
+                "required": ["character_name", "item_name"]
+            }
+        ),
+        Tool(
+            name="attune_item",
+            description="Toggle attuned status for a magic item",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "character_name": {"type": "string"},
+                    "item_name": {"type": "string"},
+                    "attuned": {"type": "boolean"}
+                },
+                "required": ["character_name", "item_name", "attuned"]
+            }
+        ),
+        Tool(
+            name="create_npc",
+            description="Create a new NPC in Obsidian",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "npc_name": {"type": "string"},
+                    "race": {"type": "string"},
+                    "role": {"type": "string"},
+                    "location": {"type": "string"},
+                    "description": {"type": "string"},
+                    "disposition": {"type": "string"}
+                },
+                "required": ["npc_name", "race", "role", "location", "description"]
+            }
+        ),
+        Tool(
+            name="get_character_combat_stats",
+            description="Read character combat stats from Obsidian sheet (HP, AC, speed, abilities, initiative)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "character_name": {"type": "string", "description": "Character name (e.g., 'Torgga_Brawnanvil')"}
+                },
+                "required": ["character_name"]
+            }
+        ),
+        Tool(
+            name="calculate_and_update_weight",
+            description="Calculate total weight from inventory table and update the Total Weight line. Automatically calculates capacity from STR for characters, or uses provided capacity for storage items.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "character_name": {"type": "string", "description": "Character name or storage item name (e.g., 'Party_Wagon')"},
+                    "capacity": {"type": "integer", "description": "Optional: Override capacity (for storage items). If not provided, calculates from STR for characters or reads from frontmatter for storage."}
+                },
+                "required": ["character_name"]
+            }
+        ),
+        Tool(
+            name="read_vault_file",
+            description="Read a file from the Obsidian vault (generic file read)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "file_path": {"type": "string", "description": "File path relative to vault root (e.g., 'DnD/state/resources_state.json')"}
+                },
+                "required": ["file_path"]
+            }
+        ),
+        Tool(
+            name="write_vault_file",
+            description="Write a file to the Obsidian vault (generic file write)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "file_path": {"type": "string", "description": "File path relative to vault root (e.g., 'DnD/state/resources_state.json')"},
+                    "content": {"type": "string", "description": "File content to write"}
+                },
+                "required": ["file_path", "content"]
             }
         )
     ]
 
 
 @app.call_tool()
-async def call_tool(name: str, arguments: dict) -> list[TextContent]:
-    """Handle tool calls"""
-    
-    char_manager = CharacterDataManager(OBSIDIAN_VAULT_PATH)
-    
+async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
+    """Handle tool calls."""
     try:
-        if name == "get_character_data":
-            character = char_manager.get_character(arguments["character_name"])
-            if character:
-                return [TextContent(type="text", text=json.dumps(character, indent=2))]
-            else:
-                return [TextContent(type="text", text=json.dumps({
-                    "error": f"Character '{arguments['character_name']}' not found"
-                }, indent=2))]
-        
-        elif name == "get_all_characters":
-            characters = char_manager.get_all_characters()
-            summary = []
-            for char in characters:
-                meta = char['metadata']
-                summary.append({
-                    'name': meta.get('name', 'Unknown'),
-                    'class': meta.get('class', ''),
-                    'level': meta.get('level', 1),
-                    'hp_current': meta.get('hp_current', 0),
-                    'hp_max': meta.get('hp_max', 0),
-                    'conditions': meta.get('conditions', [])
-                })
-            
-            return [TextContent(type="text", text=json.dumps({
-                'total_characters': len(characters),
-                'characters': summary
-            }, indent=2))]
-        
-        elif name == "update_character_hp":
-            char_manager.update_character_hp(
+        if name == "update_character_hp":
+            result = server.update_character_hp(
                 arguments["character_name"],
-                arguments["current_hp"],
-                arguments.get("max_hp"),
-                arguments.get("temp_hp", 0)
+                arguments["new_hp"],
+                arguments["max_hp"]
             )
-            return [TextContent(type="text", text=json.dumps({
-                "success": True,
-                "message": f"Updated HP for {arguments['character_name']}"
-            }, indent=2))]
-        
-        elif name == "update_character_resources":
-            char_manager.update_character_resources(
-                arguments["character_name"],
-                arguments["resources"]
-            )
-            return [TextContent(type="text", text=json.dumps({
-                "success": True,
-                "message": f"Updated resources for {arguments['character_name']}"
-            }, indent=2))]
-        
-        elif name == "add_condition":
-            char_manager.add_condition(
-                arguments["character_name"],
-                arguments["condition"]
-            )
-            return [TextContent(type="text", text=json.dumps({
-                "success": True,
-                "message": f"Added '{arguments['condition']}' to {arguments['character_name']}"
-            }, indent=2))]
-        
-        elif name == "remove_condition":
-            char_manager.remove_condition(
-                arguments["character_name"],
-                arguments["condition"]
-            )
-            return [TextContent(type="text", text=json.dumps({
-                "success": True,
-                "message": f"Removed '{arguments['condition']}' from {arguments['character_name']}"
-            }, indent=2))]
-        
-        elif name == "convert_hp_to_status":
-            status = hp_to_status(arguments["current_hp"], arguments["max_hp"])
-            return [TextContent(type="text", text=json.dumps({
-                "current_hp": arguments["current_hp"],
-                "max_hp": arguments["max_hp"],
-                "status": status
-            }, indent=2))]
-        
-        elif name == "start_vault_watch":
-            global WATCH_ACTIVE
-            global observer
-            
-            if not WATCHDOG_AVAILABLE:
-                return [TextContent(type="text", text=json.dumps({
-                    "error": "Watchdog library not installed. Run: pip install watchdog"
-                }, indent=2))]
-            
-            if WATCH_ACTIVE:
-                return [TextContent(type="text", text=json.dumps({
-                    "message": "Vault watcher already active"
-                }, indent=2))]
-            
-            observer = Observer()
-            event_handler = ObsidianWatcher(OBSIDIAN_VAULT_PATH)
-            observer.schedule(event_handler, str(OBSIDIAN_VAULT_PATH), recursive=True)
-            observer.start()
-            WATCH_ACTIVE = True
-            
-            return [TextContent(type="text", text=json.dumps({
-                "success": True,
-                "message": f"Watching Obsidian vault: {OBSIDIAN_VAULT_PATH}"
-            }, indent=2))]
-        
-        elif name == "stop_vault_watch":
-            global WATCH_ACTIVE
-            global observer
-            
-            if not WATCH_ACTIVE or not observer:
-                return [TextContent(type="text", text=json.dumps({
-                    "message": "Vault watcher not active"
-                }, indent=2))]
-            
-            observer.stop()
-            observer.join()
-            observer = None
-            WATCH_ACTIVE = False
-            
-            return [TextContent(type="text", text=json.dumps({
-                "success": True,
-                "message": "Stopped watching Obsidian vault"
-            }, indent=2))]
-        
-        elif name == "toggle_rage":
-            character_name = arguments["character_name"]
-            activate = arguments["activate"]
-            
-            file_path = OBSIDIAN_VAULT_PATH / "Player Characters" / f"{character_name.replace(' ', '_')}.md"
-            note = ObsidianMarkdown.read_note(file_path)
-            
-            if not note:
-                return [TextContent(type="text", text=json.dumps({
-                    "error": f"Character '{character_name}' not found"
-                }, indent=2))]
-            
-            # Check if character has rage resource
-            resources = note['metadata'].get('resources', {})
-            if 'rage' not in str(note['content']).lower():
-                return [TextContent(type="text", text=json.dumps({
-                    "error": f"{character_name} doesn't have Rage ability"
-                }, indent=2))]
-            
-            current_raging = note['metadata'].get('raging', False)
-            
-            if activate:
-                # Activating rage
-                if current_raging:
-                    return [TextContent(type="text", text=json.dumps({
-                        "message": f"{character_name} is already raging!"
-                    }, indent=2))]
-                
-                # Parse rage uses from content
-                content_lines = note['content'].split('\n')
-                rage_line_idx = None
-                current_rages = 0
-                max_rages = 0
-                
-                for i, line in enumerate(content_lines):
-                    if '**Rage:**' in line:
-                        rage_line_idx = i
-                        # Count filled dots (●) for current uses
-                        current_rages = line.count('●')
-                        # Count total dots for max
-                        max_rages = line.count('●') + line.count('○')
-                        break
-                
-                if current_rages <= 0:
-                    return [TextContent(type="text", text=json.dumps({
-                        "error": "No rage uses remaining! Take a long rest to recover."
-                    }, indent=2))]
-                
-                # Deduct 1 rage use
-                new_rages = current_rages - 1
-                used = max_rages - new_rages
-                dots = "●" * new_rages + "○" * used
-                content_lines[rage_line_idx] = f"**Rage:** {dots} ({new_rages}/{max_rages})"
-                
-                # Check the rage checkbox
-                for i, line in enumerate(content_lines):
-                    if '- [ ] **RAGE ACTIVE**' in line:
-                        content_lines[i] = line.replace('- [ ]', '- [x]')
-                        break
-                
-                # Update metadata
-                note['metadata']['raging'] = True
-                note['metadata']['last_updated'] = datetime.now().isoformat()
-                
-                # Write updated file
-                ObsidianMarkdown.write_note(file_path, note['metadata'], '\n'.join(content_lines))
-                
-                return [TextContent(type="text", text=json.dumps({
-                    "success": True,
-                    "message": f"{character_name} is now RAGING!",
-                    "rage_uses_remaining": new_rages,
-                    "reminder": "Use 'Raging' weapon variants (+2 damage, resistance to physical damage)"
-                }, indent=2))]
-            
-            else:
-                # Ending rage
-                if not current_raging:
-                    return [TextContent(type="text", text=json.dumps({
-                        "message": f"{character_name} is not currently raging"
-                    }, indent=2))]
-                
-                # Uncheck the rage checkbox
-                content_lines = note['content'].split('\n')
-                for i, line in enumerate(content_lines):
-                    if '- [x] **RAGE ACTIVE**' in line:
-                        content_lines[i] = line.replace('- [x]', '- [ ]')
-                        break
-                
-                # Update metadata
-                note['metadata']['raging'] = False
-                note['metadata']['last_updated'] = datetime.now().isoformat()
-                
-                # Write updated file
-                ObsidianMarkdown.write_note(file_path, note['metadata'], '\n'.join(content_lines))
-                
-                return [TextContent(type="text", text=json.dumps({
-                    "success": True,
-                    "message": f"{character_name}'s rage has ended",
-                "reminder": "Use normal weapon damage (no +2 rage bonus)"
-            }, indent=2))]
-        
-        elif name == "use_spell_slot":
-            character_name = arguments["character_name"]
-            long_rest = arguments.get("long_rest", False)
-            
-            file_path = OBSIDIAN_VAULT_PATH / "Player Characters" / f"{character_name.replace(' ', '_')}.md"
-            note = ObsidianMarkdown.read_note(file_path)
-            
-            if not note:
-                return [TextContent(type="text", text=json.dumps({
-                    "error": f"Character '{character_name}' not found"
-                }, indent=2))]
-            
-            content_lines = note['content'].split('\n')
-            
-            if long_rest:
-                # Long rest: uncheck all spell slot boxes
-                for i, line in enumerate(content_lines):
-                    if '- [x] Slot' in line:
-                        content_lines[i] = line.replace('- [x]', '- [ ]')
-                
-                note['metadata']['last_updated'] = datetime.now().isoformat()
-                ObsidianMarkdown.write_note(file_path, note['metadata'], '\n'.join(content_lines))
-                
-                return [TextContent(type="text", text=json.dumps({
-                    "success": True,
-                    "message": f"{character_name} took a long rest - all spell slots recovered!"
-                }, indent=2))]
-            
-            else:
-                # Use a spell slot
-                spell_level = arguments.get("spell_level")
-                if not spell_level:
-                    return [TextContent(type="text", text=json.dumps({
-                        "error": "Must specify spell_level (1-9) or use long_rest=true"
-                    }, indent=2))]
-                
-                # Find the first unchecked slot for this level
-                in_level_section = False
-                slot_used = False
-                slots_remaining = 0
-                total_slots = 0
-                
-                for i, line in enumerate(content_lines):
-                    if f'### Level {spell_level}' in line:
-                        in_level_section = True
-                        # Extract total slots from heading
-                        if '(' in line and 'slots)' in line:
-                            total_slots = int(line.split('(')[1].split(' ')[0])
-                        continue
-                    
-                    if in_level_section:
-                        if line.startswith('###'):  # Next section
-                            break
-                        
-                        if '- [ ] Slot' in line and not slot_used:
-                            # Use this slot
-                            content_lines[i] = line.replace('- [ ]', '- [x]')
-                            slot_used = True
-                        
-                        # Count remaining unchecked slots
-                        if '- [ ] Slot' in line:
-                            slots_remaining += 1
-                
-                if not slot_used:
-                    return [TextContent(type="text", text=json.dumps({
-                        "error": f"No level {spell_level} spell slots remaining!"
-                    }, indent=2))]
-                
-                # Adjust count (we just used one)
-                slots_remaining -= 1
-                
-                note['metadata']['last_updated'] = datetime.now().isoformat()
-                ObsidianMarkdown.write_note(file_path, note['metadata'], '\n'.join(content_lines))
-                
-                return [TextContent(type="text", text=json.dumps({
-                    "success": True,
-                    "message": f"{character_name} used a level {spell_level} spell slot",
-                    "slots_remaining": slots_remaining,
-                    "total_slots": total_slots
-                }, indent=2))]
-        
         elif name == "update_character_xp":
-            char_manager.update_character_xp(
+            result = server.update_character_xp(
                 arguments["character_name"],
-                arguments["xp"]
+                arguments["xp_to_add"]
             )
-            return [TextContent(type="text", text=json.dumps({
-                "success": True,
-                "message": f"Updated XP for {arguments['character_name']} to {arguments['xp']:,}"
-            }, indent=2))]
-        
         elif name == "update_character_currency":
-            char_manager.update_character_currency(
+            result = server.update_character_currency(
                 arguments["character_name"],
-                arguments.get("gp"),
-                arguments.get("sp"),
-                arguments.get("cp"),
-                arguments.get("ep"),
-                arguments.get("pp")
+                arguments.get("cp", 0),
+                arguments.get("sp", 0),
+                arguments.get("gp", 0),
+                arguments.get("pp", 0)
             )
-            return [TextContent(type="text", text=json.dumps({
-                "success": True,
-                "message": f"Updated currency for {arguments['character_name']}"
-            }, indent=2))]
-        
-        elif name == "update_character_ac":
-            char_manager.update_character_ac(
-                arguments["character_name"],
-                arguments["ac"],
-                arguments.get("ac_note")
-            )
-            return [TextContent(type="text", text=json.dumps({
-                "success": True,
-                "message": f"Updated AC for {arguments['character_name']} to {arguments['ac']}"
-            }, indent=2))]
-        
         elif name == "add_inventory_item":
-            char_manager.add_inventory_item(
+            result = server.add_inventory_item(
                 arguments["character_name"],
                 arguments["item_name"],
                 arguments.get("quantity", 1),
-                arguments.get("item_type"),
-                arguments.get("notes")
+                arguments.get("weight", 0)
             )
-            return [TextContent(type="text", text=json.dumps({
-                "success": True,
-                "message": f"Added {arguments['item_name']} to {arguments['character_name']}'s inventory"
-            }, indent=2))]
-        
         elif name == "remove_inventory_item":
-            char_manager.remove_inventory_item(
+            result = server.remove_inventory_item(
+                arguments["character_name"],
+                arguments["item_name"],
+                arguments.get("quantity", 1)
+            )
+        elif name == "add_weapon":
+            result = server.add_weapon(
+                arguments["character_name"],
+                arguments["weapon_name"],
+                arguments["attack_bonus"],
+                arguments["damage"],
+                arguments.get("properties", "-"),
+                arguments.get("special_effects", "-"),
+                arguments.get("equipped", False)
+            )
+        elif name == "remove_weapon":
+            result = server.remove_weapon(
+                arguments["character_name"],
+                arguments["weapon_name"]
+            )
+        elif name == "equip_weapon":
+            result = server.equip_weapon(
+                arguments["character_name"],
+                arguments["weapon_name"],
+                arguments["equipped"]
+            )
+        elif name == "add_armor":
+            result = server.add_armor(
+                arguments["character_name"],
+                arguments["armor_name"],
+                arguments["ac_bonus"],
+                arguments["armor_type"],
+                arguments.get("properties", "-"),
+                arguments.get("special_effects", "-"),
+                arguments.get("equipped", False)
+            )
+        elif name == "remove_armor":
+            result = server.remove_armor(
+                arguments["character_name"],
+                arguments["armor_name"]
+            )
+        elif name == "equip_armor":
+            result = server.equip_armor(
+                arguments["character_name"],
+                arguments["armor_name"],
+                arguments["equipped"]
+            )
+        elif name == "add_magic_item":
+            result = server.add_magic_item(
+                arguments["character_name"],
+                arguments["item_name"],
+                arguments["properties"],
+                arguments.get("charges", "-"),
+                arguments.get("notes", "-"),
+                arguments.get("attuned", False)
+            )
+        elif name == "remove_magic_item":
+            result = server.remove_magic_item(
                 arguments["character_name"],
                 arguments["item_name"]
             )
-            return [TextContent(type="text", text=json.dumps({
-                "success": True,
-                "message": f"Removed {arguments['item_name']} from {arguments['character_name']}'s inventory"
-            }, indent=2))]
-        
+        elif name == "attune_item":
+            result = server.attune_item(
+                arguments["character_name"],
+                arguments["item_name"],
+                arguments["attuned"]
+            )
+        elif name == "create_npc":
+            result = server.create_npc(
+                arguments["npc_name"],
+                arguments["race"],
+                arguments["role"],
+                arguments["location"],
+                arguments["description"],
+                arguments.get("disposition", "neutral")
+            )
+        elif name == "get_character_combat_stats":
+            result = server.get_character_combat_stats(arguments["character_name"])
+        elif name == "calculate_and_update_weight":
+            result = server.calculate_and_update_weight(
+                arguments["character_name"],
+                arguments.get("capacity")
+            )
+        elif name == "use_spell_slot":
+            result = server.use_spell_slot(
+                arguments["character_name"],
+                arguments["spell_level"]
+            )
+        elif name == "read_vault_file":
+            result = server.read_vault_file(arguments["file_path"])
+        elif name == "write_vault_file":
+            result = server.write_vault_file(
+                arguments["file_path"],
+                arguments["content"]
+            )
         else:
-            return [TextContent(type="text", text=json.dumps({
-                "error": f"Unknown tool: {name}"
-            }, indent=2))]
-    
+            return [TextContent(type="text", text=f"Unknown tool: {name}")]
+        
+        return [TextContent(type="text", text=json.dumps(result, indent=2))]
     except Exception as e:
-        logger.error(f"Error in {name}: {e}", exc_info=True)
-        return [TextContent(type="text", text=json.dumps({
-            "error": str(e)
-        }, indent=2))]
+        return [TextContent(type="text", text=f"Error: {str(e)}")]
 
 
 async def main():
-    """Run the MCP server"""
-    async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
+    """Main entry point for the MCP server."""
+    async with stdio_server() as (read_stream, write_stream):
         await app.run(
             read_stream,
             write_stream,
@@ -1033,6 +1698,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(main())
+
 

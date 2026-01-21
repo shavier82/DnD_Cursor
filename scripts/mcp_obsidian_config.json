@@ -1,0 +1,6 @@
+{
+  "resources_file_path": "DnD/state/resources_state.json",
+  "write_tool": "write_vault_file",
+  "read_tool": "read_vault_file",
+  "note": "resources_file_path is relative to vault root. Tools are MCP tool names."
+}
