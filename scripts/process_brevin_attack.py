@@ -69,3 +69,17 @@ print(f"  - Goblin2: 5 necrotic damage (2 HP remaining)")
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

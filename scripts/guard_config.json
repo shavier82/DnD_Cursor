@@ -1,0 +1,13 @@
+{
+  "forbidden_phrases": [
+    "what does",
+    "what should",
+    "your call",
+    "you decide",
+    "what do they do"
+  ],
+  "allowed_enemy_questions": [
+    "any reactions",
+    "reactions"
+  ]
+}

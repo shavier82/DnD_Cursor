@@ -128,3 +128,17 @@ print(f"  - Frightened enemies: 4 (Goblin1, Goblin4, Goblin5, Hobgoblin1)")
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
