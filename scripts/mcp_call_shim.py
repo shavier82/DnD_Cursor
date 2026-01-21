@@ -67,6 +67,11 @@ def main() -> int:
                 args.get("file_path", ""),
                 args.get("content", "")
             )
+        elif tool == "use_spell_slot":
+            result = server.use_spell_slot(
+                args.get("character_name", ""),
+                args.get("spell_level", 0)
+            )
         else:
             print(f"ERROR: Unknown tool: {tool}", file=sys.stderr)
             return 1

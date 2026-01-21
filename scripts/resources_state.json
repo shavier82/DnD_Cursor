@@ -12,7 +12,7 @@
   },
   "eglath_bearkiller": {
     "spell_slots": {},
-    "rage": 0,
+    "rage": 3,
     "superiority_die": 0,
     "ki": 0,
     "channel_divinity": 0,
@@ -23,7 +23,7 @@
   },
   "torgga_brawnanvil": {
     "spell_slots": {
-      "1": 0,
+      "1": 4,
       "2": 3,
       "3": 2
     },
@@ -38,7 +38,7 @@
   },
   "zephyr_sparkwhistle": {
     "spell_slots": {
-      "1": 2,
+      "1": 4,
       "2": 3,
       "3": 2
     },
@@ -54,7 +54,7 @@
   "vandross_ephrates": {
     "spell_slots": {},
     "rage": 0,
-    "superiority_die": 0,
+    "superiority_die": 4,
     "ki": 0,
     "channel_divinity": 0,
     "bardic_inspiration": 0,

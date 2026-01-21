@@ -422,6 +422,36 @@ Then the DM output MUST include:
 **AUTOMATIC APPLICATION:** After validation passes, MAP-DELTA changes are automatically applied to the local battlemap JSON and synced to Obsidian via MCP with SHA verification. No manual edits needed - the system is self-maintaining.
 
 # -------------------------
+# REST CONTRACT (FAIL-CLOSED)
+# -------------------------
+**REST CONTRACT (FAIL-CLOSED):**
+
+If the narration indicates the party rests, it MUST include an explicit rest tag:
+
+**Required tags:**
+- `[LONGREST]` - Long rest (8 hours, restores all spell slots, resources, HP)
+- `[SHORTREST]` - Short rest (1 hour, restores Hit Dice, some class features)
+
+**VALIDATION RULES:**
+- If rest-ish language is detected but no rest tag is present → **HARD FAIL**
+- Rest-ish language includes: "long rest", "rest until dawn", "camp for the night", "short rest", "rest for an hour", etc.
+- Rest tags are **explicit declarations** - narration must include the tag or the workflow will BLOCK
+
+**Examples:**
+✅ Valid: "The party makes camp and sleeps until dawn. [LONGREST]"
+✅ Valid: "You take a quick hour's break to catch your breath. [SHORTREST]"
+❌ Invalid: "The party rests for the night" (missing tag - will BLOCK)
+❌ Invalid: "You camp until morning" (missing tag - will BLOCK)
+
+**Why this is fail-closed:**
+- Prevents accidental state resets from fuzzy keyword matching
+- NPCs could rest, dialogue could mention resting, flavor text could describe rest
+- Explicit tags ensure only intentional rest triggers resource resets
+- No tag = no rest happened (mathematically impossible to accidentally reset)
+
+**If validation fails, response is BLOCKED and must be regenerated with the correct rest tag.**
+
+# -------------------------
 # CONTEXT DRIFT CONTROL (HARD-ENFORCED)
 # -------------------------
 **Cursor will drift as the chat grows. To prevent "silent forgetting," enforce a deterministic refresh loop with explicit meta-state tracking.**
