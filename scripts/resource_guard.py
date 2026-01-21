@@ -22,6 +22,11 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
 
+# Import shared normalizer
+SCRIPT_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPT_DIR))
+from text_normalize import normalize_input_text
+
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_RESOURCES_FILE = ROOT_DIR / "scripts" / "resources_state.json"
 
@@ -131,6 +136,9 @@ def main():
     if not text.strip():
         print("ERROR: No text provided")
         sys.exit(1)
+
+    # Normalize input to strip transcript prefixes
+    text = normalize_input_text(text)
 
     resources_path = Path(args.resources)
     resources = load_resources(resources_path)

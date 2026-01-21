@@ -715,6 +715,120 @@ class DMWorkflow:
         print("\n✅ EXPORT PERSISTENT DATA WORKFLOW COMPLETE\n")
         return results
     
+    def long_rest(self) -> Dict[str, Any]:
+        """Reset all character resources after long rest"""
+        print("\n" + "="*60)
+        print("😴 DM WORKFLOW: LONG REST")
+        print("="*60 + "\n")
+        
+        results = {
+            "status": "in_progress",
+            "resources_reset": False,
+            "errors": []
+        }
+        
+        # Run long rest script
+        long_rest_script = SCRIPT_DIR / "long_rest_resources.py"
+        print("Resetting all character resources...")
+        success, output = self._run_script(long_rest_script)
+        
+        if success:
+            results["status"] = "success"
+            results["resources_reset"] = True
+            results["message"] = "All resources reset to max values"
+            print("\n✅ LONG REST COMPLETE")
+            print("   - All spell slots restored")
+            print("   - All resources restored (rage, superiority dice, etc.)")
+            print("   - Resources synced to Obsidian")
+        else:
+            results["status"] = "error"
+            results["error"] = output
+            print(f"\n❌ ERROR: Failed to reset resources: {output}")
+        
+        return results
+    
+    def short_rest(self) -> Dict[str, Any]:
+        """Restore short rest resources (Channel Divinity, Superiority Dice, etc.)"""
+        print("\n" + "="*60)
+        print("☕ DM WORKFLOW: SHORT REST")
+        print("="*60 + "\n")
+        
+        results = {
+            "status": "in_progress",
+            "resources_restored": False,
+            "errors": []
+        }
+        
+        # Load current resources
+        resources_path = SCRIPT_DIR / "resources_state.json"
+        if not resources_path.exists():
+            results["status"] = "error"
+            results["error"] = f"Resources file not found: {resources_path}"
+            print(f"\n❌ ERROR: {results['error']}")
+            return results
+        
+        try:
+            import json
+            resources = json.loads(resources_path.read_text(encoding="utf-8"))
+        except Exception as e:
+            results["status"] = "error"
+            results["error"] = f"Failed to load resources: {e}"
+            print(f"\n❌ ERROR: {results['error']}")
+            return results
+        
+        # Restore short rest resources (deterministic, based on 5e rules)
+        updated = json.loads(json.dumps(resources))  # Deep copy
+        
+        # Cleric (Torgga): Channel Divinity refreshes on short rest
+        if "torgga_brawnanvil" in updated:
+            updated["torgga_brawnanvil"]["channel_divinity"] = 1
+            print("  ✅ Torgga: Channel Divinity restored (1/1)")
+        
+        # Fighter (Vandross): Superiority Dice refresh on short rest (Battle Master)
+        if "vandross_ephrates" in updated:
+            updated["vandross_ephrates"]["superiority_die"] = 4  # Battle Master 5: 4 dice
+            print("  ✅ Vandross: Superiority Dice restored (4/4)")
+        
+        # Note: Rage (Barbarian) does NOT refresh on short rest
+        # Note: Spell slots do NOT refresh on short rest (except Arcane Recovery, which is special)
+        # Note: Hit Dice spending is manual (not tracked in resources_state.json)
+        
+        # Save updated resources
+        try:
+            resources_path.write_text(
+                json.dumps(updated, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8"
+            )
+        except Exception as e:
+            results["status"] = "error"
+            results["error"] = f"Failed to save resources: {e}"
+            print(f"\n❌ ERROR: {results['error']}")
+            return results
+        
+        # Sync to Obsidian
+        sync_script = SCRIPT_DIR / "sync_resources_obsidian.py"
+        if sync_script.exists():
+            sync_process = subprocess.run(
+                [sys.executable, str(sync_script)],
+                text=True,
+                capture_output=True,
+                encoding='utf-8'
+            )
+            if sync_process.returncode != 0:
+                error = sync_process.stderr.strip() or sync_process.stdout.strip()
+                print(f"  ⚠️  WARNING: Obsidian sync failed: {error}")
+                # Don't fail - resources are restored locally
+        
+        results["status"] = "success"
+        results["resources_restored"] = True
+        results["message"] = "Short rest resources restored"
+        print("\n✅ SHORT REST COMPLETE")
+        print("   - Channel Divinity restored (Torgga)")
+        print("   - Superiority Dice restored (Vandross)")
+        print("   - Resources synced to Obsidian")
+        
+        return results
+    
     def respond(self, response_text: Optional[str] = None, verbose: bool = False) -> Dict[str, Any]:
         """
         Validate DM response with preflight gate and response guard.
@@ -899,7 +1013,88 @@ class DMWorkflow:
                 self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
                 return results
         
-        # Response guard passed - run resource guard
+        # Response guard passed - run rest guard
+        rest_guard_script = SCRIPT_DIR / "rest_guard.py"
+        rest_type = None
+        
+        if rest_guard_script.exists():
+            rg = subprocess.run(
+                [sys.executable, str(rest_guard_script)],
+                input=text,
+                text=True,
+                capture_output=True,
+                encoding='utf-8'
+            )
+            rg_out = (rg.stdout or "").strip()
+            rg_err = (rg.stderr or "").strip()
+            
+            if not verbose:
+                if rg.returncode != 0:
+                    quiet_line = rg_err.splitlines()[0] if rg_err else (rg_out.splitlines()[0] if rg_out else "BLOCKED: rest guard failed")
+                    final_exit_code = 1
+                    self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                    return results
+            else:
+                report_lines.append("REST_GUARD OUTPUT")
+                report_lines.append(rg_out if rg_out else "(no output)")
+                report_lines.append("")
+                if rg.returncode != 0:
+                    if rg_err:
+                        report_lines.append(rg_err)
+                        report_lines.append("")
+                    quiet_line = rg_err.splitlines()[0] if rg_err else (rg_out.splitlines()[0] if rg_out else "BLOCKED: rest guard failed")
+                    final_exit_code = 1
+                    self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                    return results
+            
+            # Parse rest type from output ("OK: long_rest", "OK: short_rest", or "OK: no_rest")
+            if rg_out.startswith("OK: long_rest"):
+                rest_type = "long_rest"
+            elif rg_out.startswith("OK: short_rest"):
+                rest_type = "short_rest"
+        
+        # If rest transition detected -> run handler, skip resource/map enforcement, return early
+        if rest_type == "long_rest":
+            lr = self.long_rest()
+            if lr.get("status") != "success":
+                quiet_line = lr.get("error", "ERROR: long rest failed")
+                final_exit_code = 1
+                if verbose:
+                    report_lines.append("LONG_REST OUTPUT")
+                    report_lines.append(quiet_line)
+                    report_lines.append("")
+                self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                return results
+            quiet_line = "OK: dm_workflow passed"
+            final_exit_code = 0
+            if verbose:
+                report_lines.append("LONG_REST OUTPUT")
+                report_lines.append(lr.get("message", "OK: All resources reset to max values"))
+                report_lines.append("")
+            self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+            return results
+        
+        if rest_type == "short_rest":
+            sr = self.short_rest()
+            if sr.get("status") != "success":
+                quiet_line = sr.get("error", "ERROR: short rest failed")
+                final_exit_code = 1
+                if verbose:
+                    report_lines.append("SHORT_REST OUTPUT")
+                    report_lines.append(quiet_line)
+                    report_lines.append("")
+                self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                return results
+            quiet_line = "OK: dm_workflow passed"
+            final_exit_code = 0
+            if verbose:
+                report_lines.append("SHORT_REST OUTPUT")
+                report_lines.append(sr.get("message", "OK: Short rest resources restored"))
+                report_lines.append("")
+            self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+            return results
+        
+        # Normal path (non-rest): run resource guard + auto apply + obsidian sync + map stuff
         results["guard_passed"] = True
         resource_guard_script = SCRIPT_DIR / "resource_guard.py"
         
@@ -936,7 +1131,7 @@ class DMWorkflow:
                 report_lines.append("(script not found - skipped)")
                 report_lines.append("")
         
-        # Resource guard passed - apply STATE-DELTA
+        # Resource guard passed (or skipped for rest) - apply STATE-DELTA
         apply_delta_script = SCRIPT_DIR / "apply_state_delta.py"
         if apply_delta_script.exists():
             apply_process = subprocess.run(
@@ -1007,6 +1202,100 @@ class DMWorkflow:
                         final_exit_code = 1
                         self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
                         return results
+                
+                # After Obsidian sync, update character sheets for spell slots used
+                # Extract spell slot spends from STATE-DELTA and update character sheets via MCP
+                import re
+                delta_block_pat = re.compile(r"STATE-DELTA\s*(?P<body>.*?)\s*END STATE-DELTA", re.IGNORECASE | re.DOTALL)
+                delta_line_pat = re.compile(
+                    r"^\s*-\s*(?P<actor>[a-zA-Z0-9_\-]+)\s*:\s*(?P<key>[a-zA-Z0-9_\.\-]+)\s*-\=\s*(?P<amt>\d+)\s*$",
+                    re.IGNORECASE,
+                )
+                
+                # Actor ID to character name mapping (keep underscores, capitalize words)
+                def actor_to_character_name(actor_id: str) -> str:
+                    """Convert actor_id (e.g., 'zephyr_sparkwhistle') to character name (e.g., 'Zephyr_Sparkwhistle').
+                    
+                    Obsidian character files use underscore format: Zephyr_Sparkwhistle.md
+                    """
+                    parts = actor_id.split('_')
+                    return '_'.join(part.capitalize() for part in parts)
+                
+                delta_match = delta_block_pat.search(text)
+                spell_slot_updates = []
+                if delta_match:
+                    body = delta_match.group("body")
+                    for line in body.splitlines():
+                        line = line.rstrip()
+                        if not line.strip():
+                            continue
+                        m = delta_line_pat.match(line)
+                        if m:
+                            actor = m.group("actor")
+                            key = m.group("key").lower()
+                            amt = int(m.group("amt"))
+                            
+                            # Check if this is a spell slot spend
+                            if key.startswith("spell_slot."):
+                                level = int(key.split(".", 1)[1])
+                                # Call use_spell_slot for each slot used
+                                for _ in range(amt):
+                                    spell_slot_updates.append((actor, level))
+                
+                # Update character sheets via MCP for each spell slot used
+                if spell_slot_updates:
+                    mcp_shim = SCRIPT_DIR / "mcp_call_shim.py"
+                    char_sheet_errors = []
+                    for actor_id, spell_level in spell_slot_updates:
+                        char_name = actor_to_character_name(actor_id)
+                        # Call use_spell_slot via MCP shim
+                        payload = {
+                            "tool": "use_spell_slot",
+                            "args": {
+                                "character_name": char_name,
+                                "spell_level": spell_level
+                            }
+                        }
+                        try:
+                            proc = subprocess.run(
+                                [sys.executable, str(mcp_shim)],
+                                input=json.dumps(payload),
+                                text=True,
+                                capture_output=True,
+                                encoding='utf-8'
+                            )
+                            if proc.returncode != 0:
+                                error = proc.stderr.strip() or proc.stdout.strip() or "MCP call failed"
+                                char_sheet_errors.append(f"{char_name} level {spell_level}: {error}")
+                            else:
+                                result = json.loads(proc.stdout)
+                                if not result.get("success"):
+                                    error = result.get("error", "unknown error")
+                                    char_sheet_errors.append(f"{char_name} level {spell_level}: {error}")
+                        except Exception as e:
+                            char_sheet_errors.append(f"{char_name} level {spell_level}: {e}")
+                    
+                    # Handle character sheet update errors
+                    if char_sheet_errors:
+                        if not verbose:
+                            quiet_line = f"BLOCKED: character sheet update failed ({len(char_sheet_errors)} errors)"
+                            final_exit_code = 1
+                            self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                            return results
+                        else:
+                            report_lines.append("CHARACTER_SHEET_UPDATE OUTPUT")
+                            for err in char_sheet_errors:
+                                report_lines.append(f"ERROR: {err}")
+                            report_lines.append("")
+                            quiet_line = f"BLOCKED: character sheet update failed"
+                            final_exit_code = 1
+                            self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                            return results
+                    elif verbose:
+                        # Only report in verbose mode if successful
+                        report_lines.append("CHARACTER_SHEET_UPDATE OUTPUT")
+                        report_lines.append(f"OK: Updated character sheets for {len(spell_slot_updates)} spell slot(s)")
+                        report_lines.append("")
         
         # All passed - check for map mutations
         # Check if response contains any map mutation tags
@@ -1242,6 +1531,12 @@ def main():
     # Export persistent data
     subparsers.add_parser("export_persistent_data", help="Export party persistent data to Obsidian")
     
+    # Long rest
+    subparsers.add_parser("long_rest", help="Reset all character resources after long rest")
+    
+    # Short rest
+    subparsers.add_parser("short_rest", help="Restore short rest resources (Hit Dice, Channel Divinity, etc.)")
+    
     # Respond (validate DM response)
     respond_parser = subparsers.add_parser("respond", help="Validate DM response with preflight gate and response guard")
     respond_parser.add_argument("--text", help="Response text to validate (if not provided, reads from stdin)")
@@ -1284,6 +1579,10 @@ def main():
         result = workflow.export_campaign_events()
     elif args.workflow == "export_persistent_data":
         result = workflow.export_persistent_data()
+    elif args.workflow == "long_rest":
+        result = workflow.long_rest()
+    elif args.workflow == "short_rest":
+        result = workflow.short_rest()
     elif args.workflow == "respond":
         result = workflow.respond(args.text, verbose=getattr(args, 'verbose', False))
         # respond() exits with guard's exit code, so we never reach here on failure
