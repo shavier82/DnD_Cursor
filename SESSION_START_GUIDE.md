@@ -11,7 +11,43 @@
 
 ## Quick Start Checklist
 
-When starting a new session, follow these steps:
+**⚠️ NEW: Use Unified Workflow System (AUTOMATIC)**
+
+When starting a new session, **AUTOMATICALLY** run:
+```bash
+python scripts/dm_workflow.py session_start
+```
+
+This workflow **AUTOMATICALLY** handles ALL initialization steps:
+1. ✅ Validates checklist (pre_session_check.py)
+2. ✅ Reads MECHANICS_AUTOMATION_CHECKLIST.md
+3. ✅ Loads CURRENT_STATE.json
+4. ✅ Loads CAMPAIGN_EVENTS.json
+5. ✅ Determines current chapter from state
+6. ✅ Loads chapter_pack_<n>.json automatically
+7. ✅ Verifies MCP servers
+8. ✅ Creates workflow state tracker
+
+**The workflow BLOCKS until all steps complete. You cannot proceed without it.**
+
+---
+
+## Manual Steps (If Not Using Workflow)
+
+If you need to do steps manually (not recommended):
+
+### 0. Read Mechanics Checklist (MANDATORY)
+- **ALWAYS read first:** `C:\DnD\DnD_Cursor\MECHANICS_AUTOMATION_CHECKLIST.md`
+- This ensures you remember ALL mandatory procedures:
+  - Post-combat XP/currency/item distribution
+  - Real-time Obsidian sync requirements
+  - NPC status update automation
+  - Quest management procedures
+  - Faction reputation tracking
+  - Spell slot/resource deduction
+  - Inventory management
+  - Dice rolling procedures
+  - Rules/spells/monsters lookups
 
 ### 1. Read Current State
 - **Always start by reading:** `C:\DnD\Campaigns\Phandelver\saves\CURRENT_STATE.json`

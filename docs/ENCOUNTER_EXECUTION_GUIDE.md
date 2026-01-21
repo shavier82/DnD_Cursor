@@ -114,6 +114,171 @@ The DM should track Initiative using one of these methods:
 - Combat can also end when both sides agree to end it
 - When combat ends, the DM should update the game state and continue with the narrative
 
+## Battle Map Management (MANDATORY)
+
+### Overview
+The battle map provides a visual representation of combat positioning, HP status, initiative order, and current turn. **HP and positioning MUST be updated on the battle map after every combat action.**
+
+### Battle Map File Location
+Battle map data is stored in `scripts/combat_positions_<encounter_id>.json` (e.g., `scripts/combat_positions_t17.json`)
+
+### Battle Map Structure
+```json
+{
+  "grid_size": 5,
+  "map_width_squares": 20,
+  "map_height_squares": 25,
+  "defeated": ["gemmule_1"],
+  "combatants": {
+    "brevin": {
+      "x": 3,
+      "y": 16,
+      "color": "blue",
+      "label": "B"
+    }
+  },
+  "combat_status": {
+    "round": 2,
+    "current_turn": {
+      "creature_id": "zephyr_sparkwhistle",
+      "name": "Zephyr Sparkwhistle",
+      "initiative": 7
+    },
+    "initiative_order": ["brevin", "vandross_ephrates", "malinia", ...],
+    "combatants": {
+      "brevin": {
+        "hp": "10/45",
+        "hp_percent": 0.22,
+        "ac": 15,
+        "initiative": 12,
+        "conditions": [],
+        "is_alive": true
+      }
+    }
+  }
+}
+```
+
+### Battle Map Update Requirements (MANDATORY)
+
+#### 1. **HP Updates (After EVERY Damage/Healing Event)**
+- **When:** After every attack, spell, healing, or HP change
+- **What to Update:** `combat_status.combatants.<creature_id>.hp` and `hp_percent`
+- **Example:**
+  ```json
+  "eglath_bearkiller": {
+    "hp": "25/68",  // ← Update this
+    "hp_percent": 0.37,  // ← Update this (25/68 = 0.37)
+    ...
+  }
+  ```
+- **CRITICAL:** Battle map HP must match combat engine HP at all times
+
+#### 2. **Position Updates (After EVERY Movement)**
+- **When:** After creature movement (Dash, Disengage, normal movement, forced movement)
+- **What to Update:** `combatants.<creature_id>.x` and `.y` coordinates
+- **Scale:** Each square = 5 feet
+- **Example:**
+  ```json
+  "brevin": {
+    "x": 3,  // ← Update this
+    "y": 16,  // ← Update this
+    ...
+  }
+  ```
+
+#### 3. **Turn Indicator Updates (After EVERY Turn Advance)**
+- **When:** After `next_turn_tool()` is called
+- **What to Update:** `combat_status.current_turn`
+- **Example:**
+  ```json
+  "current_turn": {
+    "creature_id": "torgga_brawnanvil",
+    "name": "Torgga Brawnanvil",
+    "initiative": 5
+  }
+  ```
+
+#### 4. **Defeated Combatants (After Death/Unconsciousness)**
+- **When:** When a creature drops to 0 HP or is defeated
+- **What to Update:** Add creature ID to `defeated` array
+- **Example:**
+  ```json
+  "defeated": ["gemmule_1", "gemmule_2"]  // ← Add defeated creatures here
+  ```
+- **Note:** Defeated combatants are not displayed on the map but remain in `combat_status`
+
+### Battle Map Update Workflow
+
+**During Combat Turn:**
+```
+1. Combat action occurs (attack, spell, movement)
+2. Combat engine updates internal state
+3. IMMEDIATELY update battle map:
+   - Update HP in combat_status.combatants
+   - Update positions in combatants
+   - Update current_turn if turn advanced
+4. Battle map viewer auto-refreshes (if running)
+```
+
+**Example Workflow:**
+```
+Eglath attacks Gemmule 4:
+1. attack_tool() → Eglath deals 27 damage
+2. Combat engine: Gemmule 4 HP = 15/54 (was 42/54)
+3. Update battle map:
+   - combat_status.combatants.gemmule_4.hp = "15/54"
+   - combat_status.combatants.gemmule_4.hp_percent = 0.28
+4. Battle map viewer refreshes automatically
+```
+
+### Battle Map Viewer
+
+The dynamic battle map viewer (`scripts/view_battlemap.py`) displays:
+- **Combatant Positions**: Colored circles on grid (blue=PCs, red=enemies, orange=neutral)
+- **HP Tracker**: Current HP for all combatants
+- **Initiative Order**: Listed with current turn highlighted
+- **Zoom Controls**: In/out functionality
+- **Auto-Refresh**: Updates when JSON file changes
+
+**To Launch:**
+```bash
+python scripts/view_battlemap.py scripts/combat_positions_t17.json 1.0
+```
+
+### Battle Map Initialization (At Combat Start)
+
+**When combat starts:**
+1. Create/load battle map JSON file for encounter
+2. Set initial positions from marching order or scene description
+3. Load positions into combat engine via `load_battlefield()`
+4. Initialize `combat_status` with current HP from combat engine
+5. Launch battle map viewer (optional but recommended)
+
+### Common Mistakes to Avoid
+
+1. **Forgetting HP updates** - Battle map HP must match combat engine HP
+2. **Forgetting position updates** - Positions must reflect actual creature locations
+3. **Not updating turn indicator** - Current turn must reflect combat engine's turn order
+4. **Not marking defeated creatures** - Add to `defeated` array when HP = 0
+5. **Coordinate errors** - Remember: 1 square = 5 feet
+6. **Inconsistent creature IDs** - Use same IDs in battle map as in combat engine
+
+### Battle Map Sync Checklist
+
+**After EVERY combat action, verify:**
+- [ ] HP updated in `combat_status.combatants.<id>.hp`
+- [ ] HP percentage updated in `combat_status.combatants.<id>.hp_percent`
+- [ ] Positions updated in `combatants.<id>.x` and `.y` (if moved)
+- [ ] Current turn updated in `combat_status.current_turn` (if turn advanced)
+- [ ] Defeated creatures added to `defeated` array (if HP = 0)
+- [ ] Battle map JSON file saved
+
+**After EVERY turn:**
+- [ ] `current_turn` reflects combat engine's current turn
+- [ ] All HP values match combat engine state
+- [ ] All positions match combat engine state
+
 ## State Management
 
 ### During Combat
@@ -121,12 +286,14 @@ The DM should track Initiative using one of these methods:
 - Track HP, AC, conditions, and status for all combatants
 - Update state after each action (damage, healing, conditions)
 - Update CURRENT_STATE.json to reflect combat status
+- **Update battle map JSON file after EVERY HP/position change** (MANDATORY)
 
 ### After Combat
 - Mark combat as ended in CURRENT_STATE.json
 - Record the encounter in the encounters array
 - Update character HP, resources, and conditions
 - Award XP and distribute loot
+- **Finalize battle map state** (mark all defeated creatures, final positions)
 - Continue with the narrative
 
 ## Critical Workflow Requirements
@@ -139,24 +306,31 @@ The DM should track Initiative using one of these methods:
    - Add `/combat/initiative_order` array with all combatants and their Initiative values
    - Add `/combat/combatants` object with HP, AC, status for all combatants
    - Update `/scene/location` and `/scene/description` to reflect combat location
+   - **Initialize battle map JSON file** with initial positions and combat status
+   - **Launch battle map viewer** (optional but recommended)
 
 2. **Turn Processing:**
    - Process turns in Initiative order (highest to lowest)
    - Process ALL enemy turns automatically in sequence (do not pause for player input)
    - Pause ONLY for player character turns (request action)
    - Update HP, spell slots, and resources immediately as they change
+   - **Update battle map HP and positions after EVERY action** (MANDATORY)
+   - **Update battle map current_turn after turn advancement** (MANDATORY)
    - Update state after each turn
 
 3. **Real-Time Updates:**
-   - Update Google Sheets immediately when HP changes
-   - Update Google Sheets immediately when spell slots are used
-   - Update Google Sheets immediately when resources are used (rage, action surge, etc.)
+   - Update Obsidian immediately when HP changes
+   - Update Obsidian immediately when spell slots are used
+   - Update Obsidian immediately when resources are used (rage, action surge, etc.)
+   - **Update battle map JSON file after EVERY HP/position change** (MANDATORY)
    - Never proceed with combat using outdated HP/resource values
 
 4. **State Consistency:**
    - Maintain accurate Initiative order throughout combat
    - Track all combatants' HP, status, and conditions
    - Update state file after each significant change
+   - **Ensure battle map HP matches combat engine HP at all times**
+   - **Ensure battle map positions match combat engine positions at all times**
    - Ensure state accurately reflects combat status at all times
 
 ## Common Mistakes to Avoid
@@ -167,4 +341,7 @@ The DM should track Initiative using one of these methods:
 4. **Don't forget to update state** - State must reflect combat status throughout the encounter
 5. **Don't proceed with outdated values** - Always update HP/resources before proceeding with combat
 6. **Don't ask players what enemies should do** - The DM controls all monsters and decides their actions
+7. **Don't forget battle map HP updates** - Battle map HP must match combat engine HP after every damage/healing event
+8. **Don't forget battle map position updates** - Battle map positions must match combat engine positions after every movement
+9. **Don't forget battle map turn indicator** - Current turn must reflect combat engine's turn order after every turn advance
 

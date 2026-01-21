@@ -95,3 +95,17 @@ python C:\DnD\DnD_Cursor\scripts\speak_narration_elevenlabs.py <session-id> --ba
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
