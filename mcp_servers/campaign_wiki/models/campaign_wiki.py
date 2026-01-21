@@ -10,6 +10,7 @@ from .location import Location
 from .quest import Quest
 from .timeline import TimelineEvent
 from .player_character import PlayerCharacter
+from .faction import Faction
 
 
 class CampaignWiki(BaseModel):
@@ -27,7 +28,7 @@ class CampaignWiki(BaseModel):
     
     # Metadata
     session_notes: Dict[int, str] = Field(default_factory=dict, description="Session notes by session number")
-    factions: Dict[str, Dict] = Field(default_factory=dict, description="Faction data")
+    factions: Dict[str, Faction] = Field(default_factory=dict, description="Faction data")
     
     # Paths
     data_path: Optional[str] = Field(default=None, description="Path to wiki data file")
@@ -49,5 +50,25 @@ class CampaignWiki(BaseModel):
         """Load wiki from JSON"""
         with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
+        
+        # Migrate old faction format (Dict[str, Dict] -> Dict[str, Faction])
+        if 'factions' in data and data['factions']:
+            migrated_factions = {}
+            for faction_id, faction_data in data['factions'].items():
+                # If it's already a Faction dict (has faction_id), use it directly
+                # Otherwise, it's the old format and needs migration
+                if isinstance(faction_data, dict):
+                    if 'faction_id' not in faction_data:
+                        # Old format - create Faction with faction_id from key
+                        faction_data['faction_id'] = faction_id
+                    try:
+                        migrated_factions[faction_id] = Faction(**faction_data)
+                    except Exception:
+                        # If migration fails, keep as dict (will be converted on next save)
+                        migrated_factions[faction_id] = faction_data
+                else:
+                    migrated_factions[faction_id] = faction_data
+            data['factions'] = migrated_factions
+        
         return cls(**data)
 

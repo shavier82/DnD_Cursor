@@ -62,6 +62,7 @@ class NPC(BaseModel):
     
     # Status
     alive: bool = Field(default=True, description="Whether NPC is alive")
+    status: Optional[str] = Field(default=None, description="Status (e.g., 'alive', 'captured', 'executed', 'dead', 'killed', 'deceased')")
     disposition: int = Field(default=0, ge=-10, le=10, description="Disposition toward party (-10 hostile, 0 neutral, +10 friendly)")
     
     # Related Content

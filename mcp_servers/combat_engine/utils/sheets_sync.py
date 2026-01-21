@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any
 import json
 from pathlib import Path
 
-from ..models.creature import Creature, CreatureType
+from models.creature import Creature, CreatureType
 
 
 class SheetsSync:

@@ -5,7 +5,7 @@ from shapely.geometry import Point, Polygon, LineString
 from shapely.ops import unary_union
 import math
 
-from ..models.battlefield import Position, Battlefield
+from models.battlefield import Position, Battlefield
 
 
 class AoEShape:

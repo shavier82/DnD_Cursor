@@ -1,8 +1,8 @@
 """AI tactical positioning and movement decisions"""
 
 from typing import Optional, List, Tuple
-from ..models.combat_state import CombatState
-from ..models.battlefield import Position
+from models.combat_state import CombatState
+from models.battlefield import Position
 from .target_selection import get_all_enemies, get_allies
 
 

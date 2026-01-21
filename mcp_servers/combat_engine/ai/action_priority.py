@@ -1,8 +1,8 @@
 """AI action priority and decision making"""
 
 from typing import Dict, Any, Optional, List
-from ..models.combat_state import CombatState
-from ..models.creature import Combatant
+from models.combat_state import CombatState
+from models.creature import Combatant
 from .target_selection import get_all_enemies
 
 

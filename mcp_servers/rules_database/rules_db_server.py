@@ -78,6 +78,20 @@ LEVEL_UP_DATA = {
         9: 48000, 10: 64000, 11: 85000, 12: 100000, 13: 120000, 14: 140000,
         15: 165000, 16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000
     },
+    "hp_by_class": {
+        "Barbarian": 12,
+        "Fighter": 10,
+        "Paladin": 10,
+        "Ranger": 10,
+        "Cleric": 8,
+        "Druid": 8,
+        "Monk": 8,
+        "Rogue": 8,
+        "Warlock": 8,
+        "Bard": 8,
+        "Sorcerer": 6,
+        "Wizard": 6
+    },
     "class_features": {
         "Barbarian": {
             1: ["Rage (2/day)", "Unarmored Defense"],
@@ -447,6 +461,52 @@ async def call_tool(name: str, arguments: Any) -> Sequence[TextContent]:
             return await handle_search_spells(arguments)
         elif name == "get_spells_by_class":
             return await handle_get_spells_by_class(arguments)
+        elif name == "level_up_guide":
+            # Handle level_up_guide inline since it doesn't have a separate handler
+            char_class = arguments.get("char_class", "").title()
+            current_level = arguments.get("current_level", 1)
+            constitution_modifier = arguments.get("constitution_modifier", 0)
+            
+            if current_level < 1 or current_level > 19:
+                return [TextContent(type="text", text="Error: Current level must be between 1 and 19")]
+            
+            next_level = current_level + 1
+            
+            # Get class-specific data
+            class_data = LEVEL_UP_DATA["class_features"].get(char_class, {})
+            if not class_data:
+                return [TextContent(type="text", text=f"Error: Class '{char_class}' not found. Available classes: {', '.join(LEVEL_UP_DATA['class_features'].keys())}")]
+            
+            # Build response
+            result = f"**Level Up: {char_class} {current_level} → {next_level}**\n\n"
+            
+            # HP Gain
+            hp_die = LEVEL_UP_DATA["hp_by_class"].get(char_class, 8)
+            hp_gain = hp_die // 2 + 1 + constitution_modifier
+            result += f"**HP Gain:** {hp_gain} ({hp_die}//2 + 1 + {constitution_modifier} CON)\n\n"
+            
+            # Proficiency Bonus
+            prof_bonus = LEVEL_UP_DATA["proficiency_bonus"].get(next_level, 2)
+            result += f"**Proficiency Bonus:** +{prof_bonus}\n\n"
+            
+            # Class Features
+            new_features = class_data.get(next_level, [])
+            if new_features:
+                result += f"**New Features:**\n"
+                for feature in new_features:
+                    result += f"  - {feature}\n"
+                result += "\n"
+            
+            # Spell Slots (if applicable)
+            spell_slots = LEVEL_UP_DATA["spell_slots"].get(char_class, {}).get(next_level)
+            if spell_slots:
+                result += f"**Spell Slots:** {spell_slots}\n\n"
+            
+            # XP Required
+            xp_required = LEVEL_UP_DATA["xp_by_level"].get(next_level, 0)
+            result += f"**XP Required for Level {next_level}:** {xp_required:,}\n"
+            
+            return [TextContent(type="text", text=result)]
         else:
             return [TextContent(type="text", text=f"Unknown tool: {name}")]
     except Exception as e:
@@ -722,124 +782,6 @@ async def handle_get_spells_by_class(arguments: dict) -> Sequence[TextContent]:
         result += "\n"
     
     return [TextContent(type="text", text=result)]
-
-@app.call_tool()
-async def level_up_guide(arguments: dict) -> list[TextContent]:
-    """Get level-up information for a character class
-    
-    Args:
-        char_class: Character class (Barbarian, Fighter, Cleric, Rogue, Wizard)
-        current_level: Current level (1-19)
-        constitution_modifier: CON modifier for HP calculation
-    """
-    try:
-        char_class = arguments.get("char_class", "").strip().title()
-        current_level = int(arguments.get("current_level", 1))
-        con_mod = int(arguments.get("constitution_modifier", 0))
-        
-        new_level = current_level + 1
-        
-        if new_level > 20 or new_level < 2:
-            return [TextContent(
-                type="text",
-                text=json.dumps({
-                    "error": "Invalid level range (must be leveling up from 1-19 to 2-20)"
-                }, indent=2)
-            )]
-        
-        if char_class not in LEVEL_UP_DATA["class_features"]:
-            return [TextContent(
-                type="text",
-                text=json.dumps({
-                    "error": f"Class '{char_class}' not supported. Available: Barbarian, Fighter, Cleric, Rogue, Wizard"
-                }, indent=2)
-            )]
-        
-        # Get hit die by class
-        hit_dice = {
-            "Barbarian": 12,
-            "Fighter": 10,
-            "Cleric": 8,
-            "Rogue": 8,
-            "Wizard": 6
-        }
-        
-        hit_die = hit_dice.get(char_class, 8)
-        hp_roll_average = (hit_die // 2) + 1
-        hp_gain_average = hp_roll_average + con_mod
-        hp_gain_max = hit_die + con_mod
-        
-        # Build level-up info
-        result = {
-            "class": char_class,
-            "current_level": current_level,
-            "new_level": new_level,
-            "proficiency_bonus": LEVEL_UP_DATA["proficiency_bonus"][new_level],
-            "proficiency_bonus_old": LEVEL_UP_DATA["proficiency_bonus"][current_level],
-            "xp_required": LEVEL_UP_DATA["xp_by_level"][new_level],
-            "hp_gain": {
-                "hit_die": f"1d{hit_die}",
-                "average": hp_gain_average,
-                "maximum": hp_gain_max,
-                "roll_result": f"Roll 1d{hit_die} + {con_mod} (CON modifier)"
-            },
-            "new_features": LEVEL_UP_DATA["class_features"][char_class].get(new_level, []),
-            "ability_score_improvement": "Ability Score Improvement" in LEVEL_UP_DATA["class_features"][char_class].get(new_level, []),
-            "checklist": []
-        }
-        
-        # Add spell slots for casters
-        if char_class in LEVEL_UP_DATA["spell_slots"]:
-            old_slots = LEVEL_UP_DATA["spell_slots"][char_class].get(current_level, [])
-            new_slots = LEVEL_UP_DATA["spell_slots"][char_class].get(new_level, [])
-            
-            result["spell_slots"] = {
-                "old": old_slots,
-                "new": new_slots,
-                "changes": []
-            }
-            
-            for i, (old, new) in enumerate(zip(old_slots, new_slots), 1):
-                if new > old:
-                    result["spell_slots"]["changes"].append(f"Level {i}: {old} → {new} slots (+{new-old})")
-                elif new > 0 and old == 0:
-                    result["spell_slots"]["changes"].append(f"Level {i}: NEW - {new} slots available")
-        
-        # Build checklist
-        result["checklist"].append(f"1. Roll 1d{hit_die} + {con_mod} for HP (or take average: {hp_gain_average})")
-        result["checklist"].append(f"2. Update max HP in Google Sheets")
-        result["checklist"].append(f"3. Update level to {new_level}")
-        result["checklist"].append(f"4. Update proficiency bonus to +{result['proficiency_bonus']}")
-        
-        if result.get("spell_slots"):
-            result["checklist"].append("5. Update spell slots in Google Sheets")
-            if any("NEW" in change for change in result["spell_slots"]["changes"]):
-                result["checklist"].append("6. Learn new spells for new spell levels")
-        
-        if result["ability_score_improvement"]:
-            result["checklist"].append("7. ⭐ ABILITY SCORE IMPROVEMENT: +2 to one ability or +1 to two abilities (or take a feat)")
-        
-        if new_level == 5:
-            result["checklist"].append("8. ⚠️ MAJOR POWER SPIKE - Proficiency bonus increases to +3")
-        
-        for feature in result["new_features"]:
-            if "Extra Attack" in feature:
-                result["checklist"].append(f"9. ⚔️ {feature} - You can attack multiple times!")
-            elif "Archetype" in feature or "Path" in feature or "Domain" in feature:
-                result["checklist"].append(f"10. 🎭 Choose your {feature}")
-        
-        return [TextContent(
-            type="text",
-            text=json.dumps(result, indent=2)
-        )]
-        
-    except Exception as e:
-        logger.error(f"Error in level_up_guide: {e}", exc_info=True)
-        return [TextContent(
-            type="text",
-            text=json.dumps({"error": str(e)}, indent=2)
-        )]
-
 
 async def main():
     """Run the MCP server."""
