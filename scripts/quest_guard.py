@@ -62,7 +62,11 @@ def load_quests(path: Path) -> Dict[str, Any]:
         if template_path.exists():
             try:
                 import json
-                template_data = json.loads(template_path.read_text(encoding="utf-8"))
+                # Try utf-8-sig first (handles BOM), fallback to utf-8
+                try:
+                    template_data = json.loads(template_path.read_text(encoding="utf-8-sig"))
+                except Exception:
+                    template_data = json.loads(template_path.read_text(encoding="utf-8"))
                 # Create the runtime file from template
                 path.write_text(json.dumps(template_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
                 return template_data

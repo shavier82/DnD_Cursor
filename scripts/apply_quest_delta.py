@@ -41,7 +41,11 @@ def load_quests(path: Path) -> Dict[str, Any]:
         template_path = path.parent / "quests_state.template.json"
         if template_path.exists():
             try:
-                template_data = json.loads(template_path.read_text(encoding="utf-8"))
+                # Try utf-8-sig first (handles BOM), fallback to utf-8
+                try:
+                    template_data = json.loads(template_path.read_text(encoding="utf-8-sig"))
+                except Exception:
+                    template_data = json.loads(template_path.read_text(encoding="utf-8"))
                 # Create the runtime file from template
                 save_quests(path, template_data)
                 return template_data

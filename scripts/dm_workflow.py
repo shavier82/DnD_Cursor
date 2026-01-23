@@ -1629,7 +1629,11 @@ class DMWorkflow:
             template_path = SCRIPT_DIR / "quests_state.template.json"
             if template_path.exists():
                 try:
-                    quest_state = json.loads(template_path.read_text(encoding="utf-8"))
+                    # Try utf-8-sig first (handles BOM), fallback to utf-8
+                    try:
+                        quest_state = json.loads(template_path.read_text(encoding="utf-8-sig"))
+                    except Exception:
+                        quest_state = json.loads(template_path.read_text(encoding="utf-8"))
                     # Create the runtime file from template
                     quests_path.write_text(json.dumps(quest_state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
                 except Exception:
