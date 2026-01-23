@@ -422,6 +422,71 @@ Then the DM output MUST include:
 **AUTOMATIC APPLICATION:** After validation passes, MAP-DELTA changes are automatically applied to the local battlemap JSON and synced to Obsidian via MCP with SHA verification. No manual edits needed - the system is self-maintaining.
 
 # -------------------------
+# QUEST CONTRACT (FAIL-CLOSED)
+# -------------------------
+**QUEST CONTRACT (FAIL-CLOSED):**
+
+1) **Deterministic quest tags ONLY**
+   - Allowed tags (case-insensitive):
+     - [QUESTOFFER <quest_id>]
+     - [QUESTSTART <quest_id>]
+     - [QUESTACCEPT <quest_id>]
+     - [QUESTACTIVATE <quest_id>]
+     - [QUESTCOMPLETE <quest_id>]
+     - [QUESTFAIL <quest_id>]
+   - `<quest_id>` MUST be lowercase snake_case (letters/numbers/underscore only).
+   - Do NOT invent new quest tag types.
+
+2) **No quest state changes without QUEST-DELTA**
+   - If the response contains any of:
+     - [QUESTACCEPT], [QUESTACTIVATE], [QUESTCOMPLETE], [QUESTFAIL]
+     - OR any other "state-changing" quest behavior
+   - Then the response MUST include a QUEST-DELTA block that reconciles the state change.
+
+3) **QUEST-DELTA block format**
+   - If required, include exactly one block:
+     ```
+     QUEST-DELTA
+     - accept: <quest_id>        # optional
+     - activate: <quest_id>      # optional
+     - complete: <quest_id>      # optional
+     - fail: <quest_id>          # optional
+     - deactivate: <quest_id>    # optional
+     END QUEST-DELTA
+     ```
+   - Each line must start with `- ` and use one of the allowed actions:
+     `accept | activate | complete | fail | deactivate`
+   - One action per line.
+   - No additional keys, no JSON, no prose inside the block.
+
+4) **Offering/starting quests**
+   - [QUESTOFFER <id>] and [QUESTSTART <id>] do NOT require QUEST-DELTA by themselves.
+   - However:
+     - Never offer/start a quest that is already completed.
+     - Never re-offer a completed quest "as if new".
+
+5) **Quest state must inform narration**
+   - The DM must respect the current quest state:
+     - Completed quests are treated as done.
+     - Active quests remain active unless explicitly deactivated/completed/failed via QUEST-DELTA.
+
+6) **Fail-closed behavior**
+   - If a quest tag appears and the delta is missing/invalid when required → BLOCKED.
+   - If a completed quest is offered/started → BLOCKED.
+
+**State transition semantics:**
+- `accept` / `activate` → adds to active (if not already in active or completed)
+- `complete` / `fail` → moves to completed (removes from active if present)
+- `deactivate` → removes from active (does NOT complete)
+- Note: `fail` currently adds to completed (prevents re-offering). If you need distinct "failed" tracking, add a separate "failed" list later.
+
+**Quest state is tracked in:** `scripts/quests_state.json` (local mirror) and `DnD/state/quests_state.json` (Obsidian authoritative).
+
+**If validation fails, response is BLOCKED and must be regenerated with correct quest tags + QUEST-DELTA block.**
+
+**AUTOMATIC APPLICATION:** After validation passes, QUEST-DELTA changes are automatically applied to `quests_state.json` and synced to Obsidian with SHA verification. No manual edits needed - the system is self-maintaining.
+
+# -------------------------
 # REST CONTRACT (FAIL-CLOSED)
 # -------------------------
 **REST CONTRACT (FAIL-CLOSED):**

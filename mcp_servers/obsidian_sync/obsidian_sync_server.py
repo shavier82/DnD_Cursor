@@ -1166,25 +1166,32 @@ first_met: {self._get_current_date()}
         # Exact matches
         ALLOWED_EXACT = {
             "DnD/state/resources_state.json",
-            "DnD/state/resources_state.sync_meta.json"
+            "DnD/state/resources_state.sync_meta.json",
+            "DnD/state/resources_state.md",  # Dashboard markdown
+            "DnD/state/quests_state.json",
+            "DnD/state/quests_state.sync_meta.json",
+            "DnD/state/quests_state.md"  # Optional dashboard markdown
         }
         
         # Pattern matches (battlemap files)
         BATTLEMAP_PATTERN = re.compile(r"^DnD/state/combat_positions_[a-z0-9_]+\.json$")
         BATTLEMAP_META_PATTERN = re.compile(r"^DnD/state/combat_positions_[a-z0-9_]+\.sync_meta\.json$")
         
+        # Boons and Rewards markdown files
+        BOONS_PATTERN = re.compile(r"^DnD/Boons_And_Rewards/[a-zA-Z0-9_\-\s]+\.md$")
+        
         # Security checks
         if file_path not in ALLOWED_EXACT:
-            if not BATTLEMAP_PATTERN.match(file_path) and not BATTLEMAP_META_PATTERN.match(file_path):
+            if not BATTLEMAP_PATTERN.match(file_path) and not BATTLEMAP_META_PATTERN.match(file_path) and not BOONS_PATTERN.match(file_path):
                 return {"success": False, "error": f"BLOCKED: File not in allowlist: {file_path}"}
         
         # Block path traversal attempts
         if '..' in file_path or ':' in file_path or file_path.startswith('~'):
             return {"success": False, "error": "BLOCKED: Path traversal detected"}
         
-        # Ensure .json extension
-        if not file_path.endswith('.json'):
-            return {"success": False, "error": "BLOCKED: Only .json files allowed"}
+        # Ensure .json or .md extension
+        if not file_path.endswith('.json') and not file_path.endswith('.md'):
+            return {"success": False, "error": "BLOCKED: Only .json and .md files allowed"}
         
         try:
             full_path = self.vault_path / file_path
@@ -1227,23 +1234,31 @@ first_met: {self._get_current_date()}
             file_path = file_path[1:]
         
         # Exact matches
-        ALLOWED_EXACT = {"DnD/state/resources_state.json"}
+        ALLOWED_EXACT = {
+            "DnD/state/resources_state.json",
+            "DnD/state/resources_state.md",  # Dashboard markdown
+            "DnD/state/quests_state.json",
+            "DnD/state/quests_state.md"  # Optional dashboard markdown
+        }
         
         # Pattern matches (battlemap files)
         BATTLEMAP_PATTERN = re.compile(r"^DnD/state/combat_positions_[a-z0-9_]+\.json$")
         
+        # Boons and Rewards markdown files
+        BOONS_PATTERN = re.compile(r"^DnD/Boons_And_Rewards/[a-zA-Z0-9_\-\s]+\.md$")
+        
         # Security checks
         if file_path not in ALLOWED_EXACT:
-            if not BATTLEMAP_PATTERN.match(file_path):
+            if not BATTLEMAP_PATTERN.match(file_path) and not BOONS_PATTERN.match(file_path):
                 return {"success": False, "error": f"BLOCKED: File not in allowlist: {file_path}"}
         
         # Block path traversal attempts
         if '..' in file_path or ':' in file_path or file_path.startswith('~'):
             return {"success": False, "error": "BLOCKED: Path traversal detected"}
         
-        # Ensure .json extension
-        if not file_path.endswith('.json'):
-            return {"success": False, "error": "BLOCKED: Only .json files allowed"}
+        # Ensure .json or .md extension
+        if not file_path.endswith('.json') and not file_path.endswith('.md'):
+            return {"success": False, "error": "BLOCKED: Only .json and .md files allowed"}
         
         # Size limit check
         if len(content.encode('utf-8')) > MAX_SIZE:
@@ -1260,8 +1275,11 @@ first_met: {self._get_current_date()}
             import re
             
             # Determine provenance marker path based on file_path
+            # Only create provenance marker for JSON files (dashboard .md is derived, not synced independently)
             if file_path == "DnD/state/resources_state.json":
                 provenance_path = self.vault_path / "DnD/state/resources_state.sync_meta.json"
+            elif file_path == "DnD/state/quests_state.json":
+                provenance_path = self.vault_path / "DnD/state/quests_state.sync_meta.json"
             elif re.match(r"^DnD/state/combat_positions_[a-z0-9_]+\.json$", file_path):
                 # Extract location code from battlemap file path
                 match = re.match(r"^DnD/state/combat_positions_([a-z0-9_]+)\.json$", file_path)

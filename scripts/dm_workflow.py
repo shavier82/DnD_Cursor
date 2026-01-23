@@ -857,6 +857,11 @@ class DMWorkflow:
             "errors": []
         }
         
+        # Centralized final output tracking (must exist before any guard exits)
+        final_exit_code = 0
+        quiet_line = "ERROR: dm_workflow produced no output"
+        report_lines: List[str] = []
+        
         # Step 1: Run preflight gate (silent unless verbose + failure)
         preflight_script = SCRIPT_DIR / "preflight_gate.py"
         success, preflight_output = self._run_script(preflight_script)
@@ -867,7 +872,6 @@ class DMWorkflow:
             if verbose:
                 report_lines.append("PREFLIGHT_GATE OUTPUT")
                 report_lines.append(preflight_output if preflight_output else "(no output)")
-            # Print and exit via helper (exactly one print site)
             self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
         
         results["preflight_passed"] = True
@@ -898,17 +902,32 @@ class DMWorkflow:
                     "is_active": True
                 }
         
+        # Load quest state (local mirror) for guard + prompt context
+        quest_state: Dict[str, Any] = {"completed": [], "active": [], "notes": {}}
+        quests_path = SCRIPT_DIR / "quests_state.json"
+        if quests_path.exists():
+            try:
+                quest_state = json.loads(quests_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+        completed_q = quest_state.get("completed", []) or []
+        active_q = quest_state.get("active", []) or []
+        notes_q = quest_state.get("notes", {}) or {}
+        
+        if verbose:
+            report_lines.append("QUEST STATE (prompt context)")
+            report_lines.append(f"completed: {', '.join(completed_q) or '(none)'}")
+            report_lines.append(f"active: {', '.join(active_q) or '(none)'}")
+            for qid, note in list(notes_q.items())[:5]:
+                snip = (note[:80] + "...") if len(note) > 80 else note
+                report_lines.append(f"  {qid}: {snip}")
+            report_lines.append("")
+        
         # Step 3: Get response text
         if response_text:
             text = response_text
         else:
-            # Read from stdin
             text = sys.stdin.read().strip()
-        
-        # Centralized final output tracking - exactly one print site
-        final_exit_code = 0
-        quiet_line = "ERROR: dm_workflow produced no output"
-        report_lines: List[str] = []
         
         if not text:
             quiet_line = "ERROR: No response text provided"
@@ -1013,7 +1032,35 @@ class DMWorkflow:
                 self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
                 return results
         
-        # Response guard passed - run rest guard
+        # Quest guard (story state) — run right after response_guard, before rest/resource/map
+        quest_guard_script = SCRIPT_DIR / "quest_guard.py"
+        if quest_guard_script.exists():
+            qg = subprocess.run(
+                [sys.executable, str(quest_guard_script)] + (["--verbose"] if verbose else []),
+                input=text,
+                text=True,
+                capture_output=True,
+                encoding="utf-8",
+            )
+            qg_out = (qg.stdout or "").rstrip("\n")
+            qg_code = qg.returncode
+            if not verbose:
+                if qg_code != 0:
+                    quiet_line = qg_out.splitlines()[0] if qg_out else "BLOCKED: quest guard failed"
+                    final_exit_code = 1
+                    self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                    return results
+            else:
+                report_lines.append("QUEST_GUARD OUTPUT")
+                report_lines.append(qg_out if qg_out else "(no output)")
+                report_lines.append("")
+                if qg_code != 0:
+                    quiet_line = qg_out.splitlines()[0] if qg_out else "BLOCKED: quest guard failed"
+                    final_exit_code = 1
+                    self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                    return results
+        
+        # Response + quest guards passed — run rest guard
         rest_guard_script = SCRIPT_DIR / "rest_guard.py"
         rest_type = None
         
@@ -1223,6 +1270,7 @@ class DMWorkflow:
                 
                 delta_match = delta_block_pat.search(text)
                 spell_slot_updates = []
+                scalar_resource_updates = []  # (actor, resource_name, amount)
                 if delta_match:
                     body = delta_match.group("body")
                     for line in body.splitlines():
@@ -1241,6 +1289,11 @@ class DMWorkflow:
                                 # Call use_spell_slot for each slot used
                                 for _ in range(amt):
                                     spell_slot_updates.append((actor, level))
+                            else:
+                                # Scalar resource (rage, channel_divinity, superiority_die, ki, etc.)
+                                # Resources are already deducted in resources_state.json by apply_state_delta.py
+                                # For now, just track them (character sheet updates can be added later if needed)
+                                scalar_resource_updates.append((actor, key, amt))
                 
                 # Update character sheets via MCP for each spell slot used
                 if spell_slot_updates:
@@ -1296,6 +1349,81 @@ class DMWorkflow:
                         report_lines.append("CHARACTER_SHEET_UPDATE OUTPUT")
                         report_lines.append(f"OK: Updated character sheets for {len(spell_slot_updates)} spell slot(s)")
                         report_lines.append("")
+        
+        # Quest delta application - apply QUEST-DELTA if present
+        apply_quest_delta_script = SCRIPT_DIR / "apply_quest_delta.py"
+        if apply_quest_delta_script.exists():
+            # Check if text contains QUEST-DELTA block
+            import re
+            has_quest_delta = re.search(r"QUEST-DELTA\s+.*?\s+END QUEST-DELTA", text, re.IGNORECASE | re.DOTALL)
+            
+            if has_quest_delta:
+                apply_quest_process = subprocess.run(
+                    [sys.executable, str(apply_quest_delta_script)],
+                    input=text,
+                    text=True,
+                    capture_output=True,
+                    encoding='utf-8'
+                )
+                aqd_out = (apply_quest_process.stdout or "").rstrip("\n")
+                aqd_code = apply_quest_process.returncode
+                
+                if not verbose:
+                    if aqd_code != 0:
+                        quiet_line = aqd_out.splitlines()[0] if aqd_out else "ERROR: apply_quest_delta failed"
+                        final_exit_code = 1
+                        self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                        return results
+                else:
+                    report_lines.append("APPLY_QUEST_DELTA OUTPUT")
+                    report_lines.append(aqd_out if aqd_out else "(no output - changes applied silently)")
+                    report_lines.append("")
+                    if aqd_code != 0:
+                        quiet_line = aqd_out.splitlines()[0] if aqd_out else "ERROR: apply_quest_delta failed"
+                        final_exit_code = 1
+                        self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                        return results
+                
+                # QUEST-DELTA applied successfully - sync to Obsidian with SHA verification
+                sync_quests_script = SCRIPT_DIR / "sync_quests_obsidian.py"
+                if sync_quests_script.exists():
+                    sync_quests_process = subprocess.run(
+                        [sys.executable, str(sync_quests_script)],
+                        text=True,
+                        capture_output=True,
+                        encoding='utf-8'
+                    )
+                    sq_out = (sync_quests_process.stdout or "").rstrip("\n")
+                    sq_err = (sync_quests_process.stderr or "").rstrip("\n")
+                    sq_code = sync_quests_process.returncode
+                    
+                    if not verbose:
+                        if sq_code != 0:
+                            error_msg = sq_err.splitlines()[0] if sq_err else (sq_out.splitlines()[0] if sq_out else "BLOCKED: obsidian quest sync failed")
+                            quiet_line = error_msg
+                            final_exit_code = 1
+                            self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                            return results
+                    else:
+                        report_lines.append("OBSIDIAN_QUESTS_SYNC OUTPUT")
+                        if sq_code == 0:
+                            report_lines.append("OK: obsidian quest sync passed (SHA verified)")
+                        else:
+                            if sq_err:
+                                for line in sq_err.splitlines():
+                                    if line.strip():
+                                        report_lines.append(f"  {line}")
+                            if sq_out:
+                                for line in sq_out.splitlines():
+                                    if line.strip():
+                                        report_lines.append(f"  {line}")
+                        report_lines.append("")
+                        if sq_code != 0:
+                            error_msg = sq_err.splitlines()[0] if sq_err else (sq_out.splitlines()[0] if sq_out else "BLOCKED: obsidian quest sync failed")
+                            quiet_line = error_msg
+                            final_exit_code = 1
+                            self._final_print_and_exit(verbose, WRID, quiet_line, report_lines, final_exit_code)
+                            return results
         
         # All passed - check for map mutations
         # Check if response contains any map mutation tags
@@ -1484,6 +1612,31 @@ class DMWorkflow:
         
         return {"status": "success"}
 
+    def quest_context(self) -> str:
+        """
+        Print QUEST STATE block for prompt injection (completed + active + notes).
+        Reads scripts/quests_state.json (local mirror).
+        """
+        quests_path = SCRIPT_DIR / "quests_state.json"
+        quest_state: Dict[str, Any] = {"completed": [], "active": [], "notes": {}}
+        if quests_path.exists():
+            try:
+                quest_state = json.loads(quests_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+        completed = quest_state.get("completed", []) or []
+        active = quest_state.get("active", []) or []
+        notes = quest_state.get("notes", {}) or {}
+        lines = [
+            "QUEST STATE (inject into DM prompt context)",
+            f"completed: {', '.join(completed) or '(none)'}",
+            f"active: {', '.join(active) or '(none)'}",
+        ]
+        for qid, note in list(notes.items())[:10]:
+            snip = (note[:80] + "...") if len(note) > 80 else note
+            lines.append(f"  {qid}: {snip}")
+        return "\n".join(lines)
+
 
 def main():
     """Main entry point"""
@@ -1546,6 +1699,9 @@ def main():
     mapcheck_parser = subparsers.add_parser("mapcheck", help="Validate battlemap state with map guard")
     mapcheck_parser.add_argument("--verbose", action="store_true", help="Show detailed validation output")
     
+    # Quest context (print QUEST STATE block for prompt injection)
+    subparsers.add_parser("quest_context", help="Print QUEST STATE block for DM prompt context")
+    
     args = parser.parse_args()
     
     if not args.workflow:
@@ -1590,8 +1746,9 @@ def main():
         sys.exit(0)
     elif args.workflow == "mapcheck":
         result = workflow.mapcheck(verbose=getattr(args, 'verbose', False))
-        # mapcheck() exits with guard's exit code, so we never reach here on failure
-        # But if we do (success case), exit 0
+        sys.exit(0)
+    elif args.workflow == "quest_context":
+        print(workflow.quest_context())
         sys.exit(0)
     else:
         print(f"❌ Unknown workflow: {args.workflow}")

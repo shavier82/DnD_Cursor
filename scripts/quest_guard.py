@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+"""
+Quest Guard - Validates DM output for quest state enforcement (FAIL-CLOSED).
+
+Uses deterministic tags only (no fuzzy text):
+- [QUESTSTART <id>] / [QUESTOFFER <id>]: offering or starting a quest
+- [QUESTCOMPLETE <id>], [QUESTFAIL <id>], [QUESTACCEPT <id>], [QUESTACTIVATE <id>]: state changes
+
+Rules:
+1. If [QUESTSTART <id>] or [QUESTOFFER <id>] and id is in completed → BLOCKED
+2. Any state-change tag requires a matching QUEST-DELTA block
+
+QUEST-DELTA format (exact):
+  QUEST-DELTA
+  - complete: <quest_id>
+  - fail: <quest_id>
+  - accept: <quest_id>
+  - activate: <quest_id>
+  - deactivate: <quest_id>
+  END QUEST-DELTA
+
+Reads scripts/quests_state.json (local mirror) every run.
+"""
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+from typing import Dict, Any, List, Set
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPT_DIR))
+from text_normalize import normalize_input_text
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+DEFAULT_QUESTS_FILE = ROOT_DIR / "scripts" / "quests_state.json"
+
+# Deterministic tags: [QUESTSTART id], [QUESTOFFER id], [QUESTCOMPLETE id], etc.
+TAG_PAT = re.compile(
+    r"\[(?:QUESTSTART|QUESTOFFER|QUESTCOMPLETE|QUESTFAIL|QUESTACCEPT|QUESTACTIVATE)\s+([a-zA-Z0-9_\-]+)\s*\]",
+    re.IGNORECASE,
+)
+QUEST_START_TAG = re.compile(r"\[(?:QUESTSTART|QUESTOFFER)\s+([a-zA-Z0-9_\-]+)\s*\]", re.IGNORECASE)
+QUEST_COMPLETE_TAG = re.compile(r"\[QUESTCOMPLETE\s+([a-zA-Z0-9_\-]+)\s*\]", re.IGNORECASE)
+QUEST_FAIL_TAG = re.compile(r"\[QUESTFAIL\s+([a-zA-Z0-9_\-]+)\s*\]", re.IGNORECASE)
+QUEST_ACCEPT_TAG = re.compile(r"\[QUESTACCEPT\s+([a-zA-Z0-9_\-]+)\s*\]", re.IGNORECASE)
+QUEST_ACTIVATE_TAG = re.compile(r"\[QUESTACTIVATE\s+([a-zA-Z0-9_\-]+)\s*\]", re.IGNORECASE)
+
+DELTA_BLOCK_PAT = re.compile(r"QUEST-DELTA\s*(?P<body>.*?)\s*END QUEST-DELTA", re.IGNORECASE | re.DOTALL)
+DELTA_LINE_PAT = re.compile(
+    r"^\s*-\s*(?P<action>complete|fail|accept|activate|deactivate)\s*:\s*(?P<quest_id>[a-zA-Z0-9_\-]+)\s*$",
+    re.IGNORECASE,
+)
+
+
+def load_quests(path: Path) -> Dict[str, Any]:
+    """Load quests state file. Fail-closed if file missing/invalid."""
+    if not path.exists():
+        return {"completed": [], "active": [], "notes": {}}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"ERROR: invalid quests JSON: {e}")
+        sys.exit(1)
+
+
+def extract_tag_ids(text: str, pattern: re.Pattern) -> Set[str]:
+    out: Set[str] = set()
+    for m in pattern.finditer(text):
+        q = m.group(1).lower().strip()
+        if q:
+            out.add(q)
+    return out
+
+
+def parse_quest_delta(text: str) -> Dict[str, str]:
+    """Parse QUEST-DELTA block. Returns quest_id -> action."""
+    m = DELTA_BLOCK_PAT.search(text)
+    if not m:
+        return {}
+    body = m.group("body")
+    deltas: Dict[str, str] = {}
+    for line in body.splitlines():
+        line = line.rstrip()
+        if not line.strip():
+            continue
+        m2 = DELTA_LINE_PAT.match(line)
+        if not m2:
+            continue
+        action = m2.group("action").lower()
+        quest_id = m2.group("quest_id").lower().strip()
+        deltas[quest_id] = action
+    return deltas
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Validate quest state (tags + QUEST-DELTA)")
+    ap.add_argument("--quests", default=str(DEFAULT_QUESTS_FILE), help="Path to quests_state.json")
+    ap.add_argument("--text", default=None, help="Response text (if omitted, read stdin)")
+    ap.add_argument("--verbose", action="store_true", help="Verbose output")
+    args = ap.parse_args()
+
+    text = args.text if args.text is not None else sys.stdin.read()
+    if not text.strip():
+        print("ERROR: No text provided")
+        sys.exit(1)
+
+    text = normalize_input_text(text)
+
+    quests_path = Path(args.quests)
+    quests = load_quests(quests_path)
+    if args.verbose:
+        print(f"loaded quests_state.json: {quests_path}")
+
+    completed = set(q.lower() for q in quests.get("completed", []))
+    violations: List[str] = []
+
+    # 1) [QUESTSTART id] / [QUESTOFFER id]: block if id in completed
+    start_ids = extract_tag_ids(text, QUEST_START_TAG)
+    for qid in start_ids:
+        if qid in completed:
+            violations.append(f"BLOCKED: [QUESTSTART/QUESTOFFER] quest '{qid}' is already completed")
+
+    # 2) State-change tags require QUEST-DELTA
+    complete_ids = extract_tag_ids(text, QUEST_COMPLETE_TAG)
+    fail_ids = extract_tag_ids(text, QUEST_FAIL_TAG)
+    accept_ids = extract_tag_ids(text, QUEST_ACCEPT_TAG)
+    activate_ids = extract_tag_ids(text, QUEST_ACTIVATE_TAG)
+    all_state = complete_ids | fail_ids | accept_ids | activate_ids
+
+    if all_state:
+        deltas = parse_quest_delta(text)
+        if not deltas:
+            violations.append("BLOCKED: quest state-change tag(s) present but QUEST-DELTA block missing")
+        else:
+            for qid in all_state:
+                if qid not in deltas:
+                    violations.append(f"BLOCKED: quest '{qid}' has state-change tag but missing from QUEST-DELTA")
+            for qid, action in deltas.items():
+                if qid in complete_ids and action != "complete":
+                    violations.append(f"BLOCKED: quest '{qid}' [QUESTCOMPLETE] but QUEST-DELTA has '{action}'")
+                elif qid in fail_ids and action != "fail":
+                    violations.append(f"BLOCKED: quest '{qid}' [QUESTFAIL] but QUEST-DELTA has '{action}'")
+                elif qid in accept_ids and action != "accept":
+                    violations.append(f"BLOCKED: quest '{qid}' [QUESTACCEPT] but QUEST-DELTA has '{action}'")
+                elif qid in activate_ids and action != "activate":
+                    violations.append(f"BLOCKED: quest '{qid}' [QUESTACTIVATE] but QUEST-DELTA has '{action}'")
+
+    if violations:
+        print("BLOCKED: quest state violation")
+        if args.verbose:
+            for v in violations:
+                print(f"  - {v}")
+        sys.exit(1)
+
+    print("OK: quest_guard passed")
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
