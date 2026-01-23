@@ -150,6 +150,36 @@ def main() -> int:
         print(f"BLOCKED: obsidian sync failed (provenance check error): {e}", file=sys.stderr)
         return 1
     
+    # Generate and sync dashboard markdown
+    try:
+        renderer_script = SCRIPTS / "render_resources_dashboard.py"
+        if renderer_script.exists():
+            md_output = subprocess.run(
+                [sys.executable, str(renderer_script)],
+                capture_output=True,
+                text=True,
+                encoding='utf-8'
+            )
+            if md_output.returncode == 0:
+                md_content = md_output.stdout
+                # Sync dashboard markdown to Obsidian
+                dashboard_result = call_mcp_tool("write_vault_file", {
+                    "file_path": "DnD/state/resources_state.md",
+                    "content": md_content
+                })
+                if not dashboard_result.get("success"):
+                    # Dashboard sync failure is non-fatal (it's just UI)
+                    # Log but don't block
+                    error = dashboard_result.get("error", "unknown error")
+                    print(f"WARNING: Dashboard sync failed (non-fatal): {error}", file=sys.stderr)
+            else:
+                # Renderer failure is non-fatal
+                error = md_output.stderr.strip() or md_output.stdout.strip() or "unknown error"
+                print(f"WARNING: Dashboard render failed (non-fatal): {error}", file=sys.stderr)
+    except Exception as e:
+        # Dashboard sync failure is non-fatal - log but don't block
+        print(f"WARNING: Dashboard sync error (non-fatal): {e}", file=sys.stderr)
+    
     # Success - silent unless verbose (output captured by dm_workflow)
     return 0
 

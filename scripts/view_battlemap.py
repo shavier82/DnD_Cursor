@@ -41,18 +41,23 @@ def create_battlemap_image(positions_data, grid_size_pixels=50):
     grid_width = positions_data.get("map_width_squares", 20)
     grid_height = positions_data.get("map_height_squares", 25)
     
-    img_width = grid_width * grid_size_pixels
+    # Add extra width for legend panel (4 squares)
+    legend_width_squares = 4
+    img_width = (grid_width + legend_width_squares) * grid_size_pixels
     img_height = grid_height * grid_size_pixels
+    
+    # Actual grid width for drawing (before legend space)
+    grid_img_width = grid_width * grid_size_pixels
     
     img = Image.new('RGB', (img_width, img_height), color=(240, 240, 240))
     draw = ImageDraw.Draw(img)
     
-    # Draw grid
+    # Draw grid (only over the game area, not legend space)
     grid_color = get_color("lightgray")
-    for x in range(0, img_width, grid_size_pixels):
+    for x in range(0, grid_img_width, grid_size_pixels):
         draw.line([(x, 0), (x, img_height)], fill=grid_color, width=1)
     for y in range(0, img_height, grid_size_pixels):
-        draw.line([(0, y), (img_width, y)], fill=grid_color, width=1)
+        draw.line([(0, y), (grid_img_width, y)], fill=grid_color, width=1)
     
     # Draw terrain
     terrain = positions_data.get("terrain", {})
@@ -149,11 +154,12 @@ def create_battlemap_image(positions_data, grid_size_pixels=50):
         legend_height += len(initiative_order) * 16  # Initiative lines
         legend_height += 10  # Spacing
     
-    # Add legend
-    legend_x = img_width - 200  # Make wider for combat info
+    # Add legend (positioned after the grid, in the extra space)
+    legend_x = grid_img_width + 10  # Start 10px after grid ends
     legend_y = 10
+    legend_panel_width = (legend_width_squares * grid_size_pixels) - 20  # Use available space
     draw.rectangle(
-        [legend_x - 5, legend_y - 5, legend_x + 195, legend_y + legend_height],
+        [legend_x - 5, legend_y - 5, legend_x + legend_panel_width, legend_y + legend_height],
         fill=(255, 255, 255, 240),
         outline=(0, 0, 0),
         width=2
@@ -167,15 +173,19 @@ def create_battlemap_image(positions_data, grid_size_pixels=50):
     legend_y += 18
     
     draw.ellipse([legend_x, legend_y, legend_x + 12, legend_y + 12], fill=get_color("red"))
-    draw.text((legend_x + 15, legend_y - 2), "Malinia", fill=(0, 0, 0), font=small_font)
+    draw.text((legend_x + 15, legend_y - 2), "Cluster (Boss)", fill=(0, 0, 0), font=small_font)
     legend_y += 18
     
     draw.ellipse([legend_x, legend_y, legend_x + 12, legend_y + 12], fill=get_color("orange"))
     draw.text((legend_x + 15, legend_y - 2), "Gemmules", fill=(0, 0, 0), font=small_font)
     legend_y += 18
     
-    draw.rectangle([legend_x, legend_y, legend_x + 12, legend_y + 12], fill=get_color("gray"))
-    draw.text((legend_x + 15, legend_y - 2), "Statue", fill=(0, 0, 0), font=small_font)
+    draw.ellipse([legend_x, legend_y, legend_x + 12, legend_y + 12], fill=get_color("gray"))
+    draw.text((legend_x + 15, legend_y - 2), "Drow Allies", fill=(0, 0, 0), font=small_font)
+    legend_y += 18
+    
+    draw.rectangle([legend_x, legend_y, legend_x + 12, legend_y + 12], fill=get_color("darkgray"))
+    draw.text((legend_x + 15, legend_y - 2), "Altar/Terrain", fill=(0, 0, 0), font=small_font)
     legend_y += 25
     
     # Add HP Tracker if combat status available
@@ -258,11 +268,18 @@ class BattlemapViewer:
         self.image_offset_x = 0
         self.image_offset_y = 0
         
+        # Pan state
+        self.panning = False
+        self.pan_offset_x = 0
+        self.pan_offset_y = 0
+        self.pan_start_x = 0
+        self.pan_start_y = 0
+        
         self.root = tk.Tk()
         self.root.title("Dynamic Battlemap Viewer - Drag & Drop Enabled")
         
         # Status bar
-        self.status_var = tk.StringVar(value="Ready - Click and drag blue icons to move")
+        self.status_var = tk.StringVar(value="Ready - Left-click to drag tokens, Right/Middle-click to pan map")
         status_bar = ttk.Label(self.root, textvariable=self.status_var, relief=tk.SUNKEN)
         status_bar.pack(side=tk.BOTTOM, fill=tk.X)
         
@@ -279,6 +296,14 @@ class BattlemapViewer:
         self.canvas.bind('<Button-1>', self.on_mouse_click)
         self.canvas.bind('<B1-Motion>', self.on_mouse_drag)
         self.canvas.bind('<ButtonRelease-1>', self.on_mouse_release)
+        
+        # Bind pan events (middle or right mouse button)
+        self.canvas.bind('<Button-2>', self.on_pan_start)  # Middle click
+        self.canvas.bind('<B2-Motion>', self.on_pan_drag)
+        self.canvas.bind('<ButtonRelease-2>', self.on_pan_end)
+        self.canvas.bind('<Button-3>', self.on_pan_start)  # Right click
+        self.canvas.bind('<B3-Motion>', self.on_pan_drag)
+        self.canvas.bind('<ButtonRelease-3>', self.on_pan_end)
         
         # Control panel
         control_frame = ttk.Frame(self.root)
@@ -364,9 +389,9 @@ class BattlemapViewer:
         if not hasattr(self, 'scale_factor') or self.scale_factor == 0:
             return -1, -1
         
-        # Account for image offset and scale
-        relative_x = pixel_x - self.image_offset_x
-        relative_y = pixel_y - self.image_offset_y
+        # Account for image offset, scale, and pan offset
+        relative_x = pixel_x - self.image_offset_x - self.pan_offset_x
+        relative_y = pixel_y - self.image_offset_y - self.pan_offset_y
         
         # Convert to grid coordinates
         grid_x = int(relative_x / (self.grid_size_pixels * self.scale_factor))
@@ -383,8 +408,8 @@ class BattlemapViewer:
             if pos_data['x'] == grid_x and pos_data['y'] == grid_y:
                 # Check if click is within the icon radius (15 pixels scaled)
                 icon_radius = 15 * self.scale_factor
-                icon_center_x = self.image_offset_x + (pos_data['x'] * self.grid_size_pixels * self.scale_factor) + (self.grid_size_pixels * self.scale_factor / 2)
-                icon_center_y = self.image_offset_y + (pos_data['y'] * self.grid_size_pixels * self.scale_factor) + (self.grid_size_pixels * self.scale_factor / 2)
+                icon_center_x = self.image_offset_x + self.pan_offset_x + (pos_data['x'] * self.grid_size_pixels * self.scale_factor) + (self.grid_size_pixels * self.scale_factor / 2)
+                icon_center_y = self.image_offset_y + self.pan_offset_y + (pos_data['y'] * self.grid_size_pixels * self.scale_factor) + (self.grid_size_pixels * self.scale_factor / 2)
                 
                 distance = ((pixel_x - icon_center_x) ** 2 + (pixel_y - icon_center_y) ** 2) ** 0.5
                 if distance <= icon_radius:
@@ -437,6 +462,31 @@ class BattlemapViewer:
         self.dragging = False
         self.dragged_combatant = None
         self.canvas.config(cursor="crosshair")
+    
+    def on_pan_start(self, event):
+        """Start panning the map"""
+        self.panning = True
+        self.pan_start_x = event.x
+        self.pan_start_y = event.y
+        self.canvas.config(cursor="fleur")  # Four-directional arrow
+        self.status_var.set("Panning map... (right/middle-click drag to pan)")
+    
+    def on_pan_drag(self, event):
+        """Pan the map while dragging"""
+        if self.panning:
+            dx = event.x - self.pan_start_x
+            dy = event.y - self.pan_start_y
+            self.pan_offset_x += dx
+            self.pan_offset_y += dy
+            self.pan_start_x = event.x
+            self.pan_start_y = event.y
+            self.render_map()
+    
+    def on_pan_end(self, event):
+        """End panning"""
+        self.panning = False
+        self.canvas.config(cursor="crosshair")
+        self.status_var.set("Ready - Left-click to drag tokens, Right/Middle-click to pan")
     
     def save_positions(self):
         """Save updated positions to JSON file"""
@@ -499,16 +549,20 @@ class BattlemapViewer:
         self.photo = ImageTk.PhotoImage(scaled_img)
         self.canvas.delete("all")
         
-        # Center the image on canvas
+        # Center the image on canvas with pan offset
         canvas_center_x = canvas_width // 2
         canvas_center_y = canvas_height // 2
         
         self.image_offset_x = canvas_center_x - new_width // 2
         self.image_offset_y = canvas_center_y - new_height // 2
         
+        # Apply pan offset to image position
+        image_x = canvas_center_x + self.pan_offset_x
+        image_y = canvas_center_y + self.pan_offset_y
+        
         self.canvas.create_image(
-            canvas_center_x,
-            canvas_center_y,
+            image_x,
+            image_y,
             image=self.photo,
             anchor=tk.CENTER
         )
@@ -564,20 +618,49 @@ class BattlemapViewer:
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python view_battlemap.py <positions_json> [update_interval]")
-        print("\nExample:")
-        print("  python view_battlemap.py combat_positions_t17.json")
-        print("  python view_battlemap.py combat_positions_t17.json 0.5")
+    import argparse
+    ap = argparse.ArgumentParser(
+        description="Dynamic battlemap viewer",
+        epilog="Examples:\n  %(prog)s scripts/combat_positions_t18.json\n  %(prog)s scripts/combat_positions_t18.json 1.0\n  %(prog)s --location t18\n  %(prog)s --location t18 1.0",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument("positions_json", nargs="?", help="Path to combat positions JSON")
+    ap.add_argument("update_interval", nargs="?", type=float, default=1.0, help="Refresh interval in seconds (default: 1.0)")
+    ap.add_argument("--location", "-l", metavar="CODE", help="Location code (e.g. t18) → scripts/combat_positions_<CODE>.json")
+    ap.add_argument("--interval", "-i", type=float, default=None, help="Refresh interval when using --location (default: 1.0)")
+    args = ap.parse_args()
+
+    positions_file = args.positions_json
+    if args.location:
+        code = args.location.strip().lower()
+        if not code:
+            print("ERROR: --location requires a non-empty code (e.g. t18)", file=sys.stderr)
+            sys.exit(1)
+        scripts_dir = Path(__file__).resolve().parent
+        positions_file = str(scripts_dir / f"combat_positions_{code}.json")
+    elif not positions_file:
+        ap.print_help()
+        print("\nERROR: Provide either positions_json or --location", file=sys.stderr)
         sys.exit(1)
-    
-    positions_file = sys.argv[1]
-    update_interval = float(sys.argv[2]) if len(sys.argv) > 2 else 1.0
-    
+
+    if args.location and args.interval is not None:
+        update_interval = args.interval
+    else:
+        update_interval = args.update_interval
+    if update_interval <= 0:
+        print("ERROR: update_interval must be > 0", file=sys.stderr)
+        sys.exit(1)
+
+    # If path has no separators, check scripts/
+    if positions_file and "/" not in positions_file and "\\" not in positions_file:
+        scripts_path = Path(__file__).parent / positions_file
+        if scripts_path.exists():
+            positions_file = str(scripts_path)
+
     if not Path(positions_file).exists():
         print(f"ERROR: Positions file not found: {positions_file}", file=sys.stderr)
         sys.exit(1)
-    
+
     viewer = BattlemapViewer(positions_file, update_interval)
     viewer.run()
 
