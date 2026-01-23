@@ -1615,7 +1615,7 @@ class DMWorkflow:
     def quest_context(self) -> str:
         """
         Print QUEST STATE block for prompt injection (completed + active + notes).
-        Reads scripts/quests_state.json (local mirror).
+        Reads scripts/quests_state.json (local mirror). Auto-creates from template if missing.
         """
         quests_path = SCRIPT_DIR / "quests_state.json"
         quest_state: Dict[str, Any] = {"completed": [], "active": [], "notes": {}}
@@ -1624,6 +1624,16 @@ class DMWorkflow:
                 quest_state = json.loads(quests_path.read_text(encoding="utf-8"))
             except Exception:
                 pass
+        else:
+            # Bootstrap from template if missing
+            template_path = SCRIPT_DIR / "quests_state.template.json"
+            if template_path.exists():
+                try:
+                    quest_state = json.loads(template_path.read_text(encoding="utf-8"))
+                    # Create the runtime file from template
+                    quests_path.write_text(json.dumps(quest_state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+                except Exception:
+                    pass  # Fallback to default if template read fails
         completed = quest_state.get("completed", []) or []
         active = quest_state.get("active", []) or []
         notes = quest_state.get("notes", {}) or {}
