@@ -82,7 +82,11 @@ def load_quests(path: Path) -> Dict[str, Any]:
             pass  # If we can't write, continue with in-memory default
         return default_data
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        # Try utf-8-sig first (handles BOM), fallback to utf-8
+        try:
+            return json.loads(path.read_text(encoding="utf-8-sig"))
+        except Exception:
+            return json.loads(path.read_text(encoding="utf-8"))
     except Exception as e:
         # Corruption recovery: try to restore from backup, then bootstrap
         print(f"WARNING: invalid quests JSON: {e}")
@@ -92,7 +96,11 @@ def load_quests(path: Path) -> Dict[str, Any]:
             backups = sorted(backup_dir.glob("quests_state.*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
             if backups:
                 try:
-                    backup_data = json.loads(backups[0].read_text(encoding="utf-8"))
+                    # Try utf-8-sig first (handles BOM), fallback to utf-8
+                    try:
+                        backup_data = json.loads(backups[0].read_text(encoding="utf-8-sig"))
+                    except Exception:
+                        backup_data = json.loads(backups[0].read_text(encoding="utf-8"))
                     # Rename corrupted file for inspection
                     corrupt_path = path.parent / f"quests_state.corrupt_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
                     try:
