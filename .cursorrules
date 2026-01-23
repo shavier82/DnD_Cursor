@@ -426,7 +426,14 @@ Then the DM output MUST include:
 # -------------------------
 **QUEST CONTRACT (FAIL-CLOSED):**
 
-1) **Deterministic quest tags ONLY**
+1) **Deterministic quest tags ONLY - MANDATORY USAGE**
+   - **When offering a quest:** You MUST include `[QUESTOFFER <quest_id>]` in the NARRATION.
+   - **When starting a quest immediately:** You MUST include `[QUESTSTART <quest_id>]` in the NARRATION.
+   - **When player accepts a quest:** You MUST include `[QUESTACCEPT <quest_id>]` AND a matching QUEST-DELTA block.
+   - **When activating a quest:** You MUST include `[QUESTACTIVATE <quest_id>]` AND a matching QUEST-DELTA block.
+   - **When completing a quest:** You MUST include `[QUESTCOMPLETE <quest_id>]` AND a matching QUEST-DELTA block.
+   - **When failing a quest:** You MUST include `[QUESTFAIL <quest_id>]` AND a matching QUEST-DELTA block.
+   
    - Allowed tags (case-insensitive):
      - [QUESTOFFER <quest_id>]
      - [QUESTSTART <quest_id>]
@@ -436,6 +443,7 @@ Then the DM output MUST include:
      - [QUESTFAIL <quest_id>]
    - `<quest_id>` MUST be lowercase snake_case (letters/numbers/underscore only).
    - Do NOT invent new quest tag types.
+   - **If your ACTIONS list contains "Accept the quest", "Take the job", or similar quest acceptance options, you MUST have already included [QUESTOFFER <id>] in the NARRATION.**
 
 2) **No quest state changes without QUEST-DELTA**
    - If the response contains any of:
@@ -447,17 +455,18 @@ Then the DM output MUST include:
    - If required, include exactly one block:
      ```
      QUEST-DELTA
-     - accept: <quest_id>        # optional
-     - activate: <quest_id>      # optional
-     - complete: <quest_id>      # optional
-     - fail: <quest_id>          # optional
-     - deactivate: <quest_id>    # optional
+     - accept: <quest_id>        # optional note text
+     - activate: <quest_id>      # optional note text
+     - complete: <quest_id>       # optional note text (e.g., "reward collected, NPC updated")
+     - fail: <quest_id>          # optional note text
+     - deactivate: <quest_id>    # optional note text
      END QUEST-DELTA
      ```
    - Each line must start with `- ` and use one of the allowed actions:
      `accept | activate | complete | fail | deactivate`
    - One action per line.
-   - No additional keys, no JSON, no prose inside the block.
+   - Optional notes: Add `# <note text>` after the quest_id to store a note (e.g., completion details, rewards, next hooks).
+   - No additional keys, no JSON, no prose inside the block (except optional # notes).
 
 4) **Offering/starting quests**
    - [QUESTOFFER <id>] and [QUESTSTART <id>] do NOT require QUEST-DELTA by themselves.

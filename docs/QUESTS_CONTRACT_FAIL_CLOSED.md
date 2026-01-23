@@ -17,17 +17,18 @@ Any state-change tag **requires** a matching `QUEST-DELTA` block. Offering a com
 
 ```
 QUEST-DELTA
-- complete: <quest_id>
-- fail: <quest_id>
-- accept: <quest_id>
-- activate: <quest_id>
-- deactivate: <quest_id>
+- complete: <quest_id>        # optional note (e.g., "reward collected, NPC updated")
+- fail: <quest_id>            # optional note
+- accept: <quest_id>          # optional note
+- activate: <quest_id>        # optional note
+- deactivate: <quest_id>      # optional note
 END QUEST-DELTA
 ```
 
 - One line per change: `- <action>: <quest_id>`
 - Actions: `complete`, `fail`, `accept`, `activate`, `deactivate`
 - `quest_id`: `[a-zA-Z0-9_\-]+` (e.g. `q_t18_cleansing_chamber`)
+- Optional notes: Add `# <note text>` after quest_id to store completion details, rewards, next hooks, etc.
 
 ---
 
@@ -48,6 +49,22 @@ NARRATION: The townmaster asks you to clear the chamber again. [QUESTSTART q_t18
 → Quest guard blocks: `q_t18_cleansing_chamber` is in `completed`.
 
 ---
+
+## Enforcement
+
+**Two-layer system:**
+
+1. **Instruction layer** (`.cursorrules`):
+   - Explicit rules requiring tag usage when offering/accepting quests
+   - Mandates `[QUESTOFFER <id>]` when presenting quest offers
+   - Mandates `[QUESTACCEPT <id>]` + QUEST-DELTA when player accepts
+
+2. **Enforcement layer** (`quest_guard.py`):
+   - Blocks re-offering completed quests (when tags present)
+   - Blocks state changes without QUEST-DELTA (when tags present)
+   - **NEW:** Blocks quest offers in ACTIONS without `[QUESTOFFER/QUESTSTART]` tags
+   - Detects quest acceptance patterns in ACTIONS: "Accept the quest", "Take the job", etc.
+   - Requires deterministic tags when quest-related choices appear
 
 ## Runtime
 

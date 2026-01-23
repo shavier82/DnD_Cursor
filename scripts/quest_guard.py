@@ -49,7 +49,7 @@ QUEST_ACTIVATE_TAG = re.compile(r"\[QUESTACTIVATE\s+([a-zA-Z0-9_\-]+)\s*\]", re.
 
 DELTA_BLOCK_PAT = re.compile(r"QUEST-DELTA\s*(?P<body>.*?)\s*END QUEST-DELTA", re.IGNORECASE | re.DOTALL)
 DELTA_LINE_PAT = re.compile(
-    r"^\s*-\s*(?P<action>complete|fail|accept|activate|deactivate)\s*:\s*(?P<quest_id>[a-zA-Z0-9_\-]+)\s*$",
+    r"^\s*-\s*(?P<action>complete|fail|accept|activate|deactivate)\s*:\s*(?P<quest_id>[a-zA-Z0-9_\-]+)\s*(?:#\s*(?P<note>.*?))?\s*$",
     re.IGNORECASE,
 )
 
@@ -115,6 +115,27 @@ def main():
 
     completed = set(q.lower() for q in quests.get("completed", []))
     violations: List[str] = []
+
+    # 0) ACTIONS-based quest offer detection: if ACTIONS contains quest acceptance options, require [QUESTOFFER/QUESTSTART]
+    # This enforces deterministic tag usage when quest offers are present in structured output.
+    # Rationale: If the DM presents a quest choice in ACTIONS, they must have already tagged it in NARRATION.
+    actions_section = re.search(r"ACTIONS?:?\s*\n((?:[0-9]+\.\s*.*\n?)+)", text, re.IGNORECASE | re.MULTILINE)
+    if actions_section:
+        actions_text = actions_section.group(1).lower()
+        # Detect quest acceptance patterns in ACTIONS (deterministic, not fuzzy story text)
+        quest_accept_patterns = [
+            r"accept\s+(?:the\s+)?quest",
+            r"take\s+(?:the\s+)?(?:job|quest|mission)",
+            r"accept\s+(?:the\s+)?(?:job|mission)",
+            r"agree\s+to\s+(?:help|the\s+quest)",
+        ]
+        has_quest_accept_action = any(re.search(pattern, actions_text, re.IGNORECASE) for pattern in quest_accept_patterns)
+        
+        if has_quest_accept_action:
+            # If ACTIONS contains quest acceptance, require [QUESTOFFER] or [QUESTSTART] tag
+            start_ids = extract_tag_ids(text, QUEST_START_TAG)
+            if not start_ids:
+                violations.append("BLOCKED: ACTIONS contains quest acceptance option but missing [QUESTOFFER <id>] or [QUESTSTART <id>] tag in NARRATION")
 
     # 1) [QUESTSTART id] / [QUESTOFFER id]: block if id in completed
     start_ids = extract_tag_ids(text, QUEST_START_TAG)
