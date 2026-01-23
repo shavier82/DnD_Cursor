@@ -13,6 +13,7 @@ Usage:
 
 import argparse
 import json
+import os
 import re
 import sys
 import shutil
@@ -58,14 +59,75 @@ def load_quests(path: Path) -> Dict[str, Any]:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception as e:
-        print(f"ERROR: invalid quests JSON: {e}", file=sys.stderr)
-        sys.exit(1)
+        # Corruption recovery: try to restore from backup, then bootstrap
+        print(f"WARNING: invalid quests JSON: {e}", file=sys.stderr)
+        # Try to find and restore from most recent backup
+        backup_dir = path.parent / "backups" / "quests_state"
+        if backup_dir.exists():
+            backups = sorted(backup_dir.glob("quests_state.*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+            if backups:
+                try:
+                    backup_data = json.loads(backups[0].read_text(encoding="utf-8"))
+                    # Rename corrupted file for inspection
+                    corrupt_path = path.parent / f"quests_state.corrupt_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                    try:
+                        shutil.move(str(path), str(corrupt_path))
+                    except Exception:
+                        pass  # If move fails, continue anyway
+                    # Restore from backup
+                    save_quests(path, backup_data)
+                    print(f"INFO: Restored quests_state.json from backup: {backups[0].name}", file=sys.stderr)
+                    return backup_data
+                except Exception as restore_err:
+                    print(f"WARNING: Failed to restore from backup: {restore_err}", file=sys.stderr)
+        # If backup restore failed, bootstrap from template
+        template_path = path.parent / "quests_state.template.json"
+        if template_path.exists():
+            try:
+                try:
+                    template_data = json.loads(template_path.read_text(encoding="utf-8-sig"))
+                except Exception:
+                    template_data = json.loads(template_path.read_text(encoding="utf-8"))
+                # Rename corrupted file if it still exists
+                if path.exists():
+                    corrupt_path = path.parent / f"quests_state.corrupt_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                    try:
+                        shutil.move(str(path), str(corrupt_path))
+                    except Exception:
+                        pass
+                save_quests(path, template_data)
+                print(f"INFO: Bootstrapped quests_state.json from template after corruption", file=sys.stderr)
+                return template_data
+            except Exception as bootstrap_err:
+                print(f"WARNING: Failed to bootstrap from template: {bootstrap_err}", file=sys.stderr)
+        # Final fallback: default structure
+        default_data = {"completed": [], "active": [], "notes": {}}
+        if path.exists():
+            corrupt_path = path.parent / f"quests_state.corrupt_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            try:
+                shutil.move(str(path), str(corrupt_path))
+            except Exception:
+                pass
+        save_quests(path, default_data)
+        print(f"WARNING: Using default quest state after corruption recovery failed", file=sys.stderr)
+        return default_data
 
 def save_quests(path: Path, data: Dict[str, Any]) -> None:
-    """Save quests state file."""
+    """Save quests state file using atomic write (prevents corruption on partial writes)."""
     try:
-        path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        # Atomic write: write to temp file, then replace atomically
+        tmp_path = path.with_suffix(path.suffix + ".tmp")
+        tmp_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        # Atomic replace (works on Windows too)
+        os.replace(tmp_path, path)
     except Exception as e:
+        # Clean up temp file if it exists
+        tmp_path = path.with_suffix(path.suffix + ".tmp")
+        if tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except Exception:
+                pass
         print(f"ERROR: failed to save quests file: {e}", file=sys.stderr)
         sys.exit(1)
 

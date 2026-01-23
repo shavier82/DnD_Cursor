@@ -24,8 +24,11 @@ Reads scripts/quests_state.json (local mirror) every run.
 
 import argparse
 import json
+import os
 import re
+import shutil
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Set
 
@@ -81,8 +84,57 @@ def load_quests(path: Path) -> Dict[str, Any]:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception as e:
-        print(f"ERROR: invalid quests JSON: {e}")
-        sys.exit(1)
+        # Corruption recovery: try to restore from backup, then bootstrap
+        print(f"WARNING: invalid quests JSON: {e}")
+        # Try to find and restore from most recent backup
+        backup_dir = path.parent / "backups" / "quests_state"
+        if backup_dir.exists():
+            backups = sorted(backup_dir.glob("quests_state.*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+            if backups:
+                try:
+                    backup_data = json.loads(backups[0].read_text(encoding="utf-8"))
+                    # Rename corrupted file for inspection
+                    corrupt_path = path.parent / f"quests_state.corrupt_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                    try:
+                        shutil.move(str(path), str(corrupt_path))
+                    except Exception:
+                        pass  # If move fails, continue anyway
+                    # Restore from backup (atomic write)
+                    tmp_path = path.with_suffix(path.suffix + ".tmp")
+                    tmp_path.write_text(json.dumps(backup_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+                    os.replace(tmp_path, path)
+                    print(f"INFO: Restored quests_state.json from backup: {backups[0].name}")
+                    return backup_data
+                except Exception as restore_err:
+                    print(f"WARNING: Failed to restore from backup: {restore_err}")
+        # If backup restore failed, bootstrap from template
+        template_path = path.parent / "quests_state.template.json"
+        if template_path.exists():
+            try:
+                try:
+                    template_data = json.loads(template_path.read_text(encoding="utf-8-sig"))
+                except Exception:
+                    template_data = json.loads(template_path.read_text(encoding="utf-8"))
+                # Rename corrupted file if it still exists
+                if path.exists():
+                    corrupt_path = path.parent / f"quests_state.corrupt_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                    try:
+                        shutil.move(str(path), str(corrupt_path))
+                    except Exception:
+                        pass
+                # Atomic write
+                tmp_path = path.with_suffix(path.suffix + ".tmp")
+                tmp_path.write_text(json.dumps(template_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+                os.replace(tmp_path, path)
+                print(f"INFO: Bootstrapped quests_state.json from template after corruption")
+                return template_data
+            except Exception as bootstrap_err:
+                print(f"WARNING: Failed to bootstrap from template: {bootstrap_err}")
+        # Final fallback: default structure (in-memory only, don't write if we're in guard)
+        # Guard should fail-closed, so return default but warn
+        default_data = {"completed": [], "active": [], "notes": {}}
+        print(f"WARNING: Using default quest state after corruption recovery failed (guard will use empty state)")
+        return default_data
 
 
 def extract_tag_ids(text: str, pattern: re.Pattern) -> Set[str]:
