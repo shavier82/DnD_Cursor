@@ -61,7 +61,6 @@ def load_quests(path: Path) -> Dict[str, Any]:
         template_path = path.parent / "quests_state.template.json"
         if template_path.exists():
             try:
-                import json
                 # Try utf-8-sig first (handles BOM), fallback to utf-8
                 try:
                     template_data = json.loads(template_path.read_text(encoding="utf-8-sig"))
