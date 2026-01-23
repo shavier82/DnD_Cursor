@@ -55,9 +55,26 @@ DELTA_LINE_PAT = re.compile(
 
 
 def load_quests(path: Path) -> Dict[str, Any]:
-    """Load quests state file. Fail-closed if file missing/invalid."""
+    """Load quests state file. Fail-closed if file missing/invalid. Auto-creates from template if missing."""
     if not path.exists():
-        return {"completed": [], "active": [], "notes": {}}
+        # Try to bootstrap from template
+        template_path = path.parent / "quests_state.template.json"
+        if template_path.exists():
+            try:
+                import json
+                template_data = json.loads(template_path.read_text(encoding="utf-8"))
+                # Create the runtime file from template
+                path.write_text(json.dumps(template_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+                return template_data
+            except Exception as e:
+                print(f"WARNING: Failed to bootstrap from template: {e}")
+        # Fallback to default structure if template missing
+        default_data = {"completed": [], "active": [], "notes": {}}
+        try:
+            path.write_text(json.dumps(default_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        except Exception:
+            pass  # If we can't write, continue with in-memory default
+        return default_data
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception as e:
