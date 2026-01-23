@@ -30,7 +30,7 @@ DEFAULT_QUESTS_FILE = ROOT_DIR / "scripts" / "quests_state.json"
 
 DELTA_BLOCK_PAT = re.compile(r"QUEST-DELTA\s*(?P<body>.*?)\s*END QUEST-DELTA", re.IGNORECASE | re.DOTALL)
 DELTA_LINE_PAT = re.compile(
-    r"^\s*-\s*(?P<action>complete|fail|accept|activate|deactivate)\s*:\s*(?P<quest_id>[a-zA-Z0-9_\-]+)\s*$",
+    r"^\s*-\s*(?P<action>complete|fail|accept|activate|deactivate)\s*:\s*(?P<quest_id>[a-zA-Z0-9_\-]+)\s*(?:#\s*(?P<note>.*?))?\s*$",
     re.IGNORECASE,
 )
 
@@ -67,16 +67,19 @@ def create_backup(path: Path) -> Path:
     shutil.copy2(path, backup_path)
     return backup_path
 
-def parse_delta(text: str) -> Dict[str, str]:
+def parse_delta(text: str) -> tuple[Dict[str, str], Dict[str, str]]:
     """Parse QUEST-DELTA block from text.
     
-    Returns dict mapping quest_id -> action (complete, fail, accept, activate, deactivate).
+    Returns tuple of (deltas, notes):
+    - deltas: dict mapping quest_id -> action (complete, fail, accept, activate, deactivate)
+    - notes: dict mapping quest_id -> note text (optional, only if # note provided)
     """
     m = DELTA_BLOCK_PAT.search(text)
     if not m:
-        return {}
+        return {}, {}
     body = m.group("body")
     deltas: Dict[str, str] = {}
+    notes: Dict[str, str] = {}
     for line in body.splitlines():
         line = line.rstrip()
         if not line.strip():
@@ -87,10 +90,13 @@ def parse_delta(text: str) -> Dict[str, str]:
             continue
         action = m2.group("action").lower()
         quest_id = m2.group("quest_id").lower().strip()
+        note = m2.group("note")
         deltas[quest_id] = action
-    return deltas
+        if note:
+            notes[quest_id] = note.strip()
+    return deltas, notes
 
-def apply_delta(quests: Dict[str, Any], deltas: Dict[str, str], dry_run: bool = False) -> Dict[str, Any]:
+def apply_delta(quests: Dict[str, Any], deltas: Dict[str, str], notes: Dict[str, str], dry_run: bool = False) -> Dict[str, Any]:
     """Apply deltas to quests state.
     
     Returns updated quests dict.
@@ -123,6 +129,17 @@ def apply_delta(quests: Dict[str, Any], deltas: Dict[str, str], dry_run: bool = 
                 updated["completed"].append(quest_id_normalized)
                 if dry_run:
                     print(f"DRY-RUN: Quest '{quest_id_normalized}' added to completed")
+            # Add optional note if provided (only if different from existing)
+            if quest_id_normalized in notes:
+                if "notes" not in updated:
+                    updated["notes"] = {}
+                existing = updated["notes"].get(quest_id_normalized, "")
+                new_note = notes[quest_id_normalized]
+                # Only append if note is different and not already present
+                if existing and new_note not in existing:
+                    updated["notes"][quest_id_normalized] = f"{existing}; {new_note}"
+                elif not existing:
+                    updated["notes"][quest_id_normalized] = new_note
         
         elif action == "fail":
             # Move from active to completed (marked as failed), or add to completed
@@ -134,10 +151,16 @@ def apply_delta(quests: Dict[str, Any], deltas: Dict[str, str], dry_run: bool = 
                 updated["completed"].append(quest_id_normalized)
                 if dry_run:
                     print(f"DRY-RUN: Quest '{quest_id_normalized}' added to completed (failed)")
-            # Add note about failure
+            # Add note about failure (always) + optional note if provided
             if "notes" not in updated:
                 updated["notes"] = {}
-            updated["notes"][quest_id_normalized] = updated["notes"].get(quest_id_normalized, "") + " (Failed)"
+            existing = updated["notes"].get(quest_id_normalized, "")
+            fail_marker = " (Failed)"
+            if quest_id_normalized in notes:
+                custom_note = notes[quest_id_normalized]
+                updated["notes"][quest_id_normalized] = f"{existing}{fail_marker}; {custom_note}" if existing else f"{fail_marker}; {custom_note}"
+            else:
+                updated["notes"][quest_id_normalized] = existing + fail_marker if existing else fail_marker
         
         elif action == "accept":
             # Add to active if not already there
@@ -145,6 +168,17 @@ def apply_delta(quests: Dict[str, Any], deltas: Dict[str, str], dry_run: bool = 
                 updated["active"].append(quest_id_normalized)
                 if dry_run:
                     print(f"DRY-RUN: Quest '{quest_id_normalized}' added to active")
+            # Add optional note if provided (only if different from existing)
+            if quest_id_normalized in notes:
+                if "notes" not in updated:
+                    updated["notes"] = {}
+                existing = updated["notes"].get(quest_id_normalized, "")
+                new_note = notes[quest_id_normalized]
+                # Only append if note is different and not already present
+                if existing and new_note not in existing:
+                    updated["notes"][quest_id_normalized] = f"{existing}; {new_note}"
+                elif not existing:
+                    updated["notes"][quest_id_normalized] = new_note
         
         elif action == "activate":
             # Add to active if not already there
@@ -152,13 +186,35 @@ def apply_delta(quests: Dict[str, Any], deltas: Dict[str, str], dry_run: bool = 
                 updated["active"].append(quest_id_normalized)
                 if dry_run:
                     print(f"DRY-RUN: Quest '{quest_id_normalized}' added to active")
+            # Add optional note if provided (only if different from existing)
+            if quest_id_normalized in notes:
+                if "notes" not in updated:
+                    updated["notes"] = {}
+                existing = updated["notes"].get(quest_id_normalized, "")
+                new_note = notes[quest_id_normalized]
+                # Only append if note is different and not already present
+                if existing and new_note not in existing:
+                    updated["notes"][quest_id_normalized] = f"{existing}; {new_note}"
+                elif not existing:
+                    updated["notes"][quest_id_normalized] = new_note
         
         elif action == "deactivate":
             # Remove from active
             if quest_id_lower in active:
                 updated["active"] = [q for q in updated["active"] if q.lower() != quest_id_lower]
                 if dry_run:
-                    print(f"DRY-RUN: Quest '{quest_id}' removed from active")
+                    print(f"DRY-RUN: Quest '{quest_id_normalized}' removed from active")
+            # Add optional note if provided (only if different from existing)
+            if quest_id_normalized in notes:
+                if "notes" not in updated:
+                    updated["notes"] = {}
+                existing = updated["notes"].get(quest_id_normalized, "")
+                new_note = notes[quest_id_normalized]
+                # Only append if note is different and not already present
+                if existing and new_note not in existing:
+                    updated["notes"][quest_id_normalized] = f"{existing}; {new_note}"
+                elif not existing:
+                    updated["notes"][quest_id_normalized] = new_note
     
     return updated
 
@@ -181,7 +237,7 @@ def main():
     quests_path = Path(args.quests)
     quests = load_quests(quests_path)
     
-    deltas = parse_delta(text)
+    deltas, notes = parse_delta(text)
     
     if not deltas:
         # No QUEST-DELTA block - nothing to apply
@@ -190,8 +246,8 @@ def main():
             print("DRY-RUN: No QUEST-DELTA block found, nothing to apply")
         sys.exit(0)
     
-    # Apply deltas
-    updated = apply_delta(quests, deltas, dry_run=args.dry_run)
+    # Apply deltas (with optional notes)
+    updated = apply_delta(quests, deltas, notes, dry_run=args.dry_run)
     
     if args.dry_run:
         print("\nDRY-RUN: Changes previewed above. Run without --dry-run to apply.")

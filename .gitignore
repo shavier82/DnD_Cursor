@@ -211,6 +211,7 @@ yarn-error.log*
 .preflight_state.json
 scripts/backups/
 scripts/*.bak_*
+scripts/quests_state.json
 session_logs/
 *.log
 
