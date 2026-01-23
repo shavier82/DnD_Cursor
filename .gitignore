@@ -43,6 +43,18 @@ C:/DnD/Campaigns/
 **/Campaigns/Phandelver/
 
 # =============================================================================
+# NON-CAMPAIGN PERSONAL DOCS
+# =============================================================================
+# Personal/non-campaign documentation files
+FREELANCE_*.md
+GITHUB_*.md
+NEXT_STEPS_*.md
+PORTFOLIO_*.md
+blog/
+examples/
+outreach/
+
+# =============================================================================
 # SOURCEBOOKS / PDFS
 # =============================================================================
 # Never track sourcebooks anywhere
