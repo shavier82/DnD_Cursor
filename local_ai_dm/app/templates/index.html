@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Local AI Dungeon Master</title>
+  <link rel="stylesheet" href="/static/css/app.css" />
+</head>
+<body>
+  <main class="home">
+    <h1>Local AI Dungeon Master</h1>
+    <p class="muted">Milestone 1 · v{{ version }}</p>
+    <section class="panel">
+      <h2>Ollama</h2>
+      <p id="ollama-status">Checking…</p>
+    </section>
+    <section class="panel">
+      <h2>Create Campaign</h2>
+      <form id="create-campaign">
+        <label>Name <input name="name" required placeholder="Lost Mine of Phandelver" /></label>
+        <label>Starting location <input name="current_location" placeholder="Neverwinter tavern" /></label>
+        <button type="submit">Create</button>
+      </form>
+    </section>
+    <section class="panel">
+      <h2>Campaigns</h2>
+      <ul id="campaign-list"></ul>
+    </section>
+  </main>
+  <script src="/static/js/home.js"></script>
+</body>
+</html>

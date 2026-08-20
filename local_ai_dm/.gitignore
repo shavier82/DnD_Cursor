@@ -1,0 +1,28 @@
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Runtime data
+data/campaigns/*.db
+data/campaigns/*.db-*
+data/chroma/*
+!data/chroma/.gitkeep
+data/sourcebooks/*
+!data/sourcebooks/.gitkeep
+!data/sourcebooks/README.md
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+.DS_Store
